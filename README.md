@@ -97,3 +97,15 @@ Every run writes these files to `ui5-blueprint-audit-report/`:
 - `report_<locale>.md` – one Markdown file per active language (e.g. `report_de.md`, `report_en.md`)
 - `report.xml` – JUnit, always English (one testcase per rule, project = testsuite) — independent of `languages`, for stable CI dashboards
 - `report.html` – a single file with all active languages embedded and a language switcher
+
+## NPMJS
+
+Dependency chain: types → plugin-core → ui5-blueprint-audit. Since these are exact pinned versions (not workspace:*), publish in this order, so each dependency is live on the registry before the package that needs it:
+
+Run from repo root:
+
+```sh
+npm publish -w @abap/ui5-blueprint-audit-types
+npm publish -w @abap/ui5-blueprint-audit-plugin-core
+npm publish -w @abap/ui5-blueprint-audit
+```
