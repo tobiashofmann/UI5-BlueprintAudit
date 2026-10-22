@@ -1,0 +1,71 @@
+{
+  "_version": "1.21.0",
+  "sap.app": {
+    "id": "de.itsfullofstars.gr.test.flp.plugin",
+    "type": "component",
+    "i18n": "i18n/i18n.properties",
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "applicationVersion": {
+      "version": "${version}"
+    },
+    "sourceTemplate": {
+      "id": "generator-ui5-ts-flp-plugin",
+      "version": "1.0.0"
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "Shell-plugin": {
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          },
+          "semanticObject": "Shell",
+          "action": "plugin",
+          "hideLauncher": true
+        }
+      }
+    }
+  },
+  "sap.flp": {
+    "type": "plugin"
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {},
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "dependencies": {
+      "minUI5Version": "1.153.0",
+      "libs": {
+        "sap.ui.core": {},
+        "sap.m": {},
+        "sap.ushell": {}
+      }
+    },
+    "handleValidation": true,
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "de.itsfullofstars.gr.test.flp.plugin.i18n.i18n",
+          "supportedLocales": [
+            "en",
+            "de"
+          ],
+          "fallbackLocale": "en",
+          "async": true
+        }
+      }
+    }
+  }
+}

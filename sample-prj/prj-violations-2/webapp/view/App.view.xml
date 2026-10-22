@@ -1,0 +1,8 @@
+<mvc:View
+    controllerName="de.itsfullofstars.gr.test.viol2.prjviolations2.controller.App"
+    displayBlock="true"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+>
+    <App id="app" />
+</mvc:View>

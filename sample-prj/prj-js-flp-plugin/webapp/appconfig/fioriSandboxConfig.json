@@ -1,0 +1,9 @@
+{
+  "applications": {},
+  "bootstrapPlugins": {
+    "flpplugintest": {
+      "component": "de.itsfullofstars.gr.test.flp.plugin",
+      "url": "../../../../../"
+    }
+  }
+}

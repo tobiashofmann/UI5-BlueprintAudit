@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://sap.github.io/ui5-tooling/schema/ui5.yaml.json
+
+specVersion: "4.0"
+metadata:
+  name: de.itsfullofstars.gr.test.valid.prjvalid
+type: application
+server:
+  customMiddleware:
+    - name: sap-fe-mockserver
+      afterMiddleware: compression
+      configuration:
+        mountPath: /sap/opu/odata4/northwind/
+        services:
+          - urlPath: /
+            metadataPath: ./webapp/localService/metadata.xml
+            mockdataPath: ./webapp/localService/data
+            generateMockData: true

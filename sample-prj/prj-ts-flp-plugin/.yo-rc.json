@@ -1,0 +1,24 @@
+{
+  "generator-ui5-ts-flp-plugin": {
+    "namespace": "de.itsfullofstars.gr.test.flp.plugin",
+    "pluginType": "headerButton",
+    "frameworkVersion": "1.153.0",
+    "author": "Tobias Hofmann",
+    "tstypes": "@sapui5/types",
+    "tstypesVersion": "1.153.0",
+    "pluginId": "de.itsfullofstars.gr.test.flp.plugin",
+    "pluginURI": "de/itsfullofstars/gr/test/flp/plugin",
+    "cdnDomain": "ui5.sap.com",
+    "defaultTheme": "sap_horizon",
+    "gte1_98_0": true,
+    "gte1_104_0": true,
+    "gte1_115_0": true,
+    "gte1_120_0": true,
+    "gte1_142_0": true,
+    "lt1_124_0": false,
+    "isHeaderButton": true,
+    "isUserMenuAction": false,
+    "isBackgroundService": false,
+    "setupCompleted": true
+  }
+}

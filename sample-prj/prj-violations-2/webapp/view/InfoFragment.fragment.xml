@@ -1,0 +1,6 @@
+<VBox
+    xmlns="sap.m"
+    id="infoBox"
+>
+    <Text text="Info" />
+</VBox>

@@ -1,0 +1,10 @@
+<mvc:View
+    controllerName="de.itsfullofstars.gr.test.valid.prjvalid.controller.View1"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+>
+    <Page
+        id="page"
+        title="{i18n>title}"
+    />
+</mvc:View>

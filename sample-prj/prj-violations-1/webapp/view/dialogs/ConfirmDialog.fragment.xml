@@ -1,0 +1,9 @@
+<Dialog
+    xmlns="sap.m"
+    id="confirmDialog"
+    title="Confirm"
+>
+    <content>
+        <Text text="Are you sure?" />
+    </content>
+</Dialog>

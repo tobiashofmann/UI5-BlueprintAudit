@@ -1,0 +1,135 @@
+{
+  "_version": "1.89.0",
+  "sap.app": {
+    "id": "de.itsfullofstars.gr.test.viol.prjviolations1",
+    "type": "application",
+    "i18n": {
+      "bundleUrl": "i18n/i18n.properties",
+      "supportedLocales": ["en", "fr"],
+      "fallbackLocale": "en"
+    },
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "manually-authored-blueprintaudit-fixture",
+      "version": "1.0.0"
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "sample-display": {
+          "semanticObject": "sample",
+          "action": "display",
+          "title": "{{sample-display.flpTitle}}",
+          "subTitle": "{{sample-display.flpSubtitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    },
+    "dataSources": {
+      "northwind": {
+        "uri": "https://services.odata.org/v4/northwind/northwind.svc/",
+        "type": "OData",
+        "settings": {
+          "odataVersion": "4.0",
+          "localUri": "localService/metadata.xml"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": false,
+      "tablet": true,
+      "phone": false
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.152.1",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": false,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "de.itsfullofstars.gr.test.viol.prjviolations1.i18n.i18n",
+          "supportedLocales": ["en", "fr"],
+          "fallbackLocale": "en"
+        }
+      },
+      "": {
+        "dataSource": "northwind",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true
+        }
+      }
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "transition": "slide",
+        "type": "View",
+        "viewType": "XML",
+        "path": "de.itsfullofstars.gr.test.viol.prjviolations1.view",
+        "async": true,
+        "viewPath": "de.itsfullofstars.gr.test.viol.prjviolations1.view"
+      },
+      "routes": [
+        {
+          "name": "RouteView1",
+          "pattern": ":?query:",
+          "target": ["TargetView1"]
+        },
+        {
+          "name": "RouteDetail",
+          "pattern": "detail",
+          "target": ["TargetDetail"]
+        }
+      ],
+      "targets": {
+        "TargetView1": {
+          "id": "View1",
+          "name": "View1"
+        },
+        "TargetDetail": {
+          "id": "Detail",
+          "name": "Detail"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "de.itsfullofstars.gr.test.viol.prjviolations1.view.App",
+      "type": "XML",
+      "id": "App",
+      "async": true
+    }
+  }
+}

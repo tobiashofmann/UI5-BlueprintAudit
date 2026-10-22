@@ -1,0 +1,7 @@
+projectType: fs
+rules:
+  # Default ist "off" — hier bewusst eingeschaltet, um die zehn Regeln abzudecken, die in
+  # keinem anderen sample-prj-Projekt verletzt werden (siehe README.md).
+  odata-mockdata:
+    - error
+    - mode: any

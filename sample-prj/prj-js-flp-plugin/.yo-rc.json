@@ -1,0 +1,19 @@
+{
+  "generator-ui5-flp-plugin": {
+    "projectname": "flpplugintest",
+    "namespace": "de.itsfullofstars.gr.test.flp.plugin",
+    "framework": "SAPUI5",
+    "frameworkVersion": "1.150.0",
+    "features": [],
+    "author": "Tobias Hofmann",
+    "initrepo": false,
+    "appId": "de.itsfullofstars.gr.test.flp.plugin",
+    "appURI": "de/itsfullofstars/gr/test/flp/plugin",
+    "cdnDomain": "ui5.sap.com",
+    "defaultTheme": "sap_horizon",
+    "qunitCoverageFile": "qunit-coverage-istanbul.js",
+    "gte1_98_0": true,
+    "gte1_104_0": true,
+    "setupCompleted": true
+  }
+}
