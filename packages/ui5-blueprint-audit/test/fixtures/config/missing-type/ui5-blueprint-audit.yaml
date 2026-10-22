@@ -1,0 +1,3 @@
+# Kein projectType gesetzt und kein --type auf der Kommandozeile -> Fehlerfall.
+rules:
+  namespace: error

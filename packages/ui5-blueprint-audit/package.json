@@ -1,0 +1,57 @@
+{
+  "name": "@abap/ui5-blueprint-audit",
+  "version": "0.1.0",
+  "description": "CLI zur Prüfung von UI5-Projekten gegen Unternehmensvorgaben",
+  "type": "module",
+  "author": {
+    "name": "Tobias Hofmann",
+    "url": "https://www.itsfullofstars.de"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/tobiashofmann/UI5-BlueprintAudit",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tobiashofmann/UI5-BlueprintAudit.git",
+    "directory": "packages/ui5-blueprint-audit"
+  },
+  "bugs": {
+    "url": "https://github.com/tobiashofmann/UI5-BlueprintAudit/issues"
+  },
+  "keywords": [
+    "ui5",
+    "sapui5",
+    "openui5",
+    "fiori",
+    "cli",
+    "linter",
+    "audit"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "ui5-blueprint-audit": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --build"
+  },
+  "dependencies": {
+    "@abap/ui5-blueprint-audit-plugin-core": "0.1.0",
+    "@abap/ui5-blueprint-audit-types": "0.1.0",
+    "yaml": "^2.5.0"
+  }
+}

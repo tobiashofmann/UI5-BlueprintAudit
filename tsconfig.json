@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/ui5-blueprint-audit-types" },
+    { "path": "packages/ui5-blueprint-audit-plugin-core" },
+    { "path": "packages/ui5-blueprint-audit" }
+  ]
+}

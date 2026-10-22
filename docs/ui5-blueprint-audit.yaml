@@ -1,0 +1,164 @@
+# ui5-blueprint-audit.yaml
+#
+# Full reference configuration: contains all 33 rules from the catalog
+# (docs/ui5-blueprint-audit-rules.md), each with its default severity and all
+# available parameters (set to their default value). Just copy and adapt for
+# your own project — lines you don't need can be deleted, since the config
+# only overrides what's explicitly specified.
+
+# Required, no auto-detection. fs = Freestyle, fe = Fiori Elements, lib = Library.
+# Can also be overridden via CLI: --type fs|fe|lib
+projectType: fs
+
+# Output languages for the reports. Default, if omitted: [de, en].
+# Available: de, en, pt-BR (additional languages via plugin add-on, see README.md).
+languages: [de, en]
+
+# Local files (./ ../ /) or npm packages, see README.md/CLAUDE.md "Plugins".
+plugins: []
+
+rules:
+  # --- Technology ---
+
+  typescript: # FS, LIB
+    - error
+    - allowJs: [] # glob patterns for allowed .js files (e.g. polyfills)
+
+  xml-views: error # FS, FE, LIB (for LIB only if the library contains UI5 controls) — no parameters
+
+  no-custom-controls: # FS, FE
+    - error
+    - allow: [] # names of control classes that are allowed
+
+  no-custom-css: # FS, FE
+    - error
+    - allow: [] # glob patterns for allowed CSS files
+
+  # --- Structure ---
+
+  controller-matches-view: # FS
+    - error
+    - caseSensitive: false
+
+  folder-structure: # FS
+    - error
+    - folders: [controller, view, model] # required folders under webapp
+      viewPath: webapp/view
+      controllerPath: webapp/controller
+
+  fragments-folder: # FS
+    - error
+    - basePath: webapp/view/fragments
+      dialogRoots: [Dialog, Popover]
+
+  dialogs-folder: # FS
+    - error
+    - basePath: webapp/view/dialogs
+      dialogRoots: [Dialog, Popover]
+
+  # --- Data ---
+
+  odata-service: # FS, FE
+    - error
+    - min: 1 # max is unlimited by default, e.g. additionally set "max: 3"
+
+  odata-metadata-local: # FS, FE
+    - error
+    - basePath: webapp/localService
+
+  odata-mockdata: off # FS, FE — off by default, to enable e.g.:
+  # odata-mockdata:
+  #   - warn
+  #   - mode: any # any | one-entity | all-entities
+  #     dataPath: webapp/localService/data
+
+  non-odata-json: error # FS — no parameters
+
+  mockserver-config: # FS, FE
+    - warn
+    - fileName: ui5-mockserver.yaml
+
+  # --- Configuration ---
+
+  theme: # FS
+    - error
+    - themes: [sap_horizon]
+
+  cache-buster: error # FS — no parameters
+
+  device-types: # FS, FE
+    - error
+    - desktop: true
+      tablet: true
+      phone: true
+
+  flex-enabled: # FS, FE
+    - warn
+    - value: true
+
+  content-densities: # FS, FE
+    - error
+    - compact: true
+      cozy: true
+
+  framework: # FS, FE, LIB
+    - error
+    - name: SAPUI5 # SAPUI5 or OpenUI5
+
+  ui5-version: # FS, FE, LIB
+    - error
+    - min: "1.152" # keep this up to date regularly; max optional, e.g. "max: \"1.200\""
+
+  flp-config: error # FS, FE — no parameters
+
+  deploy-config: # FS, FE
+    - error
+    - fileName: ui5-deploy.yaml
+
+  app-title-description: error # FS, FE — no parameters
+
+  app-icons: # FS, FE
+    - warn
+    - requiredIcons: [icon, favIcon]
+
+  app-version: # FS, FE, LIB
+    - warn
+    - defaultValue: "0.0.1" # for LIB internally "1.0.0" unless set explicitly
+
+  # --- Namespace ---
+
+  namespace: # FS, FE, LIB
+    - error
+    - value: de.itsfullofstars
+
+  consistent-namespace: error # FS, FE, LIB — no parameters
+
+  # --- i18n ---
+
+  i18n-used: # FS, FE, LIB
+    - error
+    - basePath: webapp/i18n # for LIB automatically the namespace folder under src/
+
+  i18n-languages: # FS, FE, LIB
+    - error
+    - languages: [de, en]
+      strict: false
+      basePath: webapp/i18n # for LIB automatically the namespace folder under src/
+
+  i18n-fallback: # FS, FE (not LIB, see catalog "Besonderheiten bei Libraries")
+    - warn
+    - value: en
+
+  # --- Tests ---
+
+  qunit-opa-tests: # FS, FE, LIB
+    - warn
+    - basePath: webapp/test # for LIB automatically "test"
+
+  wdi5-tests: # FS
+    - warn
+    - configFile: wdio.conf.js # .ts is also accepted
+
+  playwright-tests: # FS, FE
+    - warn
+    - configFile: playwright.config.ts # .js is also accepted

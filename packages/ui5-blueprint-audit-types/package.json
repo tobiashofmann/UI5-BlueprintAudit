@@ -1,0 +1,48 @@
+{
+  "name": "@abap/ui5-blueprint-audit-types",
+  "version": "0.1.0",
+  "description": "Typen für UI5 BlueprintAudit Plugin-Autoren",
+  "type": "module",
+  "author": {
+    "name": "Tobias Hofmann",
+    "url": "https://www.itsfullofstars.de"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/tobiashofmann/UI5-BlueprintAudit",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tobiashofmann/UI5-BlueprintAudit.git",
+    "directory": "packages/ui5-blueprint-audit-types"
+  },
+  "bugs": {
+    "url": "https://github.com/tobiashofmann/UI5-BlueprintAudit/issues"
+  },
+  "keywords": [
+    "ui5",
+    "sapui5",
+    "openui5",
+    "audit",
+    "types",
+    "plugin"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --build"
+  }
+}

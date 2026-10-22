@@ -1,0 +1,6 @@
+# projectType hier ist "fe", wird aber im Test durch --type auf der Kommandozeile überschrieben.
+projectType: fe
+rules:
+  framework:
+    - error
+    - name: SAPUI5

@@ -1,0 +1,13 @@
+# Gültige Config für ein Freestyle-Projekt mit Regel-Overrides.
+projectType: fs
+plugins:
+  - ./guardrails-rules/local.mjs
+rules:
+  no-custom-controls: error
+  namespace:
+    - error
+    - value: com.firma
+  ui5-version:
+    - error
+    - min: "1.152"
+  odata-mockdata: off

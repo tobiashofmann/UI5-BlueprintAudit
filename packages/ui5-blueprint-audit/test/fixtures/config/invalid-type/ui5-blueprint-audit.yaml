@@ -1,0 +1,2 @@
+# projectType "desktop" ist kein gültiger Wert (nur fs, fe, lib) -> Fehlerfall.
+projectType: desktop
