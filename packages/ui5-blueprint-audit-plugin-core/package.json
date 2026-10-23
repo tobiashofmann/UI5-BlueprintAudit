@@ -51,6 +51,6 @@
     "@abap/ui5-blueprint-audit-types": "0.8.0",
     "fast-xml-parser": "^5.11.2",
     "minimatch": "^10.0.1",
-    "typescript": "^5.5.0"
+    "typescript": "^7.0.2"
   }
 }
