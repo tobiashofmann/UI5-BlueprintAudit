@@ -121,6 +121,10 @@ triggers [`.github/workflows/release.yml`](.github/workflows/release.yml), which
    perfectly in lockstep across the three packages).
 3. Creates a GitHub release tagged `v<version>` with auto-generated release notes.
 
-Requires an `NPM_TOKEN` repository secret (an npm automation token with publish rights for
-the `@abap` scope). Pushing to `main` without touching that file's `version` field does not
-trigger a release.
+Authenticates to npm via [Trusted Publishing](https://docs.npmjs.com/trusted-publishers)
+(OIDC) — no `NPM_TOKEN` secret to manage or rotate. Each of the three packages needs its own
+Trusted Publisher connection configured once on its npmjs.com package settings page:
+GitHub Actions, organization/user `tobiashofmann`, repository `UI5-BlueprintAudit`, workflow
+filename `release.yml`, "Allow npm publish" enabled.
+
+Pushing to `main` without touching that file's `version` field does not trigger a release.
