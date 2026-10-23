@@ -10,10 +10,15 @@ function hasCacheBusterEntry(list: unknown): boolean {
 
 function indexHtmlUsesCacheBusterUrl(indexHtml: string | undefined): boolean {
   if (!indexHtml) return false;
-  const match = /<script[^>]*\bsrc=["']([^"']+)["'][^>]*id=["']sap-ui-bootstrap["']|id=["']sap-ui-bootstrap["'][^>]*\bsrc=["']([^"']+)["']/.exec(
-    indexHtml,
-  );
-  const src = match?.[1] ?? match?.[2];
+  // Find candidate <script> tags first (a single, unambiguous [^>]* scan), then inspect
+  // each tag's short, bounded content independently. Avoids a combined regex with two
+  // overlapping [^>]* groups across alternatives, which CodeQL flags as a polynomial ReDoS
+  // risk on attacker-sized index.html content.
+  const scriptTags = indexHtml.match(/<script\b[^>]*>/gi) ?? [];
+  const bootstrapTag = scriptTags.find((tag) => /\bid=["']sap-ui-bootstrap["']/.test(tag));
+  if (!bootstrapTag) return false;
+
+  const src = /\bsrc=["']([^"']+)["']/.exec(bootstrapTag)?.[1];
   return !!src && /cachebuster/i.test(src);
 }
 
