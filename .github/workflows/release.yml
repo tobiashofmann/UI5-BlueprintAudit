@@ -12,6 +12,10 @@ permissions:
 
 jobs:
   check-version:
+    # Guards the whole pipeline: workflow_dispatch can run this workflow from any ref
+    # that has the file, not just main. Without this, a manual dispatch from a branch
+    # would still reach publish-and-release (needs: cascades skip, but better explicit).
+    if: github.ref == 'refs/heads/main' && github.ref_protected
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -80,6 +84,11 @@ jobs:
 
   publish-and-release:
     needs: [check-version, verify]
+    # Defense in depth on top of check-version's gate: this job holds the npm OIDC and
+    # release credentials, so it must never run off a ref other than protected main.
+    # An explicit `if` replaces the implicit success()-of-needs check GitHub Actions
+    # would otherwise apply, so success() must be spelled out here too.
+    if: success() && github.ref == 'refs/heads/main' && github.ref_protected
     runs-on: ubuntu-latest
     permissions:
       contents: write
