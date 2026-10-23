@@ -1,6 +1,6 @@
 {
   "name": "@abap/ui5-blueprint-audit",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "CLI zur Prüfung von UI5-Projekten gegen Unternehmensvorgaben",
   "type": "module",
   "author": {
@@ -51,8 +51,8 @@
     "prepack": "tsc --build --force"
   },
   "dependencies": {
-    "@abap/ui5-blueprint-audit-plugin-core": "0.8.1",
-    "@abap/ui5-blueprint-audit-types": "0.8.1",
+    "@abap/ui5-blueprint-audit-plugin-core": "0.8.2",
+    "@abap/ui5-blueprint-audit-types": "0.8.2",
     "yaml": "^2.5.0"
   }
 }
