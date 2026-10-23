@@ -2,7 +2,10 @@ import type { Translator } from "@abap/ui5-blueprint-audit-types";
 import type { ProjectResult } from "../engine/types.js";
 
 function escapeMd(text: string): string {
-  return text.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
+  return text
+    .replace(/\\/g, "\\\\")
+    .replace(/\|/g, "\\|")
+    .replace(/\r?\n/g, " ");
 }
 
 function statusIcon(hasFindings: boolean, severity: string): string {
