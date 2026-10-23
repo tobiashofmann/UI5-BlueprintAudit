@@ -1,6 +1,6 @@
 {
   "name": "@abap/ui5-blueprint-audit-plugin-core",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Standard-Regeln aus dem UI5 BlueprintAudit Regelkatalog",
   "type": "module",
   "author": {
@@ -48,7 +48,7 @@
     "prepack": "tsc --build --force"
   },
   "dependencies": {
-    "@abap/ui5-blueprint-audit-types": "0.8.1",
+    "@abap/ui5-blueprint-audit-types": "0.8.2",
     "fast-xml-parser": "^5.11.2",
     "minimatch": "^10.0.1",
     "typescript": "^5.5.0"
