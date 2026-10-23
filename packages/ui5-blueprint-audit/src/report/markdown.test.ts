@@ -51,4 +51,29 @@ describe("renderMarkdownReport", () => {
 
     expect(markdown).toContain(`# ${t("report.title")}`);
   });
+
+  it("escaped Backslashes vor Pipes, damit die Tabellenstruktur nicht bricht", () => {
+    const withBackslash: ProjectResult[] = [
+      {
+        projectDir: "/p/win",
+        projectName: "win-project",
+        projectType: "fs",
+        results: [
+          {
+            ruleId: "namespace",
+            description: "x",
+            severity: "error",
+            findings: [{ ruleId: "namespace", severity: "error", message: "msg", file: "C:\\views|evil" }],
+          },
+        ],
+      },
+    ];
+
+    const markdown = renderMarkdownReport(withBackslash, t);
+
+    // Ein roher Backslash direkt vor dem escapten Pipe würde dessen Escaping aufheben
+    // ("\\|" statt "\|") und so die Tabellenstruktur brechen.
+    expect(markdown).toContain("C:\\\\views\\|evil");
+    expect(markdown).not.toContain("C:\\views|evil");
+  });
 });
