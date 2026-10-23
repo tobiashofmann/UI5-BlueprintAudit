@@ -26,21 +26,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          fetch-depth: 2
+          # Full history: github.event.before can point further back than one commit
+          # whenever a push lands more than one new commit on main at once (squash
+          # merge, rebase merge, or a direct multi-commit push) - HEAD^ alone would
+          # only look at the second-to-last of those commits, not the true pre-push
+          # state of main.
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Compare version against previous commit
         id: diff
         shell: bash
+        env:
+          EVENT_BEFORE: ${{ github.event.before }}
         run: |
           CURRENT=$(node -p "require('./packages/ui5-blueprint-audit/package.json').version")
-          if git cat-file -e 'HEAD^:packages/ui5-blueprint-audit/package.json' 2>/dev/null; then
-            git show 'HEAD^:packages/ui5-blueprint-audit/package.json' > /tmp/previous-package.json
+
+          # github.event.before is the main ref's SHA before this entire push (correct
+          # regardless of how many commits it contains). It's unset/absent on
+          # workflow_dispatch and is all-zeros for a branch's first-ever push - fall
+          # back to HEAD^ (the immediate parent) in both cases.
+          BASE="$EVENT_BEFORE"
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE" 2>/dev/null; then
+            BASE="HEAD^"
+          fi
+
+          if git cat-file -e "$BASE:packages/ui5-blueprint-audit/package.json" 2>/dev/null; then
+            git show "$BASE:packages/ui5-blueprint-audit/package.json" > /tmp/previous-package.json
             PREVIOUS=$(node -p "require('/tmp/previous-package.json').version")
           else
             PREVIOUS=""
           fi
-          echo "Current version: $CURRENT (previous: ${PREVIOUS:-none})"
+          echo "Current version: $CURRENT (previous: ${PREVIOUS:-none}, base: $BASE)"
           if [ "$CURRENT" != "$PREVIOUS" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
             echo "version=$CURRENT" >> "$GITHUB_OUTPUT"
