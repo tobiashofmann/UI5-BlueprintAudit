@@ -12,18 +12,19 @@
   "devDependencies": {
     "@ui5/cli": "^4.0.33",
     "@sap/ux-ui5-tooling": "1",
-    "@sap-ux/eslint-plugin-fiori-tools": "^10.0.0",
-    "eslint": "^10",
     "@sapui5/types": "~1.152.0",
     "ui5-tooling-transpile": "^3.10.0",
     "typescript": "^5.9.3",
     "rimraf": "^5.0.5"
   },
+  "overrides": {
+    "pacote": "^21.5.1",
+    "sigstore": "^4.1.1"
+  },
   "scripts": {
     "start": "fiori run --open \"/test/flpSandbox.html?sap-ui-xx-viewCache=false#dedeitsfullofstarsgrtesttsprjt-display\"",
     "start-local": "fiori run --config ./ui5-local.yaml --open \"/test/flpSandbox.html?sap-ui-xx-viewCache=false#dedeitsfullofstarsgrtesttsprjt-display\"",
     "build": "ui5 build --config=ui5.yaml --clean-dest --dest dist",
-    "lint": "eslint ./",
     "ts-typecheck": "tsc --noEmit",
     "prestart": "npm run ts-typecheck",
     "prebuild": "npm run ts-typecheck",
