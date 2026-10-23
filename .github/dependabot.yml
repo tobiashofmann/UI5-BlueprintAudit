@@ -1,0 +1,28 @@
+version: 2
+updates:
+  # Root npm workspace: devDependencies in package.json plus packages/* (workspaces)
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      workspace-dependencies:
+        patterns:
+          - "*"
+
+  # Standalone sample projects used as rule-validation fixtures (not npm workspaces)
+  - package-ecosystem: npm
+    directories:
+      - "/sample-prj/*"
+    schedule:
+      interval: weekly
+    groups:
+      sample-project-dependencies:
+        patterns:
+          - "*"
+
+  # Keep pinned GitHub Actions SHAs in CI workflows up to date
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
