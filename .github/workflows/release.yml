@@ -148,6 +148,22 @@ jobs:
           publish_if_needed "@abap/ui5-blueprint-audit-plugin-core" "packages/ui5-blueprint-audit-plugin-core/package.json"
           publish_if_needed "@abap/ui5-blueprint-audit" "packages/ui5-blueprint-audit/package.json"
 
+      - name: Generate SBOMs
+        run: npm run sbom
+
+      - name: Flatten SBOMs for release assets
+        # GitHub release assets share one flat namespace, but sbom/ nests
+        # <project>/<variant>.cdx.json - flatten to <project>-<variant>.cdx.json.
+        run: |
+          mkdir -p sbom-release
+          for project_dir in sbom/*/; do
+            project=$(basename "$project_dir")
+            for file in "$project_dir"*.cdx.json; do
+              variant=$(basename "$file" .cdx.json)
+              cp "$file" "sbom-release/${project}-${variant}.cdx.json"
+            done
+          done
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@e598afbe1493e6b1bafb1f389cabb956eab91231 # v3.0.3
         with:
@@ -155,3 +171,4 @@ jobs:
           name: v${{ needs.check-version.outputs.version }}
           target_commitish: ${{ github.sha }}
           generate_release_notes: true
+          files: sbom-release/*.cdx.json
