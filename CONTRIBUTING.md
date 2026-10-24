@@ -1,6 +1,7 @@
 # Contributing
 
-Thanks for your interest in improving UI5 BlueprintAudit!
+Thanks for your interest in improving UI5 BlueprintAudit! Please also read our
+[Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Bugs & ideas
 
