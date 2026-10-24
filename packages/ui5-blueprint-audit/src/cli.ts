@@ -3,6 +3,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
+import { pathToFileURL } from "node:url";
 import type { LocaleCode, ProjectType } from "@abap/ui5-blueprint-audit-types";
 import { createTranslator, mergeLocaleRegistries } from "@abap/ui5-blueprint-audit-types";
 import { resolveProjectDirs } from "./engine/resolve-project-dirs.js";
@@ -16,7 +17,7 @@ import { renderTextSummary } from "./report/text.js";
 const VALID_PROJECT_TYPES = new Set<ProjectType>(["fs", "fe", "lib"]);
 const DEFAULT_LANGUAGES: LocaleCode[] = ["de", "en"];
 
-function parseCliArgs(argv: string[]) {
+export function parseCliArgs(argv: string[]) {
   const { values, positionals } = parseArgs({
     args: argv,
     allowPositionals: true,
@@ -46,7 +47,7 @@ function parseCliArgs(argv: string[]) {
   };
 }
 
-function printHelp(): void {
+export function printHelp(): void {
   console.log(`ui5-blueprint-audit [Ordner] [--type fs|fe|lib] [--lang de,en,pt-BR] [--out <Verzeichnis>]
 
 Ohne Ordner wird das aktuelle Verzeichnis als ein Projekt geprüft.
@@ -66,7 +67,7 @@ function isDefined<T>(value: T | undefined): value is T {
   return value !== undefined;
 }
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   const args = parseCliArgs(process.argv.slice(2));
 
   if (args.help) {
@@ -117,7 +118,11 @@ async function main(): Promise<void> {
   process.exitCode = resultsByProject.some((r) => Object.values(r).some(hasErrorFindings)) ? 1 : 0;
 }
 
-main().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exitCode = 1;
-});
+// Nur ausführen, wenn direkt als Skript gestartet (z. B. `npx ui5-blueprint-audit`),
+// nicht beim Import durch Tests.
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
+  main().catch((error: unknown) => {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  });
+}
