@@ -1,4 +1,4 @@
-/** Parst eine .properties-Datei (i18n) in ein flaches key/value-Objekt. */
+/** Parses a `.properties` file (i18n) into a flat key/value object. */
 export function parseProperties(content: string): Record<string, string> {
   const result: Record<string, string> = {};
   for (const rawLine of content.split(/\r?\n/)) {
@@ -13,7 +13,12 @@ export function parseProperties(content: string): Record<string, string> {
   return result;
 }
 
-/** Extrahiert den i18n-Key aus einem Platzhalter wie "{{appTitle}}". */
+/**
+ * Extracts the i18n key from a placeholder like `"{{appTitle}}"`.
+ *
+ * @returns The key (e.g. `"appTitle"`), or `undefined` if `value` isn't a string or
+ * doesn't match the `{{key}}` placeholder shape.
+ */
 export function extractI18nKey(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
   const match = /^\{\{(.+)}}$/.exec(value.trim());

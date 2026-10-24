@@ -7,6 +7,11 @@ interface Options {
   basePath?: string;
 }
 
+/**
+ * Checks that every OData dataSource has a `settings.localUri`, and that the referenced `metadata.xml` exists locally.
+ *
+ * Default severity: `error`. Project types: FS, FE.
+ */
 export const odataMetadataLocalRule: Rule<Options> = {
   meta: {
     descriptionKey: "odata-metadata-local.description",

@@ -1,5 +1,6 @@
 import type en from "./en.js";
 
+/** German translations for the core plugin's rule descriptions and messages. */
 const de: Record<keyof typeof en, string> = {
   "typescript.description": "Das Projekt verwendet TypeScript.",
   "typescript.missingTsconfig": "Es fehlt eine tsconfig.json im Projektroot.",

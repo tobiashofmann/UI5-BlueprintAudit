@@ -2,6 +2,11 @@ import type { Rule } from "@abap/ui5-blueprint-audit-types";
 import { get } from "../util/get.js";
 import { isComponentApp } from "../util/component.js";
 
+/**
+ * Checks that every non-OData dataSource is of type JSON, with a matching JSONModel configured in `sap.ui5/models`.
+ *
+ * Default severity: `error`. Project types: FS.
+ */
 export const nonOdataJsonRule: Rule = {
   meta: {
     descriptionKey: "non-odata-json.description",

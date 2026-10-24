@@ -7,6 +7,11 @@ interface Options {
   phone?: boolean;
 }
 
+/**
+ * Checks that `sap.ui/deviceTypes` in the manifest matches the expected desktop/tablet/phone values.
+ *
+ * Default severity: `error`. Project types: FS, FE.
+ */
 export const deviceTypesRule: Rule<Options> = {
   meta: {
     descriptionKey: "device-types.description",

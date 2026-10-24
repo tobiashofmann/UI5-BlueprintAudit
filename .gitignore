@@ -151,3 +151,6 @@ vite.config.ts.timestamp-*
 
 # Generated SBOMs (npm run sbom)
 /sbom/
+
+# Generated TSDoc HTML (npm run docs:api)
+/docs/api/

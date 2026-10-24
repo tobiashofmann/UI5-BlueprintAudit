@@ -4,6 +4,11 @@ import { listFiles } from "../util/files.js";
 import { getRootAttribute } from "../util/xml.js";
 import { getProjectNamespace } from "../util/library.js";
 
+/**
+ * Checks that all artifacts of the app (`sap.app/id`, controller/fragment/view names, class IDs in views/fragments/code) use the same namespace.
+ *
+ * Default severity: `error`. Project types: FS, FE, LIB.
+ */
 export const consistentNamespaceRule: Rule = {
   meta: {
     descriptionKey: "consistent-namespace.description",

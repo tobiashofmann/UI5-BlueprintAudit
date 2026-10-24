@@ -101,6 +101,18 @@ Every run writes these files to `ui5-blueprint-audit-report/`:
 - `report.xml` – JUnit, always English (one testcase per rule, project = testsuite) — independent of `languages`, for stable CI dashboards
 - `report.html` – a single file with all active languages embedded and a language switcher
 
+## API Documentation
+
+TSDoc-generated HTML reference for the public API of all three packages (useful when
+writing a plugin — see [`@abap/ui5-blueprint-audit-types`](packages/ui5-blueprint-audit-types)
+for the plugin contract):
+
+```bash
+npm run docs:api
+```
+
+Writes to `docs/api/` (not committed, open `docs/api/index.html` locally).
+
 ## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md).

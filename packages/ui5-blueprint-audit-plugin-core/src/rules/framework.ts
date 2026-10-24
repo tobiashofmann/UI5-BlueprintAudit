@@ -5,6 +5,11 @@ interface Options {
   name?: string;
 }
 
+/**
+ * Checks that `framework.name` in `ui5.yaml` matches the expected framework (`SAPUI5` or `OpenUI5`).
+ *
+ * Default severity: `error`. Project types: FS, FE, LIB.
+ */
 export const frameworkRule: Rule<Options> = {
   meta: {
     descriptionKey: "framework.description",

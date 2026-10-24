@@ -22,6 +22,11 @@ function themeFromUi5Yaml(ui5Yaml: unknown): string | undefined {
   return undefined;
 }
 
+/**
+ * Checks that the theme is fixed and consistently configured: `data-sap-ui-theme` in `index.html` is one of `themes`, and the matching theme library is referenced in `ui5.yaml`. Skipped if either file is missing (e.g. Launchpad plugins without `index.html`).
+ *
+ * Default severity: `error`. Project types: FS.
+ */
 export const themeRule: Rule<Options> = {
   meta: {
     descriptionKey: "theme.description",

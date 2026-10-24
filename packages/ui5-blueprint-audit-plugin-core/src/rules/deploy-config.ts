@@ -5,6 +5,11 @@ interface Options {
   fileName?: string;
 }
 
+/**
+ * Checks that a deployment configuration file (`fileName`, default `ui5-deploy.yaml`) exists with a configured deploy target (a non-empty `configuration.target.destination` or `.url`).
+ *
+ * Default severity: `error`. Project types: FS, FE.
+ */
 export const deployConfigRule: Rule<Options> = {
   meta: {
     descriptionKey: "deploy-config.description",

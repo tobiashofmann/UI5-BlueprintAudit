@@ -5,6 +5,11 @@ interface Options {
   requiredIcons?: string[];
 }
 
+/**
+ * Checks that the app has its own icons instead of generator placeholders: the fields in `requiredIcons` under `sap.ui/icons` are set.
+ *
+ * Default severity: `warn`. Project types: FS, FE.
+ */
 export const appIconsRule: Rule<Options> = {
   meta: {
     descriptionKey: "app-icons.description",

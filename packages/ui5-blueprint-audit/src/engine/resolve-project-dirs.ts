@@ -20,12 +20,17 @@ function looksLikeProject(dir: string): boolean {
 }
 
 /**
- * Ohne Angabe eines Ordners wird nur das aktuelle Projekt (cwd) geprüft. Zeigt der
- * angegebene Ordner selbst auf ein UI5-Projekt — `ui5.yaml` mit `type: application`
- * oder `type: library` (zuverlässiger als Datei-Layout, erkennt auch Libraries ohne
- * `webapp/`), sonst als Fallback `webapp/manifest.json` — wird nur dieses eine Projekt
- * geprüft. Sonst gilt der Ordner als Container (z. B. `projects/`) und jedes direkte
- * Unterverzeichnis wird als eigenes Projekt geprüft (z. B. `npx ui5-blueprint-audit projects/`).
+ * Resolves which directories to check as individual projects for one CLI invocation.
+ * Without a target folder, only the current project (cwd) is checked. If the given
+ * folder itself points to a UI5 project — `ui5.yaml` with `type: application` or
+ * `type: library` (more reliable than file layout, also detects libraries without
+ * `webapp/`), otherwise falling back to `webapp/manifest.json` — only that one project
+ * is checked. Otherwise the folder is treated as a container (e.g. `projects/`) and
+ * every direct subdirectory is checked as its own project (e.g. `npx ui5-blueprint-audit projects/`).
+ *
+ * @param cwd - The current working directory, used when `targetDir` is omitted.
+ * @param targetDir - The folder given on the command line, resolved relative to `cwd`.
+ * @returns Absolute paths of every project directory to check.
  */
 export function resolveProjectDirs(cwd: string, targetDir?: string): string[] {
   if (!targetDir) return [cwd];

@@ -17,6 +17,13 @@ import { renderTextSummary } from "./report/text.js";
 const VALID_PROJECT_TYPES = new Set<ProjectType>(["fs", "fe", "lib"]);
 const DEFAULT_LANGUAGES: LocaleCode[] = ["de", "en"];
 
+/**
+ * Parses and validates the CLI's own flags (`--type`, `--lang`, `--out`, `--help`) plus
+ * the positional target folder. Exported for testing; not part of the published package API.
+ *
+ * @param argv - Argument vector, without the `node`/script entries (i.e. `process.argv.slice(2)`).
+ * @throws If `--type` is given but isn't one of "fs", "fe", "lib".
+ */
 export function parseCliArgs(argv: string[]) {
   const { values, positionals } = parseArgs({
     args: argv,
@@ -47,6 +54,7 @@ export function parseCliArgs(argv: string[]) {
   };
 }
 
+/** Prints the `--help` usage text to stdout. Exported for testing. */
 export function printHelp(): void {
   console.log(`ui5-blueprint-audit [Ordner] [--type fs|fe|lib] [--lang de,en,pt-BR] [--out <Verzeichnis>]
 
@@ -67,6 +75,14 @@ function isDefined<T>(value: T | undefined): value is T {
   return value !== undefined;
 }
 
+/**
+ * The CLI entry point: parses args, runs every resolved project, prints the text summary,
+ * writes `report_<locale>.md` per active language plus `report.xml` (always English) and
+ * `report.html` (all active languages), and sets `process.exitCode` to 1 if any project
+ * has an error-severity finding (see CLAUDE.md, "Output and exit codes"). Exported for
+ * testing; actually invoked only when this module is run as a script (see the
+ * `import.meta.url` check below), not on import.
+ */
 export async function main(): Promise<void> {
   const args = parseCliArgs(process.argv.slice(2));
 

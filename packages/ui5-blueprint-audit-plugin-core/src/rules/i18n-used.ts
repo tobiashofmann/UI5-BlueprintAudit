@@ -6,6 +6,11 @@ interface Options {
   basePath?: string;
 }
 
+/**
+ * Checks that i18n is actually used: an i18n model is configured in the manifest and the base `i18n.properties` file exists. Hardcoded texts in views are not checked.
+ *
+ * Default severity: `error`. Project types: FS, FE, LIB.
+ */
 export const i18nUsedRule: Rule<Options> = {
   meta: {
     descriptionKey: "i18n-used.description",

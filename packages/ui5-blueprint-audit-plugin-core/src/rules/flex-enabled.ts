@@ -5,6 +5,11 @@ interface Options {
   value?: boolean;
 }
 
+/**
+ * Checks that `sap.ui5/flexEnabled` in the manifest matches the expected `value`.
+ *
+ * Default severity: `warn`. Project types: FS, FE.
+ */
 export const flexEnabledRule: Rule<Options> = {
   meta: {
     descriptionKey: "flex-enabled.description",

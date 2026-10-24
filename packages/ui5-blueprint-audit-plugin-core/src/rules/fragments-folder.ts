@@ -7,6 +7,11 @@ interface Options {
   dialogRoots?: string[];
 }
 
+/**
+ * Checks that non-dialog XML fragments live under `basePath` (default `webapp/view/fragments`).
+ *
+ * Default severity: `error`. Project types: FS.
+ */
 export const fragmentsFolderRule: Rule<Options> = {
   meta: {
     descriptionKey: "fragments-folder.description",

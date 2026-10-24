@@ -1,5 +1,6 @@
 import ts from "typescript";
 
+/** A class or legacy `.extend()` call found to extend a UI5 control base class. */
 export interface ControlExtension {
   name: string;
 }
@@ -16,9 +17,13 @@ function isControlBaseExpression(expr: ts.Expression, sourceFile: ts.SourceFile)
 }
 
 /**
- * Findet Klassen/Legacy-`.extend()`-Aufrufe, die `sap/ui/core/Control` oder
- * `sap/ui/core/Element` erweitern (siehe Katalog-Regel `no-custom-controls`).
- * Nutzt den TypeScript-AST statt Textsuche (siehe CLAUDE.md, Abschnitt "Parser").
+ * Finds classes and legacy `.extend()` calls that extend `sap/ui/core/Control` or
+ * `sap/ui/core/Element` (used by the `no-custom-controls` catalog rule). Parses the
+ * TypeScript AST rather than doing a text search (see CLAUDE.md, "Parser" section).
+ *
+ * @param sourceText - The source file's contents.
+ * @param fileName - Used only to pick the right script kind (`.ts`/`.tsx`/`.js`) for parsing.
+ * @returns Every control extension found, in source order.
  */
 export function findControlExtensions(sourceText: string, fileName: string): ControlExtension[] {
   const sourceFile = ts.createSourceFile(

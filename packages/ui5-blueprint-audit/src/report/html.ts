@@ -113,9 +113,15 @@ function renderLocalePanel(locale: LocaleCode, projects: ProjectResult[], t: Tra
 }
 
 /**
- * Ein HTML-Dokument mit allen aktiven Sprachen eingebettet (je ein `.locale-panel`),
- * umschaltbar über Buttons. Die Button-Labels (Sprachnamen) kommen bewusst NICHT aus dem
- * Translator, da der Switcher in jeder Sprache gleichzeitig lesbar sein muss.
+ * Renders report.html: a single self-contained document with every active language
+ * embedded (one `.locale-panel` each), switchable via buttons, with the selection
+ * persisted in `localStorage`. The button labels (language names) deliberately do NOT
+ * come from the translator, since the switcher must stay readable in every language at once.
+ *
+ * @param projectsByLocale - Project results, keyed by each active locale.
+ * @param translators - A translator per active locale, used to render that locale's panel.
+ * @param activeLocales - The languages to embed, and the order their switch buttons appear in.
+ * @returns The full HTML document, as a string.
  */
 export function renderHtmlReport(
   projectsByLocale: Record<LocaleCode, ProjectResult[]>,

@@ -1,6 +1,7 @@
 import type { Severity } from "@abap/ui5-blueprint-audit-types";
 import type { RuleConfigEntry, RuleConfigValue } from "./types.js";
 
+/** A rule's default severity, as declared by the plugin that registers it. */
 export interface RuleDefault {
   severity: Severity;
 }
@@ -14,9 +15,13 @@ function normalize(value: RuleConfigValue): RuleConfigEntry {
 }
 
 /**
- * Führt die Regel-Defaults der geladenen Plugins mit den Overrides aus der Config zusammen.
- * Die Config überschreibt nur, was sie angibt (siehe CLAUDE.md, Abschnitt "Konfiguration");
- * eine Regel ohne Override behält ihren Default.
+ * Merges the loaded plugins' rule defaults with the overrides from the config file.
+ * The config only overrides what it explicitly specifies (see CLAUDE.md, "Configuration"
+ * section); a rule without an override keeps its default severity and no options.
+ *
+ * @param defaults - Default severity per rule ID, as declared by the loaded plugins.
+ * @param overrides - Raw `rules` entries from the config file, keyed by rule ID.
+ * @returns The effective severity (and options, if given) per rule ID.
  */
 export function mergeRuleConfig(
   defaults: Record<string, RuleDefault>,

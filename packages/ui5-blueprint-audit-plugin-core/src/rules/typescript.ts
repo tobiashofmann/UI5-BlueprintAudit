@@ -6,6 +6,11 @@ interface Options {
   allowJs?: string[];
 }
 
+/**
+ * Checks that the project uses TypeScript: `tsconfig.json` exists in the project root, and there are no `.js` files for controllers, components, or modules under `webapp` (only `.ts`).
+ *
+ * Default severity: `error`. Project types: FS, LIB.
+ */
 export const typescriptRule: Rule<Options> = {
   meta: {
     descriptionKey: "typescript.description",

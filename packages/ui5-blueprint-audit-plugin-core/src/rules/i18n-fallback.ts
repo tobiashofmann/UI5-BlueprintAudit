@@ -5,6 +5,11 @@ interface Options {
   value?: string;
 }
 
+/**
+ * Checks that a fallback language is configured consistently: `fallbackLocale` matches `value` and is included in `supportedLocales`, checked in both `sap.app/i18n` and `sap.ui5/models/i18n/settings` (UI5 doesn't keep these in sync automatically).
+ *
+ * Default severity: `warn`. Project types: FS, FE.
+ */
 export const i18nFallbackRule: Rule<Options> = {
   meta: {
     descriptionKey: "i18n-fallback.description",

@@ -1,5 +1,6 @@
 import type en from "./en.js";
 
+/** German translation of the CLI/reporters/engine's own labels; see `en.ts` for the reference bundle. */
 const de: Record<keyof typeof en, string> = {
   "report.title": "UI5 BlueprintAudit Report",
   "report.generatedAt": "Erstellt: {date}",

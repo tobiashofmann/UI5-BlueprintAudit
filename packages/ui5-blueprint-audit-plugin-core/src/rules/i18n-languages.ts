@@ -8,6 +8,11 @@ interface Options {
   basePath?: string;
 }
 
+/**
+ * Checks that every required language is listed in `supportedLocales` (both `sap.app/i18n` and `sap.ui5/models/i18n/settings`, which UI5 doesn't keep in sync automatically) and has a corresponding `i18n_<xx>.properties` file - the base file is enough for the fallback language.
+ *
+ * Default severity: `error`. Project types: FS, FE, LIB.
+ */
 export const i18nLanguagesRule: Rule<Options> = {
   meta: {
     descriptionKey: "i18n-languages.description",

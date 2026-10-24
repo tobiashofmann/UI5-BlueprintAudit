@@ -5,6 +5,11 @@ interface Options {
   value?: string;
 }
 
+/**
+ * Checks that `sap.app/id` in the manifest starts with the configured namespace (`value`, default `de.itsfullofstars`).
+ *
+ * Default severity: `error`. Project types: FS, FE, LIB.
+ */
 export const namespaceRule: Rule<Options> = {
   meta: {
     descriptionKey: "namespace.description",
