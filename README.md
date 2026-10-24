@@ -1,5 +1,8 @@
 # UI5 BlueprintAudit
 
+[![CI](https://github.com/tobiashofmann/UI5-BlueprintAudit/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tobiashofmann/UI5-BlueprintAudit/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/tobiashofmann/UI5-BlueprintAudit/badges/coverage.json)](https://github.com/tobiashofmann/UI5-BlueprintAudit/actions/workflows/ci.yml)
+
 CLI that checks a UI5 project against company guidelines: project structure, manifest,
 and configuration. Complements ESLint (code quality) and `@ui5/linter` (UI5 API usage),
 doesn't replace them. The full rule catalog is in
