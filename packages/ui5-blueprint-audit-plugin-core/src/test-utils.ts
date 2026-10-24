@@ -4,6 +4,7 @@ import corePlugin from "./index.js";
 
 const testRegistry = buildLocaleRegistry([corePlugin], "en");
 
+/** Options for {@link createTestContext}; every field defaults to an empty/minimal value. */
 export interface TestContextOptions {
   projectRoot?: string;
   projectType?: ProjectType;
@@ -12,12 +13,13 @@ export interface TestContextOptions {
   ui5YamlExtensions?: Record<string, unknown>;
   packageJson?: Record<string, unknown>;
   indexHtml?: string;
-  /** Dateiinhalte, keyed nach projektrelativem Pfad. Ergänzt den fileTree automatisch. */
+  /** File contents, keyed by project-relative path. Automatically fills in `fileTree`. */
   files?: Record<string, string>;
-  /** Zusätzliche fileTree-Einträge ohne Inhalt (z. B. leere Verzeichnisse). */
+  /** Extra file-tree entries without content (e.g. empty directories). */
   extraEntries?: FileTreeEntry[];
 }
 
+/** Builds a minimal {@link ProjectContext} for rule unit tests, from the given overrides. */
 export function createTestContext(options: TestContextOptions = {}): ProjectContext {
   const files = options.files ?? {};
   const fileTree: FileTreeEntry[] = [
@@ -38,6 +40,12 @@ export function createTestContext(options: TestContextOptions = {}): ProjectCont
   };
 }
 
+/**
+ * Runs one rule's `check` against a project context and collects its findings, without
+ * going through the full engine (config loading, severity resolution, etc.).
+ *
+ * @returns The findings the rule reported, in report order.
+ */
 export function runRule(
   rule: Rule,
   projectContext: ProjectContext,

@@ -7,6 +7,11 @@ interface Options {
   max?: string;
 }
 
+/**
+ * Checks that the UI5 version meets the minimum (`min`): `sap.ui5/dependencies/minUI5Version` in the manifest and `framework.version` in `ui5.yaml` must both be at least `min` and consistent with each other. Versions are compared semantically, never as strings.
+ *
+ * Default severity: `error`. Project types: FS, FE, LIB.
+ */
 export const ui5VersionRule: Rule<Options> = {
   meta: {
     descriptionKey: "ui5-version.description",

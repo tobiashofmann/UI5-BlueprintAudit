@@ -2,6 +2,11 @@ import type { Rule } from "@abap/ui5-blueprint-audit-types";
 import { get } from "../util/get.js";
 import { extractI18nKey, parseProperties } from "../util/properties.js";
 
+/**
+ * Checks that the app has a title and description with actual text: both are set in the manifest, reference i18n keys, and those keys exist with a non-empty value in the base i18n file.
+ *
+ * Default severity: `error`. Project types: FS, FE.
+ */
 export const appTitleDescriptionRule: Rule = {
   meta: {
     descriptionKey: "app-title-description.description",

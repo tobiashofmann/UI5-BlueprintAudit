@@ -6,6 +6,11 @@ interface Options {
   allow?: string[];
 }
 
+/**
+ * Checks that the project has no custom CSS: no `.css` files under `webapp`, and `sap.ui5/resources/css` is empty or absent. Inline `style=` attributes in XML are not checked.
+ *
+ * Default severity: `error`. Project types: FS, FE.
+ */
 export const noCustomCssRule: Rule<Options> = {
   meta: {
     descriptionKey: "no-custom-css.description",

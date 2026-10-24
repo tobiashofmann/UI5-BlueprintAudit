@@ -4,9 +4,9 @@ import de from "./de.js";
 import ptBR from "./pt-BR.js";
 
 /**
- * Die Reporter-/CLI-/Fehler-Labels des Engine-Pakets selbst, verpackt als Pseudo-Plugin
- * ohne Regeln, damit sie über denselben buildLocaleRegistry()-Merge laufen wie alle
- * anderen Plugin-Bundles (siehe @abap/ui5-blueprint-audit-types).
+ * The report/CLI/error labels of the engine package itself, packaged as a pseudo-plugin
+ * with no rules, so they go through the same `buildLocaleRegistry()` merge as every
+ * other plugin's locale bundles (see @abap/ui5-blueprint-audit-types).
  */
 export const cliLocalesPlugin: Plugin = {
   name: "__cli__",

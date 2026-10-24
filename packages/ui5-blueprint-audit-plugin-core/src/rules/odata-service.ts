@@ -7,6 +7,11 @@ interface Options {
   max?: number;
 }
 
+/**
+ * Checks that the number of OData services used (`dataSources` of type OData in `sap.app` that are assigned to a model in `sap.ui5/models`) is within `min`/`max`.
+ *
+ * Default severity: `error`. Project types: FS, FE.
+ */
 export const odataServiceRule: Rule<Options> = {
   meta: {
     descriptionKey: "odata-service.description",

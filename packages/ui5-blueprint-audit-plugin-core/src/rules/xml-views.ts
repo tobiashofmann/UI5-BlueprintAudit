@@ -15,6 +15,11 @@ function projectHasControls(ctx: ProjectContext): boolean {
   });
 }
 
+/**
+ * Checks that views are implemented as XML views: no `.view.js`, `.view.json`, `.view.html`, or `.view.ts` files, and no `sap.ui.jsview`/`sap.ui.htmlview`/`sap.ui.jsonview` usage.
+ *
+ * Default severity: `error`. Project types: FS, FE, LIB (libraries only if they define UI5 controls).
+ */
 export const xmlViewsRule: Rule = {
   meta: {
     descriptionKey: "xml-views.description",

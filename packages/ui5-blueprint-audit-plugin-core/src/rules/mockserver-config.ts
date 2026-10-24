@@ -5,6 +5,11 @@ interface Options {
   fileName?: string;
 }
 
+/**
+ * Checks that a MockServer configuration file (`fileName`, default `ui5-mockserver.yaml`) exists in the project root.
+ *
+ * Default severity: `warn`. Project types: FS, FE.
+ */
 export const mockserverConfigRule: Rule<Options> = {
   meta: {
     descriptionKey: "mockserver-config.description",

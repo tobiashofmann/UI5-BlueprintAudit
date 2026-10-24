@@ -11,6 +11,11 @@ function hasDependency(packageJson: Record<string, unknown> | undefined, name: s
   return name in deps;
 }
 
+/**
+ * Checks that the project uses wdio-ui5 (`wdi5`) for end-to-end tests: a wdio config file exists and `wdio-ui5-service` is a dependency.
+ *
+ * Default severity: `warn`. Project types: FS.
+ */
 export const wdi5TestsRule: Rule<Options> = {
   meta: {
     descriptionKey: "wdi5-tests.description",

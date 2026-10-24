@@ -14,11 +14,16 @@ function findingsMessage(result: ProjectResult["results"][number]): string {
 }
 
 /**
- * Jedes Projekt wird eine JUnit-Testsuite, jede ausgeführte Regel ein Testcase darin.
- * Eine Regel mit `error`-Findings wird als <failure> gemeldet. `warn`-Findings erzeugen
- * absichtlich keine <failure> (JUnit kennt keine Warnstufe) — sie landen als <system-out>,
- * damit sie sichtbar bleiben, ohne CI-Gates fälschlich scharf zu schalten
- * (siehe CLAUDE.md, Abschnitt "Ausgabe und Exit-Codes": nur `error` bricht ab).
+ * Renders a JUnit XML report: each project becomes a testsuite, each evaluated rule a
+ * testcase within it. A rule with `error`-severity findings is reported as `<failure>`.
+ * `warn`-severity findings deliberately produce no `<failure>` (JUnit has no warning
+ * level) — they're emitted as `<system-out>` instead, so they stay visible without
+ * falsely tripping CI gates (see CLAUDE.md, "Output and exit codes": only `error` fails
+ * the run). Caller is responsible for always passing the English-locale project results
+ * here, so report.xml stays English regardless of the active `languages`.
+ *
+ * @param projects - Project results for a single locale.
+ * @returns The full JUnit XML document, as a string.
  */
 export function renderJUnitReport(projects: ProjectResult[]): string {
   const suites = projects.map((project) => {

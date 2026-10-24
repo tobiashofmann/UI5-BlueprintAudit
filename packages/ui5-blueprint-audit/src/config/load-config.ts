@@ -8,9 +8,9 @@ const VALID_PROJECT_TYPES: ProjectType[] = ["fs", "fe", "lib"];
 const DEFAULT_LANGUAGES: LocaleCode[] = ["de", "en"];
 
 /**
- * Fehler beim Einlesen/Validieren der Config, bevor Plugins geladen sind. `key`/`params`
- * erlauben eine lokalisierte Darstellung über den Translator; `message` bleibt ein
- * garantiert vorhandener englischer Fallback-Text (z. B. für Logs ohne Locale-Kontext).
+ * Error reading/validating the config, before plugins are loaded. `key`/`params`
+ * allow a localized display via the translator; `message` stays a guaranteed
+ * English fallback text (e.g. for logs without locale context).
  */
 export class ConfigError extends Error {
   constructor(
@@ -23,14 +23,24 @@ export class ConfigError extends Error {
 }
 
 export interface LoadConfigOptions {
-  /** Pfad zur Config-Datei, relativ zu projectRoot. Default: "ui5-blueprint-audit.yaml". */
+  /** Path to the config file, relative to projectRoot. Default: "ui5-blueprint-audit.yaml". */
   configPath?: string;
-  /** Projekttyp von der Kommandozeile (--type). Hat Vorrang vor projectType in der Config. */
+  /** Project type from the command line (--type). Takes precedence over projectType in the config. */
   cliProjectType?: ProjectType;
-  /** Ausgabesprachen von der Kommandozeile (--lang). Hat Vorrang vor languages in der Config. */
+  /** Output languages from the command line (--lang). Takes precedence over languages in the config. */
   cliLanguages?: LocaleCode[];
 }
 
+/**
+ * Reads and validates `ui5-blueprint-audit.yaml` (or the configured path) for a project,
+ * resolving the project type and output languages with CLI options taking precedence
+ * over the config file. Missing files are treated as an empty config, not an error —
+ * only a missing/invalid project type throws.
+ *
+ * @param projectRoot - Absolute path to the project directory the config is read from.
+ * @returns The resolved config, ready for plugin loading and rule evaluation.
+ * @throws {ConfigError} If no project type is specified, or an invalid one is given.
+ */
 export function loadConfig(projectRoot: string, options: LoadConfigOptions = {}): ResolvedConfig {
   const configPath = resolve(projectRoot, options.configPath ?? "ui5-blueprint-audit.yaml");
 

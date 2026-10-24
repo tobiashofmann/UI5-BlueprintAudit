@@ -44,9 +44,13 @@ function tryParseYaml(content: string | undefined): unknown {
 }
 
 /**
- * Liest manifest.json, ui5.yaml, weitere ui5-*.yaml, package.json, index.html und den
- * Dateibaum eines Projekts einmalig ein. Regeln greifen nur über den resultierenden
- * ProjectContext zu, nicht selbst aufs Dateisystem (siehe CLAUDE.md, "Project Context").
+ * Reads manifest.json, ui5.yaml, further ui5-*.yaml files, package.json, index.html, and
+ * the file tree of a project once. Rules only access this via the resulting ProjectContext,
+ * never the file system directly (see CLAUDE.md, "Project Context").
+ *
+ * @param projectRoot - Absolute path to the project directory to read.
+ * @param projectType - The project's type, as resolved by `loadConfig` (not auto-detected here).
+ * @returns The project's context: parsed manifest/config files, file tree, and a `readFile` accessor.
  */
 export function loadProjectContext(projectRoot: string, projectType: ProjectType): ProjectContext {
   const fileTree: FileTreeEntry[] = [];

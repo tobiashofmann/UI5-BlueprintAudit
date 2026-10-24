@@ -2,63 +2,65 @@ import type { ProjectContext } from "@abap/ui5-blueprint-audit-types";
 import { get } from "./get.js";
 
 /**
- * Libraries haben kein manifest.json — ui5.yaml#metadata.name ist dort der verlässliche
- * Namensraum (siehe auch "namespace"-Regel). Bei FS/FE ist es ebenfalls gesetzt, aber
- * sap.app/id im Manifest bleibt dort die maßgebliche Quelle.
+ * Libraries have no manifest.json — `ui5.yaml#metadata.name` is the reliable namespace
+ * there (see also the `namespace` rule). FS/FE projects set it too, but `sap.app/id` in
+ * the manifest remains the authoritative source for them.
  */
 function ui5YamlNamespace(ctx: ProjectContext): string | undefined {
   const name = get(ctx.ui5Yaml, "metadata", "name");
   return typeof name === "string" && name.length > 0 ? name : undefined;
 }
 
-/** Namensraum/ID des Projekts: sap.app/id bei FS/FE, ui5.yaml#metadata.name bei LIB. */
+/** The project's namespace/ID: `sap.app/id` for FS/FE, `ui5.yaml#metadata.name` for LIB. */
 export function getProjectNamespace(ctx: ProjectContext): string | undefined {
   if (ctx.projectType === "lib") return ui5YamlNamespace(ctx);
   const id = get(ctx.manifest, "sap.app", "id");
   return typeof id === "string" ? id : undefined;
 }
 
-/** Der Datei-Verweis für Namensraum-Funde: ui5.yaml bei LIB, webapp/manifest.json sonst. */
+/** The file to reference in namespace-related findings: `ui5.yaml` for LIB, `webapp/manifest.json` otherwise. */
 export function getNamespaceFileRef(ctx: ProjectContext): string {
   return ctx.projectType === "lib" ? "ui5.yaml" : "webapp/manifest.json";
 }
 
-/** Das Feld, das den Namensraum trägt, als Label für Finding-Messages. */
+/** The field that carries the namespace, as a label for finding messages. */
 export function getNamespaceLabel(ctx: ProjectContext): string {
   return ctx.projectType === "lib" ? "metadata.name in ui5.yaml" : "sap.app/id";
 }
 
 /**
- * Namensraum-Ordner einer Library unter src/ (z. B. "src/de/itsfullofstars/.../lib"),
- * abgeleitet aus ui5.yaml#metadata.name. undefined, wenn der Namensraum nicht ermittelt
- * werden kann (z. B. fehlende/fehlerhafte ui5.yaml).
+ * A library's namespace folder under `src/` (e.g. `"src/de/itsfullofstars/.../lib"`),
+ * derived from `ui5.yaml#metadata.name`.
+ *
+ * @returns The base path, or `undefined` if the namespace can't be determined (e.g. a
+ * missing or malformed `ui5.yaml`).
  */
 export function getLibraryBasePath(ctx: ProjectContext): string | undefined {
   const name = ui5YamlNamespace(ctx);
   return name ? `src/${name.split(".").join("/")}` : undefined;
 }
 
-/** Quell-Ordner für Code/Views: src/ bei LIB, webapp/ bei FS/FE. */
+/** The source folder for code/views: `src/` for LIB, `webapp/` for FS/FE. */
 export function getSourceRoot(ctx: ProjectContext): string {
   return ctx.projectType === "lib" ? "src" : "webapp";
 }
 
-/** Test-Ordner: test/ bei LIB, webapp/test/ bei FS/FE. */
+/** The test folder: `test/` for LIB, `webapp/test/` for FS/FE. */
 export function getTestRoot(ctx: ProjectContext): string {
   return ctx.projectType === "lib" ? "test" : "webapp/test";
 }
 
-/** i18n-Dateinamens-Präfix: "messagebundle" bei LIB (UI5-Konvention), "i18n" bei FS/FE. */
+/** The i18n file name prefix: `"messagebundle"` for LIB (UI5 convention), `"i18n"` for FS/FE. */
 export function getI18nPrefix(ctx: ProjectContext): string {
   return ctx.projectType === "lib" ? "messagebundle" : "i18n";
 }
 
-/** Default-Ordner für i18n-/messagebundle-Dateien, falls nicht explizit per Option gesetzt. */
+/** The default folder for i18n/messagebundle files, when not explicitly set via a rule option. */
 export function getDefaultI18nBasePath(ctx: ProjectContext): string | undefined {
   return ctx.projectType === "lib" ? getLibraryBasePath(ctx) : "webapp/i18n";
 }
 
-/** Das Feld, das die gepflegte Projekt-Version trägt, als Label für Finding-Messages. */
+/** The field that carries the maintained project version, as a label for finding messages. */
 export function getVersionLabel(ctx: ProjectContext): string {
   return ctx.projectType === "lib" ? "package.json#version" : "sap.app/applicationVersion/version";
 }

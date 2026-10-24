@@ -7,6 +7,11 @@ interface Options {
   dialogRoots?: string[];
 }
 
+/**
+ * Checks that fragments whose root element is a dialog (see `dialogRoots`) live under `basePath` (default `webapp/view/dialogs`), separate from regular fragments.
+ *
+ * Default severity: `error`. Project types: FS.
+ */
 export const dialogsFolderRule: Rule<Options> = {
   meta: {
     descriptionKey: "dialogs-folder.description",

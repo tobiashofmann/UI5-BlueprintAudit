@@ -1,5 +1,6 @@
 import type en from "./en.js";
 
+/** Brazilian Portuguese translations for the core plugin's rule descriptions and messages. */
 const ptBR: Record<keyof typeof en, string> = {
   "typescript.description": "O projeto usa TypeScript.",
   "typescript.missingTsconfig": "Falta um tsconfig.json na raiz do projeto.",

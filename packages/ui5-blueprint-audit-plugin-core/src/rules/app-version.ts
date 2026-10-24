@@ -6,6 +6,11 @@ interface Options {
   defaultValue?: string;
 }
 
+/**
+ * Checks that the app version has been maintained and isn't the generator default (`sap.app/applicationVersion/version` differs from `defaultValue`).
+ *
+ * Default severity: `warn`. Project types: FS, FE, LIB.
+ */
 export const appVersionRule: Rule<Options> = {
   meta: {
     descriptionKey: "app-version.description",

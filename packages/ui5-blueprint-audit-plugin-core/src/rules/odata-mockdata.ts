@@ -36,6 +36,11 @@ function entitySetNamesFromMetadata(metadataXml: string): string[] {
   return names;
 }
 
+/**
+ * Checks that mock data for the OData service exists, per `mode` (`any`, `one-entity`, or `all-entities`). Off by default.
+ *
+ * Default severity: `off`. Project types: FS, FE.
+ */
 export const odataMockdataRule: Rule<Options> = {
   meta: {
     descriptionKey: "odata-mockdata.description",

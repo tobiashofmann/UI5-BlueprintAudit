@@ -1,0 +1,16 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "packages/ui5-blueprint-audit-types/src/index.ts",
+    "packages/ui5-blueprint-audit-plugin-core/src/index.ts",
+    "packages/ui5-blueprint-audit/src/index.ts"
+  ],
+  "entryPointStrategy": "resolve",
+  "tsconfig": "tsconfig.json",
+  "out": "docs/api",
+  "name": "UI5 BlueprintAudit API",
+  "readme": "none",
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "excludeInternal": true
+}

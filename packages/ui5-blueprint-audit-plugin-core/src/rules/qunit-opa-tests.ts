@@ -6,6 +6,11 @@ interface Options {
   basePath?: string;
 }
 
+/**
+ * Checks that the project has unit or integration tests using QUnit or OPA5 under `basePath`.
+ *
+ * Default severity: `warn`. Project types: FS, FE, LIB.
+ */
 export const qunitOpaTestsRule: Rule<Options> = {
   meta: {
     descriptionKey: "qunit-opa-tests.description",

@@ -22,6 +22,11 @@ function indexHtmlUsesCacheBusterUrl(indexHtml: string | undefined): boolean {
   return !!src && /cachebuster/i.test(src);
 }
 
+/**
+ * Checks that the app uses the Cache Buster, either via the corresponding `ui5.yaml` task/middleware or via UI5's versioned cache-buster URL in `index.html`.
+ *
+ * Default severity: `error`. Project types: FS.
+ */
 export const cacheBusterRule: Rule = {
   meta: {
     descriptionKey: "cache-buster.description",

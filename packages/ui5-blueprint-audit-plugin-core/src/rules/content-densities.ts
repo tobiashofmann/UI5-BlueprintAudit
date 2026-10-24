@@ -6,6 +6,11 @@ interface Options {
   cozy?: boolean;
 }
 
+/**
+ * Checks that `sap.ui5/contentDensities` in the manifest matches the expected compact/cozy values.
+ *
+ * Default severity: `error`. Project types: FS, FE.
+ */
 export const contentDensitiesRule: Rule<Options> = {
   meta: {
     descriptionKey: "content-densities.description",

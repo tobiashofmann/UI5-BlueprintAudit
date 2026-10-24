@@ -6,7 +6,7 @@ import corePlugin from "@abap/ui5-blueprint-audit-plugin-core";
 
 const SUPPORTED_API_VERSION = "1";
 
-/** Wie ConfigError: key/params für lokalisierte Darstellung, message als englischer Fallback. */
+/** Like ConfigError: key/params for localized display, message as the English fallback. */
 export class PluginLoadError extends Error {
   constructor(
     public readonly key: string,
@@ -76,9 +76,14 @@ async function loadOnePlugin(spec: string, configPath: string): Promise<Plugin> 
 }
 
 /**
- * Lädt das Kern-Plugin (immer, als erstes Element) plus die in der Config angegebenen
- * Plugins. Das Kern-Plugin ist dabei ein normales Plugin ohne Sonderbehandlung
- * (siehe CLAUDE.md, Abschnitt "Architekturentscheidungen").
+ * Loads the core plugin (always, as the first element) plus the plugins given in the
+ * config. The core plugin is a regular plugin with no special treatment (see CLAUDE.md,
+ * "Architecture decisions").
+ *
+ * @param configPath - Path to the config file; local plugin specs are resolved relative to it.
+ * @param pluginSpecs - The `plugins` entries from the config (local paths or npm package names).
+ * @returns The core plugin followed by every configured plugin, in config order.
+ * @throws {PluginLoadError} If a plugin can't be resolved/imported, or its default export is invalid.
  */
 export async function loadPlugins(configPath: string, pluginSpecs: string[]): Promise<Plugin[]> {
   const extraPlugins = await Promise.all(pluginSpecs.map((spec) => loadOnePlugin(spec, configPath)));
@@ -86,8 +91,11 @@ export async function loadPlugins(configPath: string, pluginSpecs: string[]): Pr
 }
 
 /**
- * Baut die flache Regel-Map aus allen Plugins. Das erste Plugin (Kern-Plugin) bleibt
- * ohne Präfix, alle weiteren bekommen `<plugin>/<regel>` (siehe CLAUDE.md, "Namespacing").
+ * Builds the flat rule map from all plugins. The first plugin (the core plugin) stays
+ * unprefixed, every other plugin's rules get `<plugin>/<rule>` (see CLAUDE.md, "Namespacing").
+ *
+ * @param plugins - Plugins as returned by `loadPlugins`, core plugin first.
+ * @returns Every rule, keyed by its effective (possibly prefixed) rule ID.
  */
 export function buildRuleMap(plugins: Plugin[]): Record<string, Rule> {
   const map: Record<string, Rule> = {};

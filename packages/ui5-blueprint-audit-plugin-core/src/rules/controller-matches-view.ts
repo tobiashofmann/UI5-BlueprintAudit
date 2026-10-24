@@ -6,6 +6,11 @@ interface Options {
   caseSensitive?: boolean;
 }
 
+/**
+ * Checks that every XML view with a `controllerName` points to a controller named after the view itself (not an unrelated, coincidentally-existing controller), and that this controller file actually exists.
+ *
+ * Default severity: `error`. Project types: FS.
+ */
 export const controllerMatchesViewRule: Rule<Options> = {
   meta: {
     descriptionKey: "controller-matches-view.description",

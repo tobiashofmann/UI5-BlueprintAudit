@@ -48,6 +48,16 @@ function projectDetailSection(project: ProjectResult, t: Translator): string {
   ].join("\n");
 }
 
+/**
+ * Renders one `report_<locale>.md` file: a summary table (status per project) followed
+ * by a detail section per project (findings per rule, or the load error). Chrome labels
+ * (title, column headers, etc.) are resolved via `t`, so the same function produces every
+ * active language's file — the caller picks which locale's translator and project results to pass.
+ *
+ * @param projects - Project results for the locale this report is being rendered in.
+ * @param t - Translator bound to that locale, used for report-chrome labels.
+ * @returns The full Markdown document, as a string.
+ */
 export function renderMarkdownReport(projects: ProjectResult[], t: Translator): string {
   const generatedAt = new Date().toISOString();
 

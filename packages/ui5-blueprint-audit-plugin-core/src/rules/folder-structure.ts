@@ -7,6 +7,11 @@ interface Options {
   controllerPath?: string;
 }
 
+/**
+ * Checks that the minimum folder structure exists (`webapp/controller`, `webapp/view`, `webapp/model` by default) and that XML views and controllers live in their designated folders.
+ *
+ * Default severity: `error`. Project types: FS.
+ */
 export const folderStructureRule: Rule<Options> = {
   meta: {
     descriptionKey: "folder-structure.description",

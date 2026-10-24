@@ -1,84 +1,102 @@
+/** The UI5 project type a rule applies to: Freestyle, Fiori Elements, or Library. */
 export type ProjectType = "fs" | "fe" | "lib";
 
+/** A rule's active severity, or `"off"` to disable it. */
 export type Severity = "off" | "warn" | "error";
 
+/** The parsed contents of a project's `manifest.json`. */
 export interface ManifestJson {
   [key: string]: unknown;
 }
 
+/** One entry of a project's file tree, as read by {@link ProjectContext.fileTree}. */
 export interface FileTreeEntry {
   path: string;
   isDirectory: boolean;
 }
 
 /**
- * Zentraler, einmalig eingelesener Kontext eines UI5-Projekts.
- * Regeln greifen nicht selbst aufs Dateisystem zu, sondern lesen aus diesem Kontext.
+ * The central, read-once context of a UI5 project.
+ * Rules never access the file system themselves — they only read from this context.
  */
 export interface ProjectContext {
   projectRoot: string;
   projectType: ProjectType;
   manifest: ManifestJson | undefined;
   ui5Yaml: unknown;
-  /** Weitere `ui5-*.yaml`-Dateien im Projektroot, geparst, keyed nach Dateiname (z. B. "ui5-deploy.yaml"). */
+  /** Further `ui5-*.yaml` files in the project root, parsed, keyed by file name (e.g. `"ui5-deploy.yaml"`). */
   ui5YamlExtensions: Record<string, unknown>;
   packageJson: Record<string, unknown> | undefined;
   indexHtml: string | undefined;
   fileTree: FileTreeEntry[];
+  /** Reads a file relative to {@link projectRoot}, or `undefined` if it doesn't exist. */
   readFile(path: string): string | undefined;
 }
 
+/** A single violation reported by a rule via {@link RuleContext.report}. */
 export interface Finding {
   ruleId: string;
   severity: Severity;
   message: string;
   file?: string;
+  /** 1-indexed line number within {@link file}, if known. */
   line?: number;
+  /** 1-indexed column number within {@link file}, if known. */
   column?: number;
 }
 
-/** Sprachcode, z. B. "de", "en", "pt-BR". Kein geschlossener Union-Typ, damit Add-ons eigene Sprachen registrieren können. */
+/** A locale code, e.g. `"de"`, `"en"`, `"pt-BR"`. Deliberately not a closed union, so add-ons can register their own locales. */
 export type LocaleCode = string;
 
+/** Resolves a localized message for `key`, interpolating `params` into it. */
 export interface Translator {
   (key: string, params?: Record<string, string | number>): string;
 }
 
+/** The context passed to a rule's {@link Rule.check} function. */
 export interface RuleContext<TOptions = unknown> {
   projectContext: ProjectContext;
   options: TOptions;
   t: Translator;
+  /** Reports one violation. `ruleId` and `severity` are filled in by the engine, not the rule. */
   report(finding: Omit<Finding, "ruleId" | "severity">): void;
 }
 
+/** Static metadata describing a rule, independent of any particular project. */
 export interface RuleMeta {
   descriptionKey: string;
   defaultSeverity: Severity;
+  /** The project types this rule runs for; the engine skips it for any other type. */
   projectTypes: ProjectType[];
 }
 
+/** A single check against a project's {@link ProjectContext}. */
 export interface Rule<TOptions = unknown> {
   meta: RuleMeta;
   check(ctx: RuleContext<TOptions>): void | Promise<void>;
 }
 
+/** A loadable unit of rules (and optionally configs/locales), as declared by `plugins:` in `ui5-blueprint-audit.yaml`. */
 export interface Plugin {
   name: string;
   apiVersion: string;
   rules: Record<string, Rule>;
   configs?: Record<string, Record<string, unknown>>;
-  /** Übersetzungs-Bundles für die Message-Keys dieses Plugins, keyed nach Locale. Add-ons registrieren so neue Sprachen. */
+  /** Translation bundles for this plugin's message keys, keyed by locale. This is how add-ons register new languages. */
   locales?: Record<LocaleCode, Record<string, string>>;
 }
 
+/** The merged translation bundles of all loaded plugins, as built by {@link buildLocaleRegistry}. */
 export interface LocaleRegistry {
   bundles: Record<LocaleCode, Record<string, string>>;
   referenceLocale: LocaleCode;
 }
 
 /**
- * Merged die `locales`-Bundles aller Plugins (in Ladereihenfolge; ein späteres Plugin
- * kann einzelne Keys eines früheren überschreiben — das ist der Add-on-Patch-Mechanismus).
+ * Merges the `locales` bundles of all given plugins (in load order; a later plugin can
+ * override individual keys of an earlier one — this is the add-on patch mechanism).
+ *
+ * @param referenceLocale - The locale {@link createTranslator} falls back to when a key is missing elsewhere.
  */
 export function buildLocaleRegistry(plugins: Plugin[], referenceLocale: LocaleCode = "en"): LocaleRegistry {
   const bundles: Record<LocaleCode, Record<string, string>> = {};
@@ -91,9 +109,9 @@ export function buildLocaleRegistry(plugins: Plugin[], referenceLocale: LocaleCo
 }
 
 /**
- * Führt mehrere LocaleRegistry-Objekte zusammen (z. B. eine pro Projekt in einem
- * Mehrprojekt-Lauf, falls unterschiedliche Projekte unterschiedliche Locale-Add-ons
- * laden). Spätere Registries überschreiben einzelne Keys früherer, analog zu buildLocaleRegistry.
+ * Merges several {@link LocaleRegistry} objects (e.g. one per project in a multi-project
+ * run, if different projects load different locale add-ons). A later registry overrides
+ * individual keys of an earlier one, analogous to {@link buildLocaleRegistry}.
  */
 export function mergeLocaleRegistries(registries: LocaleRegistry[], referenceLocale: LocaleCode = "en"): LocaleRegistry {
   const bundles: Record<LocaleCode, Record<string, string>> = {};
@@ -105,6 +123,7 @@ export function mergeLocaleRegistries(registries: LocaleRegistry[], referenceLoc
   return { bundles, referenceLocale };
 }
 
+/** Lists the locales that have at least one bundle loaded in `registry`. */
 export function availableLocales(registry: LocaleRegistry): LocaleCode[] {
   return Object.keys(registry.bundles);
 }
@@ -116,7 +135,10 @@ function interpolate(template: string, params?: Record<string, string | number>)
   );
 }
 
-/** Bindet einen Translator an eine feste Sprache. Fehlt ein Key dort, wird auf `referenceLocale` zurückgefallen, zuletzt auf den rohen Key selbst. */
+/**
+ * Binds a {@link Translator} to a fixed locale. If a key is missing there, it falls back
+ * to `registry.referenceLocale`, and finally to the raw key itself.
+ */
 export function createTranslator(registry: LocaleRegistry, locale: LocaleCode): Translator {
   return (key, params) => {
     const template = registry.bundles[locale]?.[key] ?? registry.bundles[registry.referenceLocale]?.[key] ?? key;
@@ -124,7 +146,11 @@ export function createTranslator(registry: LocaleRegistry, locale: LocaleCode): 
   };
 }
 
-/** Wirft, wenn eine angeforderte Sprache in KEINEM geladenen Bundle vorkommt (auch nicht teilweise). */
+/**
+ * Throws if a requested locale is present in none of the loaded bundles (not even partially).
+ *
+ * @throws {Error} Listing the unknown locale(s) and the locales that are actually available.
+ */
 export function assertLocalesAvailable(registry: LocaleRegistry, requested: LocaleCode[]): void {
   const available = new Set(availableLocales(registry));
   const unknown = requested.filter((locale) => !available.has(locale));

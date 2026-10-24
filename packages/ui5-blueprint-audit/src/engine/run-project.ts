@@ -8,9 +8,11 @@ import { buildRuleMap, loadPlugins, PluginLoadError } from "../plugins/load-plug
 import { cliLocalesPlugin } from "../locales/index.js";
 import type { ProjectResultsByLocale, RunProjectResult, RuleResult } from "./types.js";
 
+/** CLI-level overrides for a single `runProject` call; see `LoadConfigOptions` for how each is applied. */
 export interface RunProjectOptions {
   cliProjectType?: ProjectType;
   cliLanguages?: LocaleCode[];
+  /** Config file name to look for in the project root, relative path. Default: "ui5-blueprint-audit.yaml". */
   configFileName?: string;
 }
 
@@ -57,6 +59,16 @@ function errorResultForAllLocales(
   return resultsByLocale;
 }
 
+/**
+ * Runs one project end to end: loads its config and plugins, builds the locale registry,
+ * loads the project context once, then evaluates every active rule for every requested
+ * output language (plus "en", always, since report.xml is always English). A config or
+ * plugin-loading failure doesn't throw — it's turned into an error `ProjectResult` for
+ * every requested locale instead, so one broken project doesn't abort a multi-project run.
+ *
+ * @param projectDir - Absolute path to the project to check.
+ * @returns The results per output locale, plus the merged locale registry used to render them.
+ */
 export async function runProject(projectDir: string, options: RunProjectOptions = {}): Promise<RunProjectResult> {
   const projectName = basename(projectDir);
   const cliOnlyRegistry = buildLocaleRegistry([cliLocalesPlugin], "en");

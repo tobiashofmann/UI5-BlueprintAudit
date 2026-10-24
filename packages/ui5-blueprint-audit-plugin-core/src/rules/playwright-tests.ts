@@ -11,6 +11,11 @@ function hasDependency(packageJson: Record<string, unknown> | undefined, name: s
   return name in deps;
 }
 
+/**
+ * Checks that the project uses Playwright for end-to-end tests: a Playwright config file exists and `@playwright/test` is a dependency.
+ *
+ * Default severity: `warn`. Project types: FS, FE.
+ */
 export const playwrightTestsRule: Rule<Options> = {
   meta: {
     descriptionKey: "playwright-tests.description",

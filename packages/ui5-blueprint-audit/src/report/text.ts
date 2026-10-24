@@ -1,5 +1,14 @@
 import type { ProjectResult } from "../engine/types.js";
 
+/**
+ * Renders the plain-text console summary printed after every run: one line per project
+ * (✓/!/✗ for no findings / warnings only / at least one error) followed by its findings,
+ * or the load error if the project's config/context couldn't be loaded. This is the only
+ * report format not written to a file — it's printed directly to stdout.
+ *
+ * @param projects - Project results for a single locale (the first active output language).
+ * @returns The summary text, one project per block, joined with newlines.
+ */
 export function renderTextSummary(projects: ProjectResult[]): string {
   const lines: string[] = [];
 

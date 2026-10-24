@@ -1,6 +1,11 @@
 import type { Rule } from "@abap/ui5-blueprint-audit-types";
 import { get } from "../util/get.js";
 
+/**
+ * Checks that the app has a Fiori Launchpad configuration for at least one tile: `sap.app/crossNavigation/inbounds` has at least one entry with `semanticObject` and `action`.
+ *
+ * Default severity: `error`. Project types: FS, FE.
+ */
 export const flpConfigRule: Rule = {
   meta: {
     descriptionKey: "flp-config.description",

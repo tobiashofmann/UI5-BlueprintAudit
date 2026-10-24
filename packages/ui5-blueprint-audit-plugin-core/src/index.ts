@@ -35,8 +35,8 @@ import { appVersionRule } from "./rules/app-version.js";
 import { locales } from "./locales/index.js";
 
 /**
- * Kern-Plugin mit den 33 Standardregeln aus docs/ui5-blueprint-audit-rules.md.
- * Regel-IDs haben hier keinen Präfix (siehe CLAUDE.md, Abschnitt "Plugins").
+ * The core plugin with the 33 default rules from docs/ui5-blueprint-audit-rules.md.
+ * Rule IDs here have no prefix (see CLAUDE.md, "Plugins" section).
  */
 const corePlugin: Plugin = {
   name: "core",
