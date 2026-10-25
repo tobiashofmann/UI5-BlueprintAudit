@@ -26,9 +26,9 @@
 		"ts-typecheck": "tsc --noEmit"
 	},
 	"devDependencies": {
-		"@openui5/types": "1.150.0",
+		"@openui5/types": "1.153.0",
 		"@ui5/cli": "^4.0.57",
-		"@ui5/ts-interface-generator": "^0.11.1",
+		"@ui5/ts-interface-generator": "^0.12.0",
 		"rimraf": "^6.1.3",
 		"typescript": "^6.0.3",
 		"ui5-middleware-livereload": "^3.3.1",
