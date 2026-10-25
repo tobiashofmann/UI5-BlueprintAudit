@@ -7,7 +7,14 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    ignores: ["**/dist/**", "**/node_modules/**", "sample-prj/**", "docs/api/**", "sbom/**"],
+    ignores: [
+      "**/dist/**",
+      "**/node_modules/**",
+      "sample-prj/**",
+      "docs/api/**",
+      "sbom/**",
+      "allure-report/**",
+    ],
   },
   {
     files: ["scripts/**/*.mjs"],
