@@ -14,6 +14,8 @@ export default tseslint.config(
       "docs/api/**",
       "sbom/**",
       "allure-report/**",
+      ".stryker-tmp/**",
+      "reports/**",
     ],
   },
   {
