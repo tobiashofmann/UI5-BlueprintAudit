@@ -9,6 +9,17 @@ updates:
       workspace-dependencies:
         patterns:
           - "*"
+        exclude-patterns:
+          - "typescript"
+          - "@types/node"
+    # typescript-eslint doesn't support TypeScript 7.x yet (TS skipped 6.x for
+    # the native Go compiler rewrite), so a major bump here breaks lint/typecheck.
+    # Keep on 5.x/minor updates until typescript-eslint catches up, then remove.
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   # Standalone sample projects used as rule-validation fixtures (not npm workspaces)
   - package-ecosystem: npm
