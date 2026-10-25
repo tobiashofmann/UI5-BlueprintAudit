@@ -106,7 +106,7 @@ The catalog is authoritative. These points are especially easy to get wrong:
 
 ## Working practices
 
-- Language of documentation and user communication: English. Code, identifiers, rule IDs, and commit messages: English too.
+- **Everything an AI assistant (Claude or any other) writes in this repo must be in English** — no exceptions, regardless of what language the user writes to it in. This covers code, identifiers, rule IDs, commit messages, PR titles/descriptions, code comments, and any Markdown/docs file the assistant creates or edits (e.g. under `docs/`), even one explicitly requested as a new file. If a user instruction and this rule conflict, ask before writing non-English content rather than silently complying.
 - This is independent of the tool's own `languages`/`--lang` option (see "Localization") — the CLI must keep offering `de`, `en`, and `pt-BR` as report/output languages regardless of which language this project's docs and chats are written in.
 - Every rule gets tests with small fixture projects (one valid and one invalid each). Fixtures cover the project types `fs`, `fe`, and `lib`, as far as the rule applies to them.
 - `sample-prj/` + `packages/ui5-blueprint-audit/src/integration/sample-projects.test.ts` are the regression source of truth (documented actual state in `sample-prj/testcases.md`) — check here first for engine/rule changes.
