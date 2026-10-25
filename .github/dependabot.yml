@@ -31,6 +31,15 @@ updates:
       sample-project-dependencies:
         patterns:
           - "*"
+        exclude-patterns:
+          - "typescript"
+    # TypeScript 7.x removes moduleResolution=node10 and baseUrl, which
+    # ui5-tooling-transpile's TS templates still rely on (breaks `tsc --noEmit`
+    # in these fixtures even though CI itself never installs/builds them here).
+    # Keep on 5.x/minor updates until the UI5 TS tooling catches up, then remove.
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   # Keep pinned GitHub Actions SHAs in CI workflows up to date
   - package-ecosystem: github-actions
