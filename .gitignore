@@ -156,3 +156,7 @@ vite.config.ts.timestamp-*
 
 # Generated TSDoc HTML (npm run docs:api)
 /docs/api/
+
+# Stryker mutation testing (npm run mutation)
+.stryker-tmp
+/reports/
