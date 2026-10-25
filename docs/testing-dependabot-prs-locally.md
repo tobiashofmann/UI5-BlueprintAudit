@@ -1,35 +1,34 @@
-# Dependabot-PRs lokal prüfen (Monorepo mit npm Workspaces + Fixture-Projekten)
+# Testing Dependabot PRs locally (monorepo with npm workspaces + fixture projects)
 
-Kontext: In diesem Repo (`UI5-BlueprintAudit`) deckt die normale CI (`lint`,
-`typecheck`, `build`, `test` am Root) **nicht** alles ab. Insbesondere die
-Fixture-Projekte unter `sample-prj/*` sind eigenständige npm-Projekte, keine
-Workspaces — `npm ci`/`build`/`test` am Root rührt sie nie an. Ein Dependabot-PR
-kann also "grün" sein, obwohl er diese Fixtures kaputt macht. Das ist mehrfach
-in diesem Repo passiert:
+Context: in this repo (`UI5-BlueprintAudit`), the regular CI (`lint`,
+`typecheck`, `build`, `test` at the root) does **not** cover everything. In
+particular, the fixture projects under `sample-prj/*` are standalone npm
+projects, not workspaces — root-level `npm ci`/`build`/`test` never touches
+them. A Dependabot PR can therefore be "green" while still breaking these
+fixtures. This has happened multiple times in this repo:
 
-- PR #30: `typescript` 5.5 → 7.0 im Root-Workspace, bricht `npm ci` (typedoc
-  Peer-Dep) und `npm run lint` (typescript-eslint kennt TS 7 nicht).
-- PR #31: derselbe TS-7-Sprung in `sample-prj/*` — CI blieb grün, aber
-  `tsc --noEmit` in den Fixtures brach (TS 7 entfernt `moduleResolution: node10`
-  und `baseUrl`).
-- PR #36: `@wdio/cli` 9 → 10 in `sample-prj/*` — `npm install` in den
-  betroffenen Fixtures schlägt fehl, weil `wdio-ui5-service` per Peer-Dependency
-  noch `@wdio/cli@^9` verlangt.
+- PR #30: `typescript` 5.5 → 7.0 in the root workspace, broke `npm ci`
+  (typedoc peer dep) and `npm run lint` (typescript-eslint doesn't know TS 7).
+- PR #31: the same TS 7 jump in `sample-prj/*` — CI stayed green, but
+  `tsc --noEmit` in the fixtures broke (TS 7 removed `moduleResolution: node10`
+  and `baseUrl`).
+- PR #36: `@wdio/cli` 9 → 10 in `sample-prj/*` — `npm install` in the affected
+  fixtures failed because `wdio-ui5-service` still requires `@wdio/cli@^9` via
+  peer dependency.
 
-Die Lehre: **"CI ist grün" reicht hier nicht.** Bei jedem Dependency-Bump-PR
-lohnt sich ein kurzer lokaler Check, besonders wenn `sample-prj/*` betroffen
-ist.
+The lesson: **"CI is green" isn't enough here.** For every dependency-bump PR,
+it's worth a short local check, especially when `sample-prj/*` is affected.
 
-## Schritt für Schritt
+## Step by step
 
-### 1. PR-Branch isoliert auschecken
+### 1. Check out the PR branch in isolation
 
-Niemals direkt im eigenen Arbeitsverzeichnis auf den PR-Branch wechseln —
-dafür einen Git-Worktree verwenden. Das lässt den eigenen Checkout (inkl.
-`node_modules`) unberührt und räumt sich mit einem Befehl wieder weg.
+Never switch to the PR branch directly in your own working directory — use a
+git worktree instead. That leaves your own checkout (including
+`node_modules`) untouched and can be cleaned up with a single command.
 
 ```bash
-# PR-Nummer kennen (z. B. aus der GitHub-URL: .../pull/36)
+# Know the PR number (e.g. from the GitHub URL: .../pull/36)
 PR=36
 
 git fetch origin main --quiet
@@ -39,38 +38,39 @@ git worktree add /tmp/pr-$PR-check pr-$PR-check
 cd /tmp/pr-$PR-check
 ```
 
-### 2. Erst anschauen, was sich ändert
+### 2. Look at what actually changes first
 
 ```bash
 git diff origin/main...pr-$PR-check --stat
 git diff origin/main...pr-$PR-check -- package.json packages/*/package.json sample-prj/*/package.json
 ```
 
-Worauf achten:
-- Welche Dependency(s) werden gebumpt, welche Versionssprünge (Major?
-  Minor? Patch?)
-- Betrifft es den Root-Workspace (`package.json`, `packages/*/package.json`)
-  oder die Fixtures (`sample-prj/*/package.json`)?
-- Bei einem Major-Bump: kurz nachsehen (Changelog/Release Notes des
-  Pakets), ob bekannte Breaking Changes relevant sein könnten.
+What to look for:
 
-### 3. Root-Skripte laufen lassen
+- Which dependency(s) are being bumped, and how big is the version jump
+  (major? minor? patch?)
+- Does it affect the root workspace (`package.json`,
+  `packages/*/package.json`) or the fixtures (`sample-prj/*/package.json`)?
+- For a major bump: briefly check the package's changelog/release notes for
+  relevant breaking changes.
+
+### 3. Run the root scripts
 
 ```bash
-npm ci --ignore-scripts        # schlägt bei Peer-Dep-Konflikten schon hier fehl
+npm ci --ignore-scripts        # fails early on peer-dep conflicts
 npm run lint
 npm run typecheck
 npm run build
 npm run test
 ```
 
-Schlägt schon `npm ci` fehl (z. B. `ERESOLVE`-Konflikt), ist der PR in dieser
-Form nicht mergebar — fertig, keine weiteren Schritte nötig.
+If `npm ci` already fails (e.g. an `ERESOLVE` conflict), the PR isn't
+mergeable as-is — done, no further steps needed.
 
-### 4. Bei Änderungen unter `sample-prj/*`: diese Fixtures einzeln prüfen
+### 4. If `sample-prj/*` is affected: check those fixtures individually
 
-Das ist der Schritt, den die normale CI **nicht** macht und der die bisher
-gefundenen Regressionen aufgedeckt hat:
+This is the step the regular CI does **not** do, and the one that caught the
+regressions found so far:
 
 ```bash
 for p in sample-prj/*/; do
@@ -79,103 +79,102 @@ for p in sample-prj/*/; do
 done
 ```
 
-Für TypeScript-Fixtures (die ein `ts-typecheck`-Script haben) zusätzlich:
+For TypeScript fixtures (the ones with a `ts-typecheck` script), additionally:
 
 ```bash
 cd sample-prj/prj-ts && npm run ts-typecheck
 cd ../prj-ts-lib && npm run ts-typecheck
 ```
 
-Scheitert `npm install` oder `ts-typecheck` hier, aber die Root-Skripte in
-Schritt 3 waren grün → genau die Art von "versteckter" Regression, die bisher
-mehrfach durchgerutscht ist.
+If `npm install` or `ts-typecheck` fails here while the root scripts in step 3
+were green, that's exactly the kind of "hidden" regression that has slipped
+through multiple times before.
 
-### 5. Bei Zweifel: Vergleich mit `main`
+### 5. If in doubt: compare against `main`
 
-Um auszuschließen, dass ein Fehler schon vorher bestand (also keine Regression
-dieses PRs ist), denselben Check auf einem zweiten Worktree von `origin/main`
-wiederholen:
+To rule out that a failure already existed before this PR (i.e. isn't a
+regression it introduced), repeat the same check in a second worktree checked
+out from `origin/main`:
 
 ```bash
 git worktree add /tmp/main-check origin/main
-cd /tmp/main-check/sample-prj/<betroffenes-projekt>
+cd /tmp/main-check/sample-prj/<affected-project>
 npm install --ignore-scripts
-npm run ts-typecheck   # falls vorhanden
+npm run ts-typecheck   # if present
 ```
 
-Tritt der Fehler auch hier auf → vorbestehendes Problem, keine Schuld des PRs
-(muss trotzdem nicht sofort gefixt werden, ist aber gut zu wissen).
-Tritt er nur im PR-Branch auf → echte Regression, PR nicht mergen.
+If the failure also occurs here → pre-existing issue, not the PR's fault
+(still worth knowing about, but no reason to block the PR on its own).
+If it only occurs on the PR branch → real regression, don't merge.
 
-### 6. Aufräumen
+### 6. Clean up
 
 ```bash
-cd /Users/tobias/dev/code/UI5-BlueprintAudit   # zurück ins Hauptverzeichnis
+cd /Users/tobias/dev/code/UI5-BlueprintAudit   # back to the main checkout
 git worktree remove /tmp/pr-$PR-check --force
 git branch -D pr-$PR-check
-git worktree remove /tmp/main-check --force 2>/dev/null   # falls Schritt 5 genutzt wurde
+git worktree remove /tmp/main-check --force 2>/dev/null   # if step 5 was used
 ```
 
-## Checkliste (kurz zum Abhaken)
+## Checklist (quick reference)
 
-- [ ] `git diff origin/main...pr-<NR>` angeschaut — was genau ändert sich?
-- [ ] `npm ci --ignore-scripts` im PR-Worktree läuft durch
-- [ ] `npm run lint` grün
-- [ ] `npm run typecheck` grün
-- [ ] `npm run build` grün
-- [ ] `npm run test` grün
-- [ ] Falls `sample-prj/*` betroffen: `npm install` in jedem betroffenen
-      Fixture-Projekt grün
-- [ ] Falls TS-Fixture betroffen: `npm run ts-typecheck` dort grün
-- [ ] Bei Verdacht auf vorbestehenden Fehler: gegen `origin/main` verglichen
-- [ ] Worktrees und Branches wieder aufgeräumt
+- [ ] Looked at `git diff origin/main...pr-<NR>` — what exactly changes?
+- [ ] `npm ci --ignore-scripts` in the PR worktree succeeds
+- [ ] `npm run lint` passes
+- [ ] `npm run typecheck` passes
+- [ ] `npm run build` passes
+- [ ] `npm run test` passes
+- [ ] If `sample-prj/*` is affected: `npm install` passes in every affected
+      fixture project
+- [ ] If a TS fixture is affected: `npm run ts-typecheck` passes there
+- [ ] If a failure looks pre-existing: compared against `origin/main`
+- [ ] Worktrees and branches cleaned up again
 
 ---
 
-## Anleitung für eine KI (z. B. Claude Code), die diesen Check übernehmen soll
+## Instructions for an AI (e.g. Claude Code) to run this check
 
-Prompt-Vorlage, die du 1:1 an eine KI mit Shell-/Git-Zugriff auf dieses Repo
-geben kannst:
+A prompt template you can hand directly to an AI with shell/git access to
+this repo:
 
-> Prüfe den Pull Request https://github.com/tobiashofmann/UI5-BlueprintAudit/pull/`<NR>`
-> lokal, bevor er gemerged wird. Gehe so vor:
+> Check pull request `https://github.com/tobiashofmann/UI5-BlueprintAudit/pull/<NR>`
+> locally before it gets merged. Proceed as follows:
 >
-> 1. `git fetch origin main --quiet` und `git fetch origin "pull/<NR>/head:pr-<NR>-check"`.
-> 2. Checke `git log --oneline origin/main..pr-<NR>-check` und
->    `git diff origin/main...pr-<NR>-check --stat`, um zu verstehen, was sich
->    ändert — insbesondere welche Dependencies in welchen `package.json`-Dateien
->    gebumpt werden und ob Major-Versionssprünge dabei sind.
-> 3. Checke den PR-Branch in einem **eigenen Git-Worktree** aus (nicht im
->    aktuellen Arbeitsverzeichnis), damit mein aktueller Checkout unberührt
->    bleibt: `git worktree add <pfad> pr-<NR>-check`.
-> 4. Führe dort `npm ci --ignore-scripts`, `npm run lint`, `npm run typecheck`,
->    `npm run build` und `npm run test` aus. Melde jeden Fehler mit vollständiger
->    Fehlermeldung, nicht nur "es gab einen Fehler".
-> 5. **Wichtig:** Die CI dieses Repos prüft `sample-prj/*` nicht (keine npm
->    Workspaces, eigene `package-lock.json` je Unterordner). Wenn der PR Dateien
->    unter `sample-prj/*` ändert, installiere und teste **jedes betroffene
->    Fixture-Projekt einzeln** (`npm install --ignore-scripts` in dem jeweiligen
->    Unterordner; bei vorhandenem `ts-typecheck`-Script zusätzlich
->    `npm run ts-typecheck` ausführen). Das ist der Schritt, in dem bisher
->    mehrfach versteckte Breaking Changes aufgetaucht sind, die die normale CI
->    nicht gesehen hat.
-> 6. Wenn dabei ein Fehler auftritt: prüfe per Vergleichs-Worktree von
->    `origin/main`, ob derselbe Fehler schon ohne den PR besteht (vorbestehendes
->    Problem) oder erst durch den PR entsteht (echte Regression). Nenne das
->    Ergebnis explizit.
-> 7. Räume am Ende alle angelegten Worktrees und Branches wieder auf
+> 1. `git fetch origin main --quiet` and
+>    `git fetch origin "pull/<NR>/head:pr-<NR>-check"`.
+> 2. Check `git log --oneline origin/main..pr-<NR>-check` and
+>    `git diff origin/main...pr-<NR>-check --stat` to understand what changes —
+>    in particular which dependencies are bumped in which `package.json`
+>    files, and whether any major-version jumps are involved.
+> 3. Check out the PR branch in its **own git worktree** (not in the current
+>    working directory), so my current checkout stays untouched:
+>    `git worktree add <path> pr-<NR>-check`.
+> 4. Run `npm ci --ignore-scripts`, `npm run lint`, `npm run typecheck`,
+>    `npm run build`, and `npm run test` there. Report every failure with the
+>    full error message, not just "there was an error".
+> 5. **Important:** this repo's CI never checks `sample-prj/*` (standalone npm
+>    projects, not workspaces, each with its own `package-lock.json`). If the
+>    PR changes files under `sample-prj/*`, install and test **every affected
+>    fixture project individually** (`npm install --ignore-scripts` in that
+>    subdirectory; additionally run `npm run ts-typecheck` if the fixture has
+>    that script). This is the step where hidden breaking changes have
+>    repeatedly slipped past regular CI in this repo.
+> 6. If a failure shows up: check, via a comparison worktree of `origin/main`,
+>    whether the same failure already exists without the PR (pre-existing
+>    issue) or only appears because of the PR (real regression). State the
+>    result explicitly.
+> 7. At the end, clean up every worktree and branch you created
 >    (`git worktree remove`, `git branch -D`).
-> 8. Fasse am Schluss klar zusammen: Ist der PR mergebar, ja oder nein, und
->    warum — mit konkreten Fehlermeldungen als Beleg, nicht nur "sieht gut aus".
+> 8. Finish with a clear verdict: is the PR mergeable, yes or no, and why —
+>    backed by concrete error messages, not just "looks fine".
 
-Wichtige Punkte, die eine KI hier typischerweise übersieht, wenn man sie nicht
-explizit erwähnt:
-- Dass `npm ci` am Root **nichts** über die Fixtures unter `sample-prj/*`
-  aussagt — die KI muss explizit angewiesen werden, dort zusätzlich zu prüfen.
-- Dass ein grüner CI-Status auf GitHub bei diesem Repo-Setup **kein
-  Beweis** für echte Verträglichkeit ist, besonders bei Dependency-Bumps in
-  `sample-prj/*`.
-- Den Unterschied zwischen "schlägt fehl, weil vorbestehend" und "schlägt fehl,
-  weil der PR es verursacht hat" — ohne Vergleich gegen `main` vermischt eine
-  KI das gerne und empfiehlt dann fälschlich, den PR abzulehnen oder
-  fälschlich, ihn zu mergen.
+Important points an AI typically misses here unless told explicitly:
+
+- That root-level `npm ci` says **nothing** about the fixtures under
+  `sample-prj/*` — the AI must be explicitly told to check those separately.
+- That a green CI status on GitHub is **no proof** of real compatibility in
+  this repo's setup, especially for dependency bumps under `sample-prj/*`.
+- The difference between "fails because it was already broken" and "fails
+  because the PR caused it" — without a comparison against `main`, an AI will
+  readily conflate the two and then wrongly recommend rejecting a PR, or
+  wrongly recommend merging one.
