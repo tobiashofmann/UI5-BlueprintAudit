@@ -1,404 +1,404 @@
-# Regelkatalog: UI5 BlueprintAudit
+# Rule Catalog: UI5 BlueprintAudit
 
-Stand: 2026-10-16 (Entwurf)
+As of: 2026-10-16 (draft)
 
-Dieser Katalog beschreibt alle Regeln des Unternehmens-Linters für UI5-Projekte. Jede Regel hat eine feste ID, einen Default-Status und optionale Parameter. Die Defaults können pro Projekt in der Konfigurationsdatei (`ui5-blueprint-audit.yaml`) überschrieben werden. Regeln können dort ein- oder ausgeschaltet werden.
+This catalog describes all rules of the company linter for UI5 projects. Every rule has a fixed ID, a default status, and optional parameters. The defaults can be overridden per project in the configuration file (`ui5-blueprint-audit.yaml`). Rules can be turned on or off there.
 
-## Konventionen
+## Conventions
 
 - **Severity:** `off`, `warn`, `error`
-- **Projekttypen:** `freestyle` (FS), `fiori-elements` (FE), `library` (LIB). Eine Regel wird nur auf Projekte der angegebenen Typen angewendet.
-- **Projekttyp-Angabe:** Der Anwender gibt den Typ beim Start des Tools an, er wird nicht automatisch erkannt. Beispiel: `ui5-blueprint-audit --type fs`, `--type fe` oder `--type lib`. Alternativ kann er in der Konfigurationsdatei als `projectType` stehen. Die Angabe auf der Kommandozeile hat Vorrang. Fehlt der Typ, bricht das Tool mit einer Fehlermeldung ab.
-- **Namespacing:** Regeln des Kern-Plugins haben keinen Präfix. Regeln aus Plugins haben den Präfix `<plugin>/<regel>`.
-- **Versionsangaben** werden immer als String konfiguriert (`"1.152"`) und semantisch verglichen.
-- **Quellen der Prüfung:** `manifest.json`, `ui5.yaml`, `ui5-*.yaml`, `index.html`, Dateibaum unter `webapp`, XML Views und Fragmente.
+- **Project types:** `freestyle` (FS), `fiori-elements` (FE), `library` (LIB). A rule is only applied to projects of the listed types.
+- **Project type specification:** The user specifies the type when starting the tool; it is not detected automatically. Example: `ui5-blueprint-audit --type fs`, `--type fe`, or `--type lib`. Alternatively, it can be set as `projectType` in the configuration file. The command-line value takes precedence. If the type is missing, the tool aborts with an error message.
+- **Namespacing:** Rules from the core plugin have no prefix. Rules from plugins have the prefix `<plugin>/<rule>`.
+- **Version values** are always configured as a string (`"1.152"`) and compared semantically.
+- **Sources checked:** `manifest.json`, `ui5.yaml`, `ui5-*.yaml`, `index.html`, the file tree under `webapp`, XML views and fragments.
 
-## Übersicht
+## Overview
 
-| # | ID | Kategorie | Default | Projekttypen |
+| # | ID | Category | Default | Project types |
 |---|---|---|---|---|
-| 1 | `typescript` | Technologie | error | FS, LIB |
-| 2 | `xml-views` | Technologie | error | FS, FE, LIB (nur mit UI5 Controls) |
-| 3 | `controller-matches-view` | Struktur | error | FS |
-| 4 | `folder-structure` | Struktur | error | FS |
-| 5 | `no-custom-controls` | Technologie | error | FS, FE |
-| 6 | `odata-service` | Daten | error | FS, FE |
-| 7 | `odata-metadata-local` | Daten | error | FS, FE |
-| 8 | `odata-mockdata` | Daten | off | FS, FE |
-| 9 | `non-odata-json` | Daten | error | FS |
-| 10 | `no-custom-css` | Technologie | error | FS, FE |
-| 11 | `theme` | Konfiguration | error | FS |
-| 12 | `cache-buster` | Konfiguration | error | FS |
-| 13 | `namespace` | Namensraum | error | FS, FE, LIB |
-| 14 | `consistent-namespace` | Namensraum | error | FS, FE, LIB |
-| 15 | `fragments-folder` | Struktur | error | FS |
-| 16 | `dialogs-folder` | Struktur | error | FS |
+| 1 | `typescript` | Technology | error | FS, LIB |
+| 2 | `xml-views` | Technology | error | FS, FE, LIB (only if it contains UI5 controls) |
+| 3 | `controller-matches-view` | Structure | error | FS |
+| 4 | `folder-structure` | Structure | error | FS |
+| 5 | `no-custom-controls` | Technology | error | FS, FE |
+| 6 | `odata-service` | Data | error | FS, FE |
+| 7 | `odata-metadata-local` | Data | error | FS, FE |
+| 8 | `odata-mockdata` | Data | off | FS, FE |
+| 9 | `non-odata-json` | Data | error | FS |
+| 10 | `no-custom-css` | Technology | error | FS, FE |
+| 11 | `theme` | Configuration | error | FS |
+| 12 | `cache-buster` | Configuration | error | FS |
+| 13 | `namespace` | Namespace | error | FS, FE, LIB |
+| 14 | `consistent-namespace` | Namespace | error | FS, FE, LIB |
+| 15 | `fragments-folder` | Structure | error | FS |
+| 16 | `dialogs-folder` | Structure | error | FS |
 | 17 | `i18n-used` | i18n | error | FS, FE, LIB |
 | 18 | `i18n-languages` | i18n | error | FS, FE, LIB |
 | 19 | `i18n-fallback` | i18n | warn | FS, FE |
-| 20 | `device-types` | Konfiguration | error | FS, FE |
-| 21 | `flex-enabled` | Konfiguration | warn | FS, FE |
-| 22 | `content-densities` | Konfiguration | error | FS, FE |
-| 23 | `mockserver-config` | Daten | warn | FS, FE |
-| 24 | `framework` | Konfiguration | error | FS, FE, LIB |
-| 25 | `ui5-version` | Konfiguration | error | FS, FE, LIB |
-| 26 | `flp-config` | Konfiguration | error | FS, FE |
-| 27 | `deploy-config` | Konfiguration | error | FS, FE |
-| 28 | `app-title-description` | Konfiguration | error | FS, FE |
+| 20 | `device-types` | Configuration | error | FS, FE |
+| 21 | `flex-enabled` | Configuration | warn | FS, FE |
+| 22 | `content-densities` | Configuration | error | FS, FE |
+| 23 | `mockserver-config` | Data | warn | FS, FE |
+| 24 | `framework` | Configuration | error | FS, FE, LIB |
+| 25 | `ui5-version` | Configuration | error | FS, FE, LIB |
+| 26 | `flp-config` | Configuration | error | FS, FE |
+| 27 | `deploy-config` | Configuration | error | FS, FE |
+| 28 | `app-title-description` | Configuration | error | FS, FE |
 | 29 | `qunit-opa-tests` | Tests | warn | FS, FE, LIB |
 | 30 | `wdi5-tests` | Tests | warn | FS |
 | 31 | `playwright-tests` | Tests | warn | FS, FE |
-| 32 | `app-icons` | Konfiguration | warn | FS, FE |
-| 33 | `app-version` | Konfiguration | warn | FS, FE, LIB |
+| 32 | `app-icons` | Configuration | warn | FS, FE |
+| 33 | `app-version` | Configuration | warn | FS, FE, LIB |
 
 ---
 
-## Technologie
+## Technology
 
 ### 1. `typescript`
 
-**Beschreibung:** Das Projekt verwendet TypeScript.
+**Description:** The project uses TypeScript.
 
-**Prüfung:**
-- `tsconfig.json` existiert im Projektroot.
-- Unter `webapp` liegen keine `.js`-Dateien für Controller, Komponenten oder Module, sondern `.ts`-Dateien.
+**Check:**
+- `tsconfig.json` exists in the project root.
+- Under `webapp`, there are no `.js` files for controllers, components, or modules, only `.ts` files.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `allowJs` | `[]` | Glob-Muster für `.js`-Dateien, die erlaubt sind (z. B. Polyfills) |
+| `allowJs` | `[]` | Glob patterns for `.js` files that are allowed (e.g. polyfills) |
 
 ### 2. `xml-views`
 
-**Beschreibung:** Views sind als XML Views implementiert.
+**Description:** Views are implemented as XML views.
 
-**Prüfung:** Es gibt keine Dateien mit den Endungen `.view.js`, `.view.json`, `.view.html` oder `.view.ts` und keine `sap.ui.jsview`-, `sap.ui.htmlview`- oder `sap.ui.jsonview`-Nutzung.
+**Check:** There are no files with the extensions `.view.js`, `.view.json`, `.view.html`, or `.view.ts`, and no use of `sap.ui.jsview`, `sap.ui.htmlview`, or `sap.ui.jsonview`.
 
-**Projekttypen:** Gilt für Freestyle-Apps, Fiori-Elements-Apps und Libraries. Bei Libraries wird die Regel nur angewendet, wenn die Library UI5 Controls enthält (Klassen, die `Control` erweitern); sonst wird sie übersprungen.
+**Project types:** Applies to freestyle apps, Fiori Elements apps, and libraries. For libraries, the rule is only applied if the library contains UI5 controls (classes that extend `Control`); otherwise it is skipped.
 
-**Parameter:** keine
+**Parameters:** none
 
 ### 5. `no-custom-controls`
 
-**Beschreibung:** Das Projekt definiert keine eigenen UI5 Controls. Standardmäßig eingeschaltet, kann pro Projekt ausgeschaltet werden.
+**Description:** The project does not define its own UI5 controls. On by default, can be turned off per project.
 
-**Prüfung:** Keine Klasse im Projekt erweitert `sap/ui/core/Control`, `sap/ui/core/Element` oder ein anderes Control (`extends Control`, `Control.extend(...)`). Erfordert AST-Analyse.
+**Check:** No class in the project extends `sap/ui/core/Control`, `sap/ui/core/Element`, or another control (`extends Control`, `Control.extend(...)`). Requires AST analysis.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `allow` | `[]` | Namen von Klassen, die erlaubt sind |
+| `allow` | `[]` | Names of classes that are allowed |
 
 ### 10. `no-custom-css`
 
-**Beschreibung:** Das Projekt enthält kein eigenes CSS.
+**Description:** The project does not contain its own CSS.
 
-**Prüfung:**
-- Es gibt keine `.css`-Dateien unter `webapp`.
-- `sap.ui5/resources/css` im Manifest ist leer oder fehlt.
-- Inline-Styles (`style=` in XML) werden **nicht** geprüft und bleiben erlaubt.
+**Check:**
+- There are no `.css` files under `webapp`.
+- `sap.ui5/resources/css` in the manifest is empty or missing.
+- Inline styles (`style=` in XML) are **not** checked and remain allowed.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `allow` | `[]` | Glob-Muster für erlaubte CSS-Dateien |
+| `allow` | `[]` | Glob patterns for allowed CSS files |
 
 ---
 
-## Struktur
+## Structure
 
 ### 3. `controller-matches-view`
 
-**Beschreibung:** Jede XML View mit Controller verweist auf einen Controller, dessen Name dem
-Dateinamen der View entspricht, und dieser Controller existiert als Datei.
+**Description:** Every XML view with a controller references a controller whose name matches
+the view's file name, and that controller exists as a file.
 
-**Prüfung:** Für jede View mit `controllerName`:
-- Massgeblich ist der Name der View selbst (nicht der Controller): `Home.view.xml` muss auf
-  einen Controller `....Home` verweisen, z. B. nicht auf `....App` — auch wenn `App.controller.ts`
-  zufällig existiert.
-- Stimmt der Name überein, muss die zugehörige Controller-Datei (`Home.controller.ts`/`.js`)
-  tatsächlich existieren.
-- Views ohne `controllerName` werden nicht beanstandet.
+**Check:** For every view with `controllerName`:
+- The view's own name is authoritative (not the controller's): `Home.view.xml` must
+  reference a controller `....Home`, e.g. not `....App` — even if `App.controller.ts`
+  happens to exist.
+- If the name matches, the corresponding controller file (`Home.controller.ts`/`.js`)
+  must actually exist.
+- Views without `controllerName` are not flagged.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `caseSensitive` | `false` | Groß-/Kleinschreibung beim Vergleich beachten |
+| `caseSensitive` | `false` | Whether to respect case when comparing |
 
 ### 4. `folder-structure`
 
-**Beschreibung:** Die Mindest-Ordnerstruktur ist vorhanden, und XML Views und Controller liegen in den vorgesehenen Ordnern.
+**Description:** The minimum folder structure is present, and XML views and controllers live in the designated folders.
 
-**Prüfung:**
-- `webapp/controller`, `webapp/view` und `webapp/model` existieren.
-- `*.view.xml` liegen unter `webapp/view`, `*.controller.ts` unter `webapp/controller`.
+**Check:**
+- `webapp/controller`, `webapp/view`, and `webapp/model` exist.
+- `*.view.xml` files live under `webapp/view`, `*.controller.ts` files under `webapp/controller`.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `folders` | `controller`, `view`, `model` | Pflichtordner unterhalb von `webapp` |
-| `viewPath` | `webapp/view` | Ort der Views |
-| `controllerPath` | `webapp/controller` | Ort der Controller |
+| `folders` | `controller`, `view`, `model` | Required folders under `webapp` |
+| `viewPath` | `webapp/view` | Location of views |
+| `controllerPath` | `webapp/controller` | Location of controllers |
 
 ### 15. `fragments-folder`
 
-**Beschreibung:** XML Fragmente, die keine Dialoge sind, liegen in einem Ordner `fragments`.
+**Description:** XML fragments that are not dialogs live in a `fragments` folder.
 
-**Prüfung:** Jede `*.fragment.xml`, deren Wurzelelement kein Dialog ist (siehe `dialogs-folder`), liegt unter `basePath`.
+**Check:** Every `*.fragment.xml` whose root element is not a dialog (see `dialogs-folder`) lives under `basePath`.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `basePath` | `webapp/view/fragments` | Ordner für Fragmente |
+| `basePath` | `webapp/view/fragments` | Folder for fragments |
 
 ### 16. `dialogs-folder`
 
-**Beschreibung:** Fragmente mit einem Dialog als Wurzelelement liegen in einem Ordner `dialogs`, getrennt von normalen Fragmenten.
+**Description:** Fragments with a dialog as the root element live in a `dialogs` folder, separate from regular fragments.
 
-**Prüfung:** Jede `*.fragment.xml`, deren Wurzelelement in `dialogRoots` steht, liegt unter `basePath`.
+**Check:** Every `*.fragment.xml` whose root element is listed in `dialogRoots` lives under `basePath`.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `dialogRoots` | `Dialog`, `Popover` | Wurzelelemente, die als Dialog gelten |
-| `basePath` | `webapp/view/dialogs` | Ordner für Dialoge |
+| `dialogRoots` | `Dialog`, `Popover` | Root elements that count as a dialog |
+| `basePath` | `webapp/view/dialogs` | Folder for dialogs |
 
 ---
 
-## Daten
+## Data
 
-**Besonderheit FLP-Plugins:** Ist `sap.app/type` im Manifest `"component"` (statt
-`"application"`), überspringen sich alle vier Regeln dieses Abschnitts (`odata-service`,
-`odata-metadata-local`, `odata-mockdata`, `non-odata-json`) automatisch. Ein Fiori-
-Launchpad-Plugin klinkt sich nur in die Shell ein und hat konstruktionsbedingt keinen
-eigenen Backend-Service — anders als bei der Projekttyp-Erkennung (`fs`/`fe`/`lib`, siehe
-Abschnitt "Projekttyp" in `CLAUDE.md`) ist das hier kein Fall von Auto-Erkennung des
-*Projekttyps*, sondern eine zusätzliche, rein manifestbasierte Bedingung innerhalb des
-Typs `fs`/`fe`.
+**Special case, FLP plugins:** If `sap.app/type` in the manifest is `"component"` (instead of
+`"application"`), all four rules in this section (`odata-service`,
+`odata-metadata-local`, `odata-mockdata`, `non-odata-json`) skip themselves automatically. A Fiori
+Launchpad plugin only hooks into the shell and, by design, has no
+backend service of its own — unlike project-type detection (`fs`/`fe`/`lib`, see
+the "Project type" section in `CLAUDE.md`), this is not a case of auto-detecting the
+*project type*, but an additional, purely manifest-based condition within the
+`fs`/`fe` type.
 
 ### 6. `odata-service`
 
-**Beschreibung:** Anzahl der verwendeten OData Services. Deckt auch die Vorgabe zur Anzahl mehrerer Services ab.
+**Description:** Number of OData services used. Also covers the requirement on the number of multiple services.
 
-**Prüfung:** Gezählt werden alle `dataSources` in `sap.app` mit `type: OData`, die in `sap.ui5/models` einem Model zugeordnet sind. Die Anzahl muss zwischen `min` und `max` liegen.
+**Check:** All `dataSources` in `sap.app` with `type: OData` that are assigned to a model in `sap.ui5/models` are counted. The count must be between `min` and `max`.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `min` | `1` | Mindestanzahl |
-| `max` | keine Grenze | Höchstanzahl |
+| `min` | `1` | Minimum count |
+| `max` | no limit | Maximum count |
 
 ### 7. `odata-metadata-local`
 
-**Beschreibung:** Das OData-Metadaten-Dokument liegt lokal im Verzeichnis `localService`.
+**Description:** The OData metadata document is located locally in the `localService` directory.
 
-**Prüfung:** Jede OData-`dataSource` hat ein `settings.localUri`, und die dort angegebene `metadata.xml` existiert.
+**Check:** Every OData `dataSource` has a `settings.localUri`, and the `metadata.xml` it points to exists.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `basePath` | `webapp/localService` | Ort der lokalen Service-Dateien |
+| `basePath` | `webapp/localService` | Location of the local service files |
 
 ### 8. `odata-mockdata`
 
-**Beschreibung:** Mockdaten für den OData Service sind vorhanden. Standardmäßig ausgeschaltet, kann pro Projekt eingeschaltet werden.
+**Description:** Mock data for the OData service is present. Off by default, can be turned on per project.
 
-**Prüfung:** Je nach `mode`:
-- `any`: Im `dataPath` existiert mindestens eine `.json`-Datei.
-- `one-entity`: Für mindestens ein EntitySet aus der `metadata.xml` existiert eine `<EntitySet>.json`.
-- `all-entities`: Für jedes EntitySet existiert eine `<EntitySet>.json`.
+**Check:** Depending on `mode`:
+- `any`: at least one `.json` file exists in `dataPath`.
+- `one-entity`: a `<EntitySet>.json` exists for at least one EntitySet from `metadata.xml`.
+- `all-entities`: a `<EntitySet>.json` exists for every EntitySet.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `mode` | `any` | `any`, `one-entity` oder `all-entities` |
-| `dataPath` | `webapp/localService/data` | Ort der Mockdaten |
+| `mode` | `any` | `any`, `one-entity`, or `all-entities` |
+| `dataPath` | `webapp/localService/data` | Location of the mock data |
 
 ### 9. `non-odata-json`
 
-**Beschreibung:** Weitere Services, die kein OData sind, werden als JSONModel realisiert.
+**Description:** Other services that are not OData are implemented as a JSONModel.
 
-**Prüfung:** Jede `dataSource` in `sap.app`, die nicht vom Typ `OData` ist, hat `type: JSON`. Das Model in `sap.ui5/models` ist ein JSONModel. Die Anzahl der OData Services wird in `odata-service` geprüft.
+**Check:** Every `dataSource` in `sap.app` that is not of type `OData` has `type: JSON`. The model in `sap.ui5/models` is a JSONModel. The number of OData services is checked by `odata-service`.
 
-**Parameter:** keine
+**Parameters:** none
 
 ### 23. `mockserver-config`
 
-**Beschreibung:** Eine Konfiguration für den Betrieb der App mit MockServer ist vorhanden und benutzt die Best-Practice-Benennung.
+**Description:** A configuration for running the app with MockServer is present and uses the best-practice naming.
 
-**Prüfung:** Die Datei `fileName` existiert im Projektroot.
+**Check:** The file `fileName` exists in the project root.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `fileName` | `ui5-mockserver.yaml` | Erwarteter Dateiname |
+| `fileName` | `ui5-mockserver.yaml` | Expected file name |
 
 ---
 
-## Konfiguration
+## Configuration
 
 ### 11. `theme`
 
-**Beschreibung:** Das Theme ist vorgegeben und konsistent konfiguriert.
+**Description:** The theme is specified and configured consistently.
 
-**Prüfung:**
-- Das Theme in `index.html` (`data-sap-ui-theme`) liegt in der Liste `themes`.
-- In der `ui5.yaml` ist die passende Theme-Library (`themelib_<theme>`) eingetragen.
-- Fehlt eine der beiden Dateien (z. B. bei Launchpad-Apps), wird sie übersprungen. Wird das Theme in keiner gefunden, gibt es einen Fehler.
+**Check:**
+- The theme in `index.html` (`data-sap-ui-theme`) is in the `themes` list.
+- The matching theme library (`themelib_<theme>`) is listed in `ui5.yaml`.
+- If one of the two files is missing (e.g. for Launchpad apps), it is skipped. If the theme is found in neither, there is an error.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `themes` | `sap_horizon` | Erlaubte Themes (Liste) |
+| `themes` | `sap_horizon` | Allowed themes (list) |
 
 ### 12. `cache-buster`
 
-**Beschreibung:** Die App verwendet den Cache Buster.
+**Description:** The app uses the cache buster.
 
-**Prüfung:** In der `ui5.yaml` ist der Cachebuster-Task bzw. die entsprechende Middleware konfiguriert, oder die `index.html` bindet UI5 über die versionierte Cachebuster-URL ein.
+**Check:** Either the cache-buster task or the corresponding middleware is configured in `ui5.yaml`, or `index.html` includes UI5 via the versioned cache-buster URL.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `sources` | `ui5.yaml`, `index.html` | Wo gesucht wird |
+| `sources` | `ui5.yaml`, `index.html` | Where to look |
 
 ### 20. `device-types`
 
-**Beschreibung:** Die unterstützten Device Types sind festgelegt.
+**Description:** The supported device types are specified.
 
-**Prüfung:** `sap.ui/deviceTypes` im Manifest entspricht den erwarteten Werten.
+**Check:** `sap.ui/deviceTypes` in the manifest matches the expected values.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `desktop` | `true` | erwarteter Wert |
-| `tablet` | `true` | erwarteter Wert |
-| `phone` | `true` | erwarteter Wert |
+| `desktop` | `true` | expected value |
+| `tablet` | `true` | expected value |
+| `phone` | `true` | expected value |
 
 ### 21. `flex-enabled`
 
-**Beschreibung:** `flexEnabled` hat den vorgegebenen Wert.
+**Description:** `flexEnabled` has the specified value.
 
-**Prüfung:** `sap.ui5/flexEnabled` im Manifest entspricht `value`.
+**Check:** `sap.ui5/flexEnabled` in the manifest matches `value`.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `value` | `true` | erwarteter Wert |
+| `value` | `true` | expected value |
 
 ### 22. `content-densities`
 
-**Beschreibung:** Die Content Densities haben die vorgegebenen Werte.
+**Description:** The content densities have the specified values.
 
-**Prüfung:** `sap.ui5/contentDensities` im Manifest entspricht den erwarteten Werten.
+**Check:** `sap.ui5/contentDensities` in the manifest matches the expected values.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `compact` | `true` | erwarteter Wert |
-| `cozy` | `true` | erwarteter Wert |
+| `compact` | `true` | expected value |
+| `cozy` | `true` | expected value |
 
 ### 24. `framework`
 
-**Beschreibung:** Das verwendete Framework ist vorgegeben.
+**Description:** The framework used is specified.
 
-**Prüfung:** `framework.name` in der `ui5.yaml` entspricht `name`.
+**Check:** `framework.name` in `ui5.yaml` matches `name`.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `name` | `SAPUI5` | `SAPUI5` oder `OpenUI5` |
+| `name` | `SAPUI5` | `SAPUI5` or `OpenUI5` |
 
 ### 25. `ui5-version`
 
-**Beschreibung:** Die UI5-Version erfüllt die Vorgabe.
+**Description:** The UI5 version meets the requirement.
 
-**Prüfung:**
-- `sap.ui5/dependencies/minUI5Version` im Manifest und `framework.version` in der `ui5.yaml` sind mindestens `min`.
-- Beide Angaben sind zueinander konsistent.
-- Versionen werden semantisch verglichen, nicht als String.
+**Check:**
+- `sap.ui5/dependencies/minUI5Version` in the manifest and `framework.version` in `ui5.yaml` are at least `min`.
+- Both values are consistent with each other.
+- Versions are compared semantically, not as strings.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `min` | `"1.152"` | Mindestversion (regelmäßig zu pflegen) |
-| `max` | keine Grenze | Höchstversion |
+| `min` | `"1.152"` | Minimum version (to be maintained regularly) |
+| `max` | no limit | Maximum version |
 
 ### 26. `flp-config`
 
-**Beschreibung:** Die App hat eine Fiori-Launchpad-Konfiguration für mindestens eine Kachel.
+**Description:** The app has a Fiori Launchpad configuration for at least one tile.
 
-**Prüfung:** `sap.app/crossNavigation/inbounds` im Manifest hat mindestens einen Eintrag mit `semanticObject` und `action`.
+**Check:** `sap.app/crossNavigation/inbounds` in the manifest has at least one entry with `semanticObject` and `action`.
 
-**Parameter:** keine
+**Parameters:** none
 
 ### 27. `deploy-config`
 
-**Beschreibung:** Eine Deployment-Konfiguration mit eingerichtetem Backend ist vorhanden.
+**Description:** A deployment configuration with a configured backend is present.
 
-**Prüfung:**
-- Die Datei `fileName` existiert im Projektroot.
-- Darin ist ein Deploy-Task konfiguriert (z. B. `deploy-to-abap`), dessen `configuration.target.destination` oder `configuration.target.url` gesetzt und nicht leer ist.
+**Check:**
+- The file `fileName` exists in the project root.
+- It has a deploy task configured (e.g. `deploy-to-abap`) whose `configuration.target.destination` or `configuration.target.url` is set and not empty.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `fileName` | `ui5-deploy.yaml` | Erwarteter Dateiname |
+| `fileName` | `ui5-deploy.yaml` | Expected file name |
 
 ### 28. `app-title-description`
 
-**Beschreibung:** Die App hat einen Titel und eine Beschreibung mit tatsächlichem Text.
+**Description:** The app has a title and a description with actual text.
 
-**Prüfung:**
-- `sap.app/title` und `sap.app/description` sind im Manifest gesetzt und referenzieren i18n (z. B. `{{appTitle}}`).
-- Der jeweils referenzierte Schlüssel existiert in der i18n-Basisdatei (`i18n.properties`) und hat dort einen nicht-leeren Wert.
+**Check:**
+- `sap.app/title` and `sap.app/description` are set in the manifest and reference i18n (e.g. `{{appTitle}}`).
+- The referenced key exists in the i18n base file (`i18n.properties`) and has a non-empty value there.
 
-**Parameter:** keine
+**Parameters:** none
 
 ### 32. `app-icons`
 
-**Beschreibung:** Die App hat eigene Icons statt der Generator-Platzhalter.
+**Description:** The app has its own icons instead of the generator's placeholders.
 
-**Prüfung:** Die Felder in `requiredIcons` unter `sap.ui/icons` im Manifest sind gesetzt (nicht leer).
+**Check:** The fields listed in `requiredIcons` under `sap.ui/icons` in the manifest are set (not empty).
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `requiredIcons` | `icon`, `favIcon` | Zu prüfende Felder unter `sap.ui/icons` |
+| `requiredIcons` | `icon`, `favIcon` | Fields to check under `sap.ui/icons` |
 
 ### 33. `app-version`
 
-**Beschreibung:** Die App-Version wurde gepflegt und ist nicht der Generator-Default.
+**Description:** The app version has been maintained and is not the generator's default.
 
-**Prüfung:** `sap.app/applicationVersion/version` im Manifest ist ungleich `defaultValue`.
+**Check:** `sap.app/applicationVersion/version` in the manifest is not equal to `defaultValue`.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `defaultValue` | `0.0.1` | Wert, der als "nicht gepflegt" gilt |
+| `defaultValue` | `0.0.1` | Value that counts as "not maintained" |
 
 ---
 
-## Namensraum
+## Namespace
 
 ### 13. `namespace`
 
-**Beschreibung:** Die App verwendet den vorgegebenen Namensraum.
+**Description:** The app uses the specified namespace.
 
-**Prüfung:** `sap.app/id` im Manifest beginnt mit `value`.
+**Check:** `sap.app/id` in the manifest starts with `value`.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `value` | `de.itsfullofstars` | Erwarteter Namensraum |
+| `value` | `de.itsfullofstars` | Expected namespace |
 
 ### 14. `consistent-namespace`
 
-**Beschreibung:** Alle Artefakte der App verwenden denselben Namensraum.
+**Description:** All artifacts of the app use the same namespace.
 
-**Prüfung:** `sap.app/id`, `controllerName`, `fragmentName`, `viewName` und Klassen-IDs in Views, Fragmenten und Code beginnen mit demselben Namensraum wie `sap.app/id`.
+**Check:** `sap.app/id`, `controllerName`, `fragmentName`, `viewName`, and class IDs in views, fragments, and code all start with the same namespace as `sap.app/id`.
 
-**Parameter:** keine
+**Parameters:** none
 
 ---
 
@@ -406,54 +406,54 @@ Typs `fs`/`fe`.
 
 ### 17. `i18n-used`
 
-**Beschreibung:** i18n wird verwendet.
+**Description:** i18n is used.
 
-**Prüfung:**
-- Ein i18n-Model ist im Manifest konfiguriert.
-- Die Basisdatei (`i18n.properties`) existiert.
-- Hartcodierte Texte in Views werden **nicht** geprüft.
+**Check:**
+- An i18n model is configured in the manifest.
+- The base file (`i18n.properties`) exists.
+- Hardcoded texts in views are **not** checked.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `basePath` | `webapp/i18n` | Ort der i18n-Dateien |
+| `basePath` | `webapp/i18n` | Location of the i18n files |
 
 ### 18. `i18n-languages`
 
-**Beschreibung:** Die App unterstützt die vom Unternehmen vorgegebenen Sprachen.
+**Description:** The app supports the languages specified by the company.
 
-**Prüfung:** Für jede Sprache aus `languages`:
-- Sie steht in `supportedLocales` — geprüft an beiden Stellen, die UI5 nicht automatisch
-  synchronisiert (siehe `i18n-fallback`): `sap.app/i18n/supportedLocales` und
-  `sap.ui5/models/i18n/settings/supportedLocales`. Fehlt sie in einer der beiden Stellen,
-  gibt es dafür einen eigenen Fehler.
-- Es gibt eine zugehörige Datei `i18n_<xx>.properties`. Für die Fallback-Sprache
-  (`sap.ui5/models/i18n/settings/fallbackLocale`, maßgeblich für das Laden der Datei zur
-  Laufzeit) reicht die Basisdatei `i18n.properties`.
+**Check:** For every language in `languages`:
+- It is listed in `supportedLocales` — checked in both places that UI5 does not
+  synchronize automatically (see `i18n-fallback`): `sap.app/i18n/supportedLocales` and
+  `sap.ui5/models/i18n/settings/supportedLocales`. If it is missing in either place,
+  that produces its own error.
+- A corresponding file `i18n_<xx>.properties` exists. For the fallback language
+  (`sap.ui5/models/i18n/settings/fallbackLocale`, which governs loading the file at
+  runtime), the base file `i18n.properties` is enough.
 
-Fehlt eines davon (z. B. `pt`), gibt es einen Fehler.
+If either of these is missing (e.g. for `pt`), there is an error.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `languages` | `de`, `en` | Erforderliche Sprachen |
-| `strict` | `false` | Bei `true` sind zusätzliche, nicht vorgegebene Sprachen ein Fehler |
+| `languages` | `de`, `en` | Required languages |
+| `strict` | `false` | If `true`, additional languages beyond those required are an error |
 
 ### 19. `i18n-fallback`
 
-**Beschreibung:** Eine Default-Sprache ist festgelegt.
+**Description:** A default language is specified.
 
-**Prüfung:** `fallbackLocale` entspricht `value` und ist in `supportedLocales` enthalten — geprüft an
-zwei getrennten Stellen im Manifest, die UI5 nicht automatisch synchronisiert: `sap.app/i18n`
-(Descriptor-Ebene, u. a. für die Auflösung von `sap.app/title`/`sap.app/description` durch Tools
-ohne laufende UI5-Runtime) und `sap.ui5/models/i18n/settings` (das Runtime-ResourceModel für
-`{i18n>...}`-Bindings). Beide müssen `fallbackLocale` explizit setzen; ist `sap.app/i18n` nur als
-String (alte Kurzform, nur `bundleUrl`) angegeben, gilt das als fehlende Angabe.
+**Check:** `fallbackLocale` matches `value` and is included in `supportedLocales` — checked in
+two separate places in the manifest that UI5 does not synchronize automatically: `sap.app/i18n`
+(descriptor level, used among other things for resolving `sap.app/title`/`sap.app/description` by
+tools without a running UI5 runtime) and `sap.ui5/models/i18n/settings` (the runtime resource
+model for `{i18n>...}` bindings). Both must explicitly set `fallbackLocale`; if `sap.app/i18n` is
+given only as a string (the old short form, `bundleUrl` only), that counts as missing.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `value` | `en` | Erwartete Fallback-Sprache |
+| `value` | `en` | Expected fallback language |
 
 ---
 
@@ -461,71 +461,71 @@ String (alte Kurzform, nur `bundleUrl`) angegeben, gilt das als fehlende Angabe.
 
 ### 29. `qunit-opa-tests`
 
-**Beschreibung:** Das Projekt hat Unit- oder Integrationstests mit QUnit oder OPA5.
+**Description:** The project has unit or integration tests with QUnit or OPA5.
 
-**Prüfung:** Unter `basePath` existiert mindestens eine Testdatei: eine QUnit-Testsuite
-(`*.qunit.js`, `*.qunit.ts` oder `*.qunit.html`) oder ein OPA5-Journey (eine Datei, die
-`sap/ui/test/Opa5` importiert bzw. requires). Fehlen beide, gibt es eine Warnung.
+**Check:** At least one test file exists under `basePath`: a QUnit test suite
+(`*.qunit.js`, `*.qunit.ts`, or `*.qunit.html`) or an OPA5 journey (a file that
+imports/requires `sap/ui/test/Opa5`). If both are missing, there is a warning.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `basePath` | `webapp/test` | Ort der Tests |
+| `basePath` | `webapp/test` | Location of the tests |
 
 ### 30. `wdi5-tests`
 
-**Beschreibung:** Das Projekt nutzt wdio-ui5 (`wdi5`) für End-to-End-Tests.
+**Description:** The project uses wdio-ui5 (`wdi5`) for end-to-end tests.
 
-**Prüfung:** Eine wdio-Konfigurationsdatei (`configFile`) existiert im Projektroot, und
-`package.json` hat `wdio-ui5-service` als Abhängigkeit.
+**Check:** A wdio configuration file (`configFile`) exists in the project root, and
+`package.json` has `wdio-ui5-service` as a dependency.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `configFile` | `wdio.conf.js` | Erwarteter Dateiname (auch `.ts` wird akzeptiert) |
+| `configFile` | `wdio.conf.js` | Expected file name (`.ts` is also accepted) |
 
 ### 31. `playwright-tests`
 
-**Beschreibung:** Das Projekt nutzt Playwright für End-to-End-Tests.
+**Description:** The project uses Playwright for end-to-end tests.
 
-**Prüfung:** Eine Playwright-Konfigurationsdatei (`configFile`) existiert im Projektroot, und
-`package.json` hat `@playwright/test` als Abhängigkeit.
+**Check:** A Playwright configuration file (`configFile`) exists in the project root, and
+`package.json` has `@playwright/test` as a dependency.
 
-**Parameter:**
-| Name | Default | Beschreibung |
+**Parameters:**
+| Name | Default | Description |
 |---|---|---|
-| `configFile` | `playwright.config.ts` | Erwarteter Dateiname (auch `.js` wird akzeptiert) |
+| `configFile` | `playwright.config.ts` | Expected file name (`.js` is also accepted) |
 
 ---
 
-## Besonderheiten bei Libraries
+## Special cases for libraries
 
-Libraries haben kein `webapp/manifest.json` — der Quellcode liegt unter `src/<namensraum-als-pfad>/`,
-Tests unter `test/` (nicht `webapp/test/`), und es gibt kein App-Manifest. Folgende Regeln
-lesen deshalb bei `projectType: lib` aus anderen Quellen als bei FS/FE, prüfen aber inhaltlich
-dasselbe:
+Libraries have no `webapp/manifest.json` — the source code lives under `src/<namespace-as-path>/`,
+tests under `test/` (not `webapp/test/`), and there is no app manifest. The following rules
+therefore read from different sources than FS/FE when `projectType: lib`, but check
+the same thing in substance:
 
-| Regel | FS/FE-Quelle | LIB-Quelle |
+| Rule | FS/FE source | LIB source |
 |---|---|---|
-| `typescript` | `.js`-Dateien unter `webapp/` (außer `webapp/test/`) | `.js`-Dateien unter `src/` |
-| `xml-views` | Quelldateien unter `webapp/` | Quelldateien unter `src/` |
+| `typescript` | `.js` files under `webapp/` (except `webapp/test/`) | `.js` files under `src/` |
+| `xml-views` | source files under `webapp/` | source files under `src/` |
 | `namespace` | `sap.app/id` in `manifest.json` | `metadata.name` in `ui5.yaml` |
-| `consistent-namespace` | `sap.app/id` als Basis-Namensraum | `metadata.name` in `ui5.yaml` als Basis-Namensraum |
-| `i18n-used` | i18n-Model in `manifest.json` + `webapp/i18n/i18n.properties` | `src/<namensraum>/messagebundle.properties` (kein Model zu prüfen, da kein Manifest) |
-| `i18n-languages` | `supportedLocales` in `manifest.json` + `webapp/i18n/i18n_<xx>.properties` | `src/<namensraum>/messagebundle_<xx>.properties` für **jede** vorgegebene Sprache (kein `supportedLocales`, daher auch kein Fallback-Freifahrtschein für die Basisdatei) |
-| `framework` / `ui5-version` | `ui5.yaml` + zusätzlich `sap.ui5/dependencies/minUI5Version` in `manifest.json` (inkl. Konsistenz-Check) | nur `ui5.yaml` — `manifest.json` existiert nicht, Konsistenz-Check entfällt |
-| `app-version` | `sap.app/applicationVersion/version` in `manifest.json`, Default `"0.0.1"` | `version` in `package.json`, Default `"1.0.0"` |
-| `qunit-opa-tests` | Tests unter `webapp/test/` | Tests unter `test/` |
+| `consistent-namespace` | `sap.app/id` as the base namespace | `metadata.name` in `ui5.yaml` as the base namespace |
+| `i18n-used` | i18n model in `manifest.json` + `webapp/i18n/i18n.properties` | `src/<namespace>/messagebundle.properties` (no model to check, since there is no manifest) |
+| `i18n-languages` | `supportedLocales` in `manifest.json` + `webapp/i18n/i18n_<xx>.properties` | `src/<namespace>/messagebundle_<xx>.properties` for **every** required language (no `supportedLocales`, so no fallback free pass for the base file either) |
+| `framework` / `ui5-version` | `ui5.yaml` plus `sap.ui5/dependencies/minUI5Version` in `manifest.json` (including the consistency check) | `ui5.yaml` only — `manifest.json` doesn't exist, so the consistency check doesn't apply |
+| `app-version` | `sap.app/applicationVersion/version` in `manifest.json`, default `"0.0.1"` | `version` in `package.json`, default `"1.0.0"` |
+| `qunit-opa-tests` | tests under `webapp/test/` | tests under `test/` |
 
-Zwei Regeln, die in früheren Katalog-Fassungen `LIB` gelistet hatten, gelten jetzt nur noch
-für FS/FE, weil es für Libraries keine entsprechende Konfigurationsmöglichkeit gibt:
+Two rules that listed `LIB` in earlier catalog versions now apply only to
+FS/FE, because there is no corresponding configuration option for libraries:
 
-- **`i18n-fallback`**: Libraries deklarieren kein `fallbackLocale` — die Basisdatei
-  (`messagebundle.properties`) ist per UI5-Konvention immer der Fallback, es gibt nichts,
-  das falsch konfiguriert werden könnte.
-- **`app-icons`**: `sap.ui/icons` ist ein App-/Launchpad-Kachel-Konzept aus `manifest.json`,
-  das für Libraries nicht existiert.
+- **`i18n-fallback`**: libraries do not declare a `fallbackLocale` — the base file
+  (`messagebundle.properties`) is always the fallback by UI5 convention; there is nothing
+  that could be misconfigured.
+- **`app-icons`**: `sap.ui/icons` is an app/Launchpad-tile concept from `manifest.json`
+  that doesn't exist for libraries.
 
-## Offene Punkte
+## Open issues
 
-Aktuell keine. Neue Fragen, die bei der Implementierung auftauchen, werden hier ergänzt.
+None currently. New questions that come up during implementation are added here.
