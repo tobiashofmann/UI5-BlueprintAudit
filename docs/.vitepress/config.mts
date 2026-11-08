@@ -39,6 +39,7 @@ export default withMermaid(
               { text: "Scan your first project", link: "/guide/" },
               { text: "CLI reference", link: "/guide/cli" },
               { text: "Configuration", link: "/guide/configuration" },
+              { text: "Full configuration file", link: "/guide/full-config" },
               { text: "Reports", link: "/guide/reports" },
               { text: "Use it in CI", link: "/guide/ci" },
             ],
