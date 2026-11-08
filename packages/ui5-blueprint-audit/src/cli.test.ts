@@ -1,9 +1,10 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { main, parseCliArgs, printHelp } from "./cli.js";
+import { DEFAULT_CONFIG_YAML } from "./config/default-config-template.js";
+import { main, parseCliArgs, printHelp, writeDefaultConfig } from "./cli.js";
 
 const sampleProjectsDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "sample-prj");
 
@@ -16,6 +17,8 @@ describe("parseCliArgs", () => {
       cliProjectType: undefined,
       cliLanguages: undefined,
       outDir: "ui5-blueprint-audit-report",
+      init: false,
+      force: false,
       help: false,
     });
   });
@@ -42,6 +45,13 @@ describe("parseCliArgs", () => {
 
   it("übernimmt --out", () => {
     expect(parseCliArgs(["--out", "reports"]).outDir).toBe("reports");
+  });
+
+  it("recognizes --init and --force", () => {
+    const args = parseCliArgs(["--init", "--force"]);
+
+    expect(args.init).toBe(true);
+    expect(args.force).toBe(true);
   });
 
   it("erkennt --help", () => {
@@ -110,5 +120,57 @@ describe("main", () => {
     // report.xml bleibt unabhängig von --lang immer Englisch.
     const junit = readFileSync(join(outDir, "report.xml"), "utf8");
     expect(junit).toContain("<testsuites");
+  });
+});
+
+describe("default config template", () => {
+  it("is identical to docs/ui5-blueprint-audit.yaml", () => {
+    const docsFile = join(sampleProjectsDir, "..", "docs", "ui5-blueprint-audit.yaml");
+
+    expect(DEFAULT_CONFIG_YAML).toBe(readFileSync(docsFile, "utf8"));
+  });
+});
+
+describe("--init", () => {
+  let dir: string;
+  let originalCwd: string;
+
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-init-"));
+    originalCwd = process.cwd();
+    vi.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    process.chdir(originalCwd);
+    rmSync(dir, { recursive: true, force: true });
+    vi.restoreAllMocks();
+  });
+
+  it("writes the default config into the current directory", async () => {
+    const originalArgv = process.argv;
+    process.chdir(dir);
+    process.argv = ["node", "cli.js", "--init"];
+
+    await main();
+    process.argv = originalArgv;
+
+    expect(readFileSync(join(dir, "ui5-blueprint-audit.yaml"), "utf8")).toBe(DEFAULT_CONFIG_YAML);
+    expect(existsSync(join(dir, "ui5-blueprint-audit-report"))).toBe(false);
+  });
+
+  it("refuses to overwrite an existing file without --force", () => {
+    writeFileSync(join(dir, "ui5-blueprint-audit.yaml"), "projectType: lib\n", "utf8");
+
+    expect(() => writeDefaultConfig(dir)).toThrow(/already exists/);
+    expect(readFileSync(join(dir, "ui5-blueprint-audit.yaml"), "utf8")).toBe("projectType: lib\n");
+  });
+
+  it("overwrites an existing file with force", () => {
+    writeFileSync(join(dir, "ui5-blueprint-audit.yaml"), "projectType: lib\n", "utf8");
+
+    writeDefaultConfig(dir, true);
+
+    expect(readFileSync(join(dir, "ui5-blueprint-audit.yaml"), "utf8")).toBe(DEFAULT_CONFIG_YAML);
   });
 });
