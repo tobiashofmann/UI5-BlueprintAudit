@@ -101,5 +101,14 @@ export default withMermaid(
     },
 
     mermaid: {},
+
+    vite: {
+      // Dev server only: mermaid imports fastdom and its promise extension (both CommonJS) as default
+      // exports, and Vite does not pre-bundle them on its own, so the page stays blank with
+      // "does not provide an export named 'default'". Pre-bundling them makes the interop work.
+      optimizeDeps: {
+        include: ["fastdom", "fastdom/extensions/fastdom-promised.js"],
+      },
+    },
   }),
 );
