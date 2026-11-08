@@ -27,7 +27,7 @@ Generated: 2026-11-08T15:18:15.697Z
 
 | Project | Type | Errors | Warnings | Status |
 |---|---|---|---|---|
-| prj-violations-1 | fs | 7 | 5 | ❌ |
+| prj-violations-1 | fs | 9 | 8 | ❌ |
 
 ## prj-violations-1
 
@@ -41,8 +41,8 @@ Project type: fs
 | `folder-structure` | error | ❌ | webapp/model: Required folder missing: webapp/model |
 ```
 
-::: info Rules, not findings
-The error and warning counts in the report summary count **rules** that have findings. The console summary counts **findings**. One rule can report several findings, so the console number can be higher.
+::: info Counts
+The error and warning counts in the console, Markdown, and HTML summaries count **findings**. `report.xml` has one test case per rule, so it counts a rule with findings as one failure.
 :::
 
 ## Languages

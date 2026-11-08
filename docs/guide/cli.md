@@ -73,11 +73,7 @@ Libraries have no `webapp/` folder. The rules read from `src/` and `ui5.yaml` in
 npx ui5-blueprint-audit --type fs --lang en,pt-BR --out build/audit
 ```
 
-The first language in `--lang` is the language of the console summary.
-
-::: warning Console summary and the config file
-The console summary uses the first language of `--lang`, or `de` if `--lang` is not given. It does not read `languages` from the config file. If your config sets `languages: [en]` and you run without `--lang`, the console summary is empty, and only the report files are written. Pass `--lang en` to get the summary.
-:::
+The console summary uses the first active language: the first one in `--lang`, else the first one in `languages` from the config, else `de`.
 
 ## Exit codes
 
