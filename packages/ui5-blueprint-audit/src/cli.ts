@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { pathToFileURL } from "node:url";
 import type { LocaleCode, ProjectType } from "@abap/ui5-blueprint-audit-types";
 import { createTranslator, mergeLocaleRegistries } from "@abap/ui5-blueprint-audit-types";
+import { DEFAULT_CONFIG_YAML } from "./config/default-config-template.js";
 import { resolveProjectDirs } from "./engine/resolve-project-dirs.js";
 import { runProject } from "./engine/run-project.js";
 import { hasErrorFindings, type ProjectResult } from "./engine/types.js";
@@ -15,6 +16,7 @@ import { renderMarkdownReport } from "./report/markdown.js";
 import { renderTextSummary } from "./report/text.js";
 
 const VALID_PROJECT_TYPES = new Set<ProjectType>(["fs", "fe", "lib"]);
+const CONFIG_FILE_NAME = "ui5-blueprint-audit.yaml";
 const DEFAULT_LANGUAGES: LocaleCode[] = ["de", "en"];
 
 /**
@@ -32,6 +34,8 @@ export function parseCliArgs(argv: string[]) {
       type: { type: "string" },
       lang: { type: "string" },
       out: { type: "string" },
+      init: { type: "boolean" },
+      force: { type: "boolean" },
       help: { type: "boolean" },
     },
   });
@@ -50,13 +54,33 @@ export function parseCliArgs(argv: string[]) {
     cliProjectType: values.type as ProjectType | undefined,
     cliLanguages,
     outDir: values.out ?? "ui5-blueprint-audit-report",
+    init: values.init ?? false,
+    force: values.force ?? false,
     help: values.help ?? false,
   };
+}
+
+/**
+ * Writes the default `ui5-blueprint-audit.yaml` into `dir`. Exported for testing.
+ *
+ * @param dir - Directory to create the file in (the current working directory for `--init`).
+ * @param force - Overwrite an existing file instead of aborting.
+ * @returns The absolute path of the written file.
+ * @throws If the file already exists and `force` is not set.
+ */
+export function writeDefaultConfig(dir: string, force = false): string {
+  const target = resolve(dir, CONFIG_FILE_NAME);
+  if (existsSync(target) && !force) {
+    throw new Error(`${target} already exists. Use --force to overwrite it.`);
+  }
+  writeFileSync(target, DEFAULT_CONFIG_YAML, "utf8");
+  return target;
 }
 
 /** Prints the `--help` usage text to stdout. Exported for testing. */
 export function printHelp(): void {
   console.log(`ui5-blueprint-audit [Ordner] [--type fs|fe|lib] [--lang de,en,pt-BR] [--out <Verzeichnis>]
+ui5-blueprint-audit --init [--force]
 
 Ohne Ordner wird das aktuelle Verzeichnis als ein Projekt geprüft.
 Zeigt der angegebene Ordner selbst auf ein UI5-Projekt (hat webapp/manifest.json),
@@ -68,6 +92,10 @@ Optionen:
   --lang de,en,pt-BR   Ausgabesprachen, überschreibt "languages" in ui5-blueprint-audit.yaml.
                         Default: de,en. report.xml bleibt davon unabhängig immer Englisch.
   --out <dir>          Zielordner für die Reports (Default: ui5-blueprint-audit-report).
+  --init               Legt die Standard-Konfiguration ui5-blueprint-audit.yaml im aktuellen
+                        Verzeichnis an (z. B. per "npx @abap/ui5-blueprint-audit --init")
+                        und beendet sich, ohne zu prüfen.
+  --force              Mit --init: eine vorhandene ui5-blueprint-audit.yaml überschreiben.
   --help               Diese Hilfe anzeigen.`);
 }
 
@@ -92,6 +120,12 @@ export async function main(): Promise<void> {
   }
 
   const cwd = process.cwd();
+
+  if (args.init) {
+    console.log(`Created ${writeDefaultConfig(cwd, args.force)}`);
+    return;
+  }
+
   const projectDirs = resolveProjectDirs(cwd, args.targetDir);
   const activeLocales = args.cliLanguages ?? DEFAULT_LANGUAGES;
 
