@@ -93,4 +93,22 @@ describe("runProject", () => {
 
     expect(registry.bundles.fr?.["report.title"]).toBe("Rapport");
   });
+
+  it("reports the active languages: the config languages, without the always-present internal \"en\"", async () => {
+    const root = createProject({ "sap.app": { id: "ns.app" } });
+    writeFileSync(join(root, "ui5-blueprint-audit.yaml"), "projectType: fs\nlanguages: [de]\n", "utf8");
+
+    const { languages, byLocale } = await runProject(root);
+
+    expect(languages).toEqual(["de"]);
+    expect(byLocale.en).toBeDefined();
+  });
+
+  it("falls back to the default languages when the project type is missing", async () => {
+    const root = createProject({ "sap.app": { id: "ns.app" } });
+
+    const { languages } = await runProject(root);
+
+    expect(languages).toEqual(["de", "en"]);
+  });
 });

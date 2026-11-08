@@ -77,3 +77,36 @@ describe("renderMarkdownReport", () => {
     expect(markdown).not.toContain("C:\\views|evil");
   });
 });
+
+describe("renderMarkdownReport summary counts", () => {
+  it("counts findings, not rules with findings", () => {
+    const twoFindings: ProjectResult = {
+      projectDir: "/p/x",
+      projectName: "x-project",
+      projectType: "fs",
+      results: [
+        {
+          ruleId: "folder-structure",
+          description: "x",
+          severity: "error",
+          findings: [
+            { ruleId: "folder-structure", severity: "error", message: "a" },
+            { ruleId: "folder-structure", severity: "error", message: "b" },
+          ],
+        },
+        {
+          ruleId: "app-icons",
+          description: "x",
+          severity: "warn",
+          findings: [
+            { ruleId: "app-icons", severity: "warn", message: "c" },
+            { ruleId: "app-icons", severity: "warn", message: "d" },
+            { ruleId: "app-icons", severity: "warn", message: "e" },
+          ],
+        },
+      ],
+    };
+
+    expect(renderMarkdownReport([twoFindings], t)).toContain("| x-project | fs | 2 | 3 |");
+  });
+});

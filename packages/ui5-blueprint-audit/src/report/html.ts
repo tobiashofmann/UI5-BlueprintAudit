@@ -1,5 +1,5 @@
 import type { LocaleCode, Translator } from "@abap/ui5-blueprint-audit-types";
-import type { ProjectResult } from "../engine/types.js";
+import { countFindings, type ProjectResult } from "../engine/types.js";
 
 const LANGUAGE_DISPLAY_NAMES: Record<string, string> = {
   de: "Deutsch",
@@ -79,12 +79,9 @@ function renderLocalePanel(locale: LocaleCode, projects: ProjectResult[], t: Tra
 
   const summaryRows = projects
     .map((project) => {
-      const errorCount = project.error
-        ? 1
-        : project.results.filter((r) => r.severity === "error" && r.findings.length > 0).length;
-      const warnCount = project.error
-        ? 0
-        : project.results.filter((r) => r.severity === "warn" && r.findings.length > 0).length;
+      const counts = project.error ? { errors: 1, warnings: 0 } : countFindings(project);
+      const errorCount = counts.errors;
+      const warnCount = counts.warnings;
       return `
         <tr>
           <td>${escapeHtml(project.projectName)}</td>

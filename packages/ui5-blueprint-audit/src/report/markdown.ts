@@ -1,5 +1,5 @@
 import type { Translator } from "@abap/ui5-blueprint-audit-types";
-import type { ProjectResult } from "../engine/types.js";
+import { countFindings, type ProjectResult } from "../engine/types.js";
 
 function escapeMd(text: string): string {
   return text
@@ -17,8 +17,7 @@ function projectSummaryRow(project: ProjectResult, t: Translator): string {
   if (project.error) {
     return `| ${project.projectName} | – | – | – | ❌ ${t("report.loadError", { error: escapeMd(project.error) })} |`;
   }
-  const errorCount = project.results.filter((r) => r.severity === "error" && r.findings.length > 0).length;
-  const warnCount = project.results.filter((r) => r.severity === "warn" && r.findings.length > 0).length;
+  const { errors: errorCount, warnings: warnCount } = countFindings(project);
   const status = errorCount > 0 ? "❌" : warnCount > 0 ? "⚠️" : "✅";
   return `| ${project.projectName} | ${project.projectType ?? "–"} | ${errorCount} | ${warnCount} | ${status} |`;
 }

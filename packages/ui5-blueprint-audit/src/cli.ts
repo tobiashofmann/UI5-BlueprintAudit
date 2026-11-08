@@ -127,11 +127,14 @@ export async function main(): Promise<void> {
   }
 
   const projectDirs = resolveProjectDirs(cwd, args.targetDir);
-  const activeLocales = args.cliLanguages ?? DEFAULT_LANGUAGES;
 
   const runResults = await Promise.all(
     projectDirs.map((dir) => runProject(dir, { cliProjectType: args.cliProjectType, cliLanguages: args.cliLanguages })),
   );
+  // --lang wins; otherwise the languages each project's config resolved to (first project's
+  // order first), so the console summary and report files follow `languages` from the config.
+  const configuredLocales = [...new Set(runResults.flatMap((r) => r.languages))];
+  const activeLocales = args.cliLanguages ?? (configuredLocales.length > 0 ? configuredLocales : DEFAULT_LANGUAGES);
   const resultsByProject = runResults.map((r) => r.byLocale);
 
   // Vereinigt die Locale-Registries aller Projekte, damit Report-Chrome-Labels

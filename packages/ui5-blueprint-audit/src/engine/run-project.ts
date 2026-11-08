@@ -73,6 +73,8 @@ export async function runProject(projectDir: string, options: RunProjectOptions 
   const projectName = basename(projectDir);
   const cliOnlyRegistry = buildLocaleRegistry([cliLocalesPlugin], "en");
 
+  const requestedLanguages = options.cliLanguages ?? ["de", "en"];
+
   let config;
   try {
     config = loadConfig(projectDir, {
@@ -84,12 +86,13 @@ export async function runProject(projectDir: string, options: RunProjectOptions 
     const cliOnlyAvailable = new Set(availableLocales(cliOnlyRegistry));
     return {
       byLocale: errorResultForAllLocales(
-        options.cliLanguages ?? ["de", "en"],
+        requestedLanguages,
         cliOnlyAvailable,
         projectDir,
         projectName,
         error,
       ),
+      languages: requestedLanguages,
       registry: cliOnlyRegistry,
     };
   }
@@ -108,6 +111,7 @@ export async function runProject(projectDir: string, options: RunProjectOptions 
         error,
         config.projectType,
       ),
+      languages: config.languages,
       registry: cliOnlyRegistry,
     };
   }
@@ -124,6 +128,7 @@ export async function runProject(projectDir: string, options: RunProjectOptions 
     );
     return {
       byLocale: errorResultForAllLocales(config.languages, available, projectDir, projectName, error, config.projectType),
+      languages: config.languages,
       registry,
     };
   }
@@ -163,5 +168,5 @@ export async function runProject(projectDir: string, options: RunProjectOptions 
     resultsByLocale[locale] = { projectDir, projectName, projectType: config.projectType, results };
   }
 
-  return { byLocale: resultsByLocale, registry };
+  return { byLocale: resultsByLocale, languages: config.languages, registry };
 }

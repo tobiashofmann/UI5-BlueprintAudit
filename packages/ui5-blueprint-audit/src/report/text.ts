@@ -1,4 +1,4 @@
-import type { ProjectResult } from "../engine/types.js";
+import { countFindings, type ProjectResult } from "../engine/types.js";
 
 /**
  * Renders the plain-text console summary printed after every run: one line per project
@@ -21,8 +21,7 @@ export function renderTextSummary(projects: ProjectResult[]): string {
     const findings = project.results.flatMap((result) =>
       result.findings.map((f) => ({ ...f, severity: result.severity })),
     );
-    const errorCount = findings.filter((f) => f.severity === "error").length;
-    const warnCount = findings.filter((f) => f.severity === "warn").length;
+    const { errors: errorCount, warnings: warnCount } = countFindings(project);
 
     const icon = errorCount > 0 ? "✗" : warnCount > 0 ? "!" : "✓";
     lines.push(`${icon} ${project.projectName} (${project.projectType}): ${errorCount} error(s), ${warnCount} warning(s)`);

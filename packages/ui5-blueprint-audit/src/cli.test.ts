@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -120,6 +120,26 @@ describe("main", () => {
     // report.xml bleibt unabhängig von --lang immer Englisch.
     const junit = readFileSync(join(outDir, "report.xml"), "utf8");
     expect(junit).toContain("<testsuites");
+  });
+
+  it("follows `languages` from the config for the console summary and report files when --lang is not given", async () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-cli-config-lang-"));
+    try {
+      mkdirSync(join(projectDir, "webapp"), { recursive: true });
+      writeFileSync(join(projectDir, "webapp", "manifest.json"), JSON.stringify({ "sap.app": { id: "ns.app" } }), "utf8");
+      writeFileSync(join(projectDir, "ui5-blueprint-audit.yaml"), "projectType: fs\nlanguages: [en]\n", "utf8");
+      const log = vi.spyOn(console, "log").mockImplementation(() => {});
+      process.argv = ["node", "cli.js", projectDir, "--out", outDir];
+
+      await main();
+
+      const printed = log.mock.calls.map((call) => String(call[0])).join("\n");
+      expect(printed).toMatch(/error\(s\), \d+ warning\(s\)/);
+      expect(existsSync(join(outDir, "report_en.md"))).toBe(true);
+      expect(existsSync(join(outDir, "report_de.md"))).toBe(false);
+    } finally {
+      rmSync(projectDir, { recursive: true, force: true });
+    }
   });
 });
 

@@ -29,6 +29,12 @@ export type ProjectResultsByLocale = Record<LocaleCode, ProjectResult>;
  */
 export interface RunProjectResult {
   byLocale: ProjectResultsByLocale;
+  /**
+   * The output languages that are active for this project (`--lang`, else `languages` from
+   * the config, else the default). Unlike the keys of `byLocale`, this does not include the
+   * always-present "en" unless it was actually requested.
+   */
+  languages: LocaleCode[];
   registry: LocaleRegistry;
 }
 
@@ -36,4 +42,18 @@ export interface RunProjectResult {
 export function hasErrorFindings(project: ProjectResult): boolean {
   if (project.error) return true;
   return project.results.some((result) => result.severity === "error" && result.findings.length > 0);
+}
+
+/**
+ * Counts a project's findings by severity (one per reported finding, not one per rule), so
+ * every report format shows the same numbers.
+ */
+export function countFindings(project: ProjectResult): { errors: number; warnings: number } {
+  let errors = 0;
+  let warnings = 0;
+  for (const result of project.results) {
+    if (result.severity === "error") errors += result.findings.length;
+    else if (result.severity === "warn") warnings += result.findings.length;
+  }
+  return { errors, warnings };
 }
