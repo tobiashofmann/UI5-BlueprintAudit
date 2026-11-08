@@ -17,7 +17,7 @@ The built-in `--help` text is currently in German. The options below are the sam
 | `--type fs\|fe\|lib` | Project type. Overrides `projectType` in `ui5-blueprint-audit.yaml`. Required if the config does not set it. |
 | `--lang de,en,pt-BR` | Output languages. Overrides `languages` in the config. Default: `de,en`. |
 | `--out <dir>` | Folder for the reports. Default: `ui5-blueprint-audit-report`. |
-| `--init` | Write the default `ui5-blueprint-audit.yaml` into the current directory and exit without auditing. |
+| `--init` | Write the default `ui5-blueprint-audit.yaml` ([complete file](/guide/full-config)) into the current directory and exit without auditing. |
 | `--force` | With `--init`: overwrite an existing `ui5-blueprint-audit.yaml`. |
 | `--help` | Show the usage text. |
 
