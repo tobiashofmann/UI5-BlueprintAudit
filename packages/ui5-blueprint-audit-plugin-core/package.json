@@ -49,8 +49,8 @@
   },
   "dependencies": {
     "@abap/ui5-blueprint-audit-types": "0.8.2",
-    "fast-xml-parser": "^5.11.2",
-    "minimatch": "^10.0.1",
+    "fast-xml-parser": "^5.12.0",
+    "minimatch": "^11.0.4",
     "typescript": "^5.5.0"
   }
 }
