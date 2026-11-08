@@ -15,6 +15,7 @@ This catalog describes all rules of the company linter for UI5 projects. Every r
 
 ## Overview
 
+<!-- #region overview -->
 | # | ID | Category | Default | Project types |
 |---|---|---|---|---|
 | 1 | `typescript` | Technology | error | FS, LIB |
@@ -50,6 +51,7 @@ This catalog describes all rules of the company linter for UI5 projects. Every r
 | 31 | `playwright-tests` | Tests | warn | FS, FE |
 | 32 | `app-icons` | Configuration | warn | FS, FE |
 | 33 | `app-version` | Configuration | warn | FS, FE, LIB |
+<!-- #endregion overview -->
 
 ---
 

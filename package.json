@@ -34,9 +34,12 @@
     "lint": "eslint .",
     "mutation": "stryker run",
     "typecheck": "tsc --build",
-    "clean": "rimraf --glob coverage test-results allure-results allure-report ui5-blueprint-audit-report docs/api sbom reports .stryker-tmp \"packages/*/dist\" \"*.tsbuildinfo\" \"packages/*/*.tsbuildinfo\"",
+    "clean": "rimraf --glob coverage test-results allure-results allure-report ui5-blueprint-audit-report docs/api docs/.vitepress/dist docs/.vitepress/cache sbom reports .stryker-tmp \"packages/*/dist\" \"*.tsbuildinfo\" \"packages/*/*.tsbuildinfo\"",
     "sbom": "rimraf sbom && node scripts/generate-sboms.mjs",
-    "docs:api": "rimraf docs/api && typedoc"
+    "docs:api": "rimraf docs/api && typedoc",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
     "@cyclonedx/cyclonedx-npm": "^6.0.1",
@@ -50,10 +53,13 @@
     "allure-vitest": "^3.14.0",
     "eslint": "^10.14.0",
     "globals": "^17.14.0",
+    "mermaid": "^11.17.2",
     "rimraf": "^6.1.4",
     "typedoc": "0.28.20",
     "typescript": "^5.5.0",
     "typescript-eslint": "^8.72.1",
+    "vitepress": "^1.6.4",
+    "vitepress-plugin-mermaid": "^2.0.17",
     "vitest": "^5.0.5"
   },
   "overrides": {

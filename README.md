@@ -104,6 +104,18 @@ Every run writes these files to `ui5-blueprint-audit-report/`:
 - `report.xml` – JUnit, always English (one testcase per rule, project = testsuite) — independent of `languages`, for stable CI dashboards
 - `report.html` – a single file with all active languages embedded and a language switcher
 
+## Documentation
+
+The documentation site is built with [VitePress](https://vitepress.dev): a step-by-step guide, the
+rules table, one section per package, how to write your own rules, and a developer section with
+the run flow as diagrams. The sources are the Markdown files in [`docs/`](docs).
+
+```bash
+npm run docs:dev       # live preview
+npm run docs:build     # production build into docs/.vitepress/dist
+npm run docs:preview   # serve the production build
+```
+
 ## API Documentation
 
 TSDoc-generated HTML reference for the public API of all three packages (useful when

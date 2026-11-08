@@ -12,6 +12,8 @@ export default tseslint.config(
       "**/node_modules/**",
       "sample-prj/**",
       "docs/api/**",
+      "docs/.vitepress/dist/**",
+      "docs/.vitepress/cache/**",
       "sbom/**",
       "allure-report/**",
       ".stryker-tmp/**",
