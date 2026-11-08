@@ -1,6 +1,6 @@
 {
   "name": "ui5-blueprint-audit-monorepo",
-  "version": "0.0.0",
+  "version": "0.8.3",
   "private": true,
   "type": "module",
   "author": {
