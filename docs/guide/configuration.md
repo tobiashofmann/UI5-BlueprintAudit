@@ -2,7 +2,7 @@
 
 The config file is `ui5-blueprint-audit.yaml` in the project root. It only **overrides** the defaults, so you can delete every line you do not need. Comments are welcome.
 
-Create a full reference file with all 33 rules and their defaults:
+Create a full reference file with all 33 rules and their defaults (see the [complete file](/guide/full-config)):
 
 ```bash
 npx ui5-blueprint-audit --init

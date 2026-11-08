@@ -16,7 +16,7 @@ Node.js 20 or newer is required.
 npx ui5-blueprint-audit --init
 ```
 
-This writes a `ui5-blueprint-audit.yaml` into the current folder. It lists all rules with their default severity and parameters. The command stops if the file already exists. Add `--force` to overwrite it.
+This writes a `ui5-blueprint-audit.yaml` into the current folder. It lists all rules with their default severity and parameters. You can read the [complete file](/guide/full-config) here. The command stops if the file already exists. Add `--force` to overwrite it.
 
 ## 3. Pick the project type
 
