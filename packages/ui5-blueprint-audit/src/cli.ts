@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, realpathSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { pathToFileURL } from "node:url";
@@ -104,6 +104,20 @@ function isDefined<T>(value: T | undefined): value is T {
 }
 
 /**
+ * True if `moduleUrl` is the script Node was started with. `argv1` is the symlink path when
+ * started via npx / `node_modules/.bin`, while `moduleUrl` (`import.meta.url`) is the real
+ * path, so symlinks are resolved before comparing. Exported for testing.
+ */
+export function isEntryPoint(argv1: string | undefined, moduleUrl: string): boolean {
+  if (!argv1) return false;
+  try {
+    return moduleUrl === pathToFileURL(realpathSync(argv1)).href;
+  } catch {
+    return moduleUrl === pathToFileURL(argv1).href;
+  }
+}
+
+/**
  * The CLI entry point: parses args, runs every resolved project, prints the text summary,
  * writes `report_<locale>.md` per active language plus `report.xml` (always English) and
  * `report.html` (all active languages), and sets `process.exitCode` to 1 if any project
@@ -173,7 +187,7 @@ export async function main(): Promise<void> {
 
 // Nur ausführen, wenn direkt als Skript gestartet (z. B. `npx ui5-blueprint-audit`),
 // nicht beim Import durch Tests.
-if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
+if (isEntryPoint(process.argv[1], import.meta.url)) {
   main().catch((error: unknown) => {
     console.error(error instanceof Error ? error.message : String(error));
     process.exitCode = 1;
