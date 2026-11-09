@@ -1,10 +1,10 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_CONFIG_YAML } from "./config/default-config-template.js";
-import { main, parseCliArgs, printHelp, writeDefaultConfig } from "./cli.js";
+import { isEntryPoint, main, parseCliArgs, printHelp, writeDefaultConfig } from "./cli.js";
 
 const sampleProjectsDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "sample-prj");
 
@@ -192,5 +192,52 @@ describe("--init", () => {
     writeDefaultConfig(dir, true);
 
     expect(readFileSync(join(dir, "ui5-blueprint-audit.yaml"), "utf8")).toBe(DEFAULT_CONFIG_YAML);
+  });
+});
+
+describe("isEntryPoint", () => {
+  let dir: string;
+
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-entry-"));
+  });
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("is true when argv[1] is the module file itself", () => {
+    const file = join(dir, "cli.js");
+    writeFileSync(file, "", "utf8");
+
+    expect(isEntryPoint(file, pathToFileURL(realpathSync(file)).href)).toBe(true);
+  });
+
+  it("is true when argv[1] is a symlink to the module (npx / node_modules/.bin)", () => {
+    const file = join(dir, "cli.js");
+    const link = join(dir, "ui5-blueprint-audit");
+    writeFileSync(file, "", "utf8");
+    symlinkSync(file, link);
+
+    expect(isEntryPoint(link, pathToFileURL(realpathSync(file)).href)).toBe(true);
+  });
+
+  it("is false for a different file", () => {
+    const file = join(dir, "cli.js");
+    const other = join(dir, "other.js");
+    writeFileSync(file, "", "utf8");
+    writeFileSync(other, "", "utf8");
+
+    expect(isEntryPoint(other, pathToFileURL(realpathSync(file)).href)).toBe(false);
+  });
+
+  it("is false without argv[1]", () => {
+    expect(isEntryPoint(undefined, "file:///x.js")).toBe(false);
+  });
+
+  it("falls back to the plain path when argv[1] does not exist", () => {
+    const missing = join(dir, "missing.js");
+
+    expect(isEntryPoint(missing, pathToFileURL(missing).href)).toBe(true);
   });
 });
