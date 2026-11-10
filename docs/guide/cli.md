@@ -40,13 +40,13 @@ npx @abap/ui5-blueprint-audit --init --force
 ### Audit the current project
 
 ```bash
-npx ui5-blueprint-audit --type fs
+npx @abap/ui5-blueprint-audit --type fs
 ```
 
 ### Audit one project in another folder
 
 ```bash
-npx ui5-blueprint-audit path/to/my-app --type fe
+npx @abap/ui5-blueprint-audit path/to/my-app --type fe
 ```
 
 The folder counts as a single project if it has a `ui5.yaml` with `type: application` or `type: library`, or a `webapp/manifest.json`.
@@ -54,7 +54,7 @@ The folder counts as a single project if it has a `ui5.yaml` with `type: applica
 ### Audit many projects in one run
 
 ```bash
-npx ui5-blueprint-audit projects/ --type fs
+npx @abap/ui5-blueprint-audit projects/ --type fs
 ```
 
 If the folder is not a project itself, every direct subdirectory is audited as its own project. Hidden folders, `node_modules`, and `dist` are skipped. The reports contain one section per project.
@@ -62,7 +62,7 @@ If the folder is not a project itself, every direct subdirectory is audited as i
 ### Audit a library
 
 ```bash
-npx ui5-blueprint-audit --type lib
+npx @abap/ui5-blueprint-audit --type lib
 ```
 
 Libraries have no `webapp/` folder. The rules read from `src/` and `ui5.yaml` instead. See [special cases for libraries](/rules/catalog#special-cases-for-libraries).
@@ -70,7 +70,7 @@ Libraries have no `webapp/` folder. The rules read from `src/` and `ui5.yaml` in
 ### Choose the report languages and the output folder
 
 ```bash
-npx ui5-blueprint-audit --type fs --lang en,pt-BR --out build/audit
+npx @abap/ui5-blueprint-audit --type fs --lang en,pt-BR --out build/audit
 ```
 
 The console summary uses the first active language: the first one in `--lang`, else the first one in `languages` from the config, else `de`.

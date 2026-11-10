@@ -5,7 +5,7 @@ The config file is `ui5-blueprint-audit.yaml` in the project root. It only **ove
 Create a full reference file with all 33 rules and their defaults (see the [complete file](/guide/full-config)):
 
 ```bash
-npx ui5-blueprint-audit --init
+npx @abap/ui5-blueprint-audit --init
 ```
 
 ## Example

@@ -42,8 +42,8 @@ ESLint checks code quality. [`@ui5/linter`](https://github.com/UI5/linter) check
 
 ```bash
 npm install --save-dev @abap/ui5-blueprint-audit
-npx ui5-blueprint-audit --init          # writes ui5-blueprint-audit.yaml
-npx ui5-blueprint-audit --type fs       # audits the current project
+npx @abap/ui5-blueprint-audit --init          # writes ui5-blueprint-audit.yaml
+npx @abap/ui5-blueprint-audit --type fs       # audits the current project
 ```
 
 The [guide](/guide/) walks through each step, and the [rules table](/rules/) lists every check.

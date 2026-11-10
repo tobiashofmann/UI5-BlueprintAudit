@@ -6,7 +6,7 @@ This section is for people who work on BlueprintAudit or want to understand how 
 
 ```mermaid
 flowchart TB
-    user["Developer or CI"] -->|"npx ui5-blueprint-audit"| cli
+    user["Developer or CI"] -->|"npx @abap/ui5-blueprint-audit"| cli
 
     subgraph cliPkg["@abap/ui5-blueprint-audit"]
         cli["cli.ts<br/>main()"]

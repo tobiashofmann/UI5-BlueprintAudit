@@ -20,7 +20,7 @@ npm run audit
 
 ```yaml
 - name: Audit UI5 project
-  run: npx ui5-blueprint-audit --type fs --lang en
+  run: npx @abap/ui5-blueprint-audit --type fs --lang en
 
 - name: Upload audit report
   if: always()
@@ -41,5 +41,5 @@ The step fails when there is at least one `error` finding. `if: always()` upload
 Any hook runner that runs shell commands works. The command is the same:
 
 ```bash
-npx ui5-blueprint-audit --type fs --lang en
+npx @abap/ui5-blueprint-audit --type fs --lang en
 ```

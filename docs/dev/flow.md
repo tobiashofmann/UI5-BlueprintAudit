@@ -1,6 +1,6 @@
 # Run flow
 
-What happens when you run `npx ui5-blueprint-audit --type fs`.
+What happens when you run `npx @abap/ui5-blueprint-audit --type fs`.
 
 ## From command to exit code
 
