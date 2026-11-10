@@ -49,7 +49,7 @@ rules:
 Run the audit in a project without a `README.md`:
 
 ```bash
-npx ui5-blueprint-audit --lang en
+npx @abap/ui5-blueprint-audit --lang en
 ```
 
 ```text
@@ -151,7 +151,7 @@ plugins:
 ```
 
 ```bash
-npx ui5-blueprint-audit --type fs --lang fr
+npx @abap/ui5-blueprint-audit --type fs --lang fr
 ```
 
 A key that is missing in a language falls back to `en`. Locale bundles can also translate the texts of the report itself, such as titles and column headers.

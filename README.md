@@ -21,13 +21,13 @@ The project type is required: `fs` (Freestyle), `fe` (Fiori Elements), or `lib`
 
 ```bash
 # check the current project
-npx ui5-blueprint-audit --type fs
+npx @abap/ui5-blueprint-audit --type fs
 
 # check a specific project (the folder has its own webapp/manifest.json)
-npx ui5-blueprint-audit path/to/my-app --type fs
+npx @abap/ui5-blueprint-audit path/to/my-app --type fs
 
 # check multiple projects in one folder (each direct subdirectory = one project)
-npx ui5-blueprint-audit projects/ --type fs
+npx @abap/ui5-blueprint-audit projects/ --type fs
 ```
 
 As an npm script (`package.json`):

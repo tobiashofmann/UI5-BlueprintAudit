@@ -13,7 +13,7 @@ Node.js 20 or newer is required.
 ## 2. Create the config file
 
 ```bash
-npx ui5-blueprint-audit --init
+npx @abap/ui5-blueprint-audit --init
 ```
 
 This writes a `ui5-blueprint-audit.yaml` into the current folder. It lists all rules with their default severity and parameters. You can read the [complete file](/guide/full-config) here. The command stops if the file already exists. Add `--force` to overwrite it.
@@ -31,7 +31,7 @@ Set `projectType` in `ui5-blueprint-audit.yaml`, or pass `--type` on the command
 ## 4. Run the audit
 
 ```bash
-npx ui5-blueprint-audit --type fs --lang en
+npx @abap/ui5-blueprint-audit --type fs --lang en
 ```
 
 The console shows a summary. This is the output for a project with violations (`sample-prj/prj-violations-1` in the repository):

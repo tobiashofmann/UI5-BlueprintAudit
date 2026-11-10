@@ -8,7 +8,7 @@ The command-line tool. It reads the config, loads the plugins, reads the project
 
 ```bash
 npm install --save-dev @abap/ui5-blueprint-audit
-npx ui5-blueprint-audit --type fs --lang en
+npx @abap/ui5-blueprint-audit --type fs --lang en
 ```
 
 The package has one binary, `ui5-blueprint-audit`. All options are in the [CLI reference](/guide/cli).

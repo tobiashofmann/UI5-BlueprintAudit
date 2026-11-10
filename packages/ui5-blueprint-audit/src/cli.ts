@@ -185,7 +185,7 @@ export async function main(): Promise<void> {
   process.exitCode = resultsByProject.some((r) => Object.values(r).some(hasErrorFindings)) ? 1 : 0;
 }
 
-// Nur ausführen, wenn direkt als Skript gestartet (z. B. `npx ui5-blueprint-audit`),
+// Nur ausführen, wenn direkt als Skript gestartet (z. B. `npx @abap/ui5-blueprint-audit`),
 // nicht beim Import durch Tests.
 if (isEntryPoint(process.argv[1], import.meta.url)) {
   main().catch((error: unknown) => {
