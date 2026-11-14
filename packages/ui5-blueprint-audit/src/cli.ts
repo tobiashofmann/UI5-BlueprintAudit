@@ -13,6 +13,7 @@ import { hasErrorFindings, type ProjectResult } from "./engine/types.js";
 import { renderHtmlReport } from "./report/html.js";
 import { renderJUnitReport } from "./report/junit.js";
 import { renderMarkdownReport } from "./report/markdown.js";
+import { renderMarkdownTable } from "./report/markdown-table.js";
 import { renderTextSummary } from "./report/text.js";
 
 const VALID_PROJECT_TYPES = new Set<ProjectType>(["fs", "fe", "lib"]);
@@ -36,6 +37,7 @@ export function parseCliArgs(argv: string[]) {
       out: { type: "string" },
       init: { type: "boolean" },
       force: { type: "boolean" },
+      table: { type: "boolean" },
       help: { type: "boolean" },
     },
   });
@@ -56,6 +58,7 @@ export function parseCliArgs(argv: string[]) {
     outDir: values.out ?? "ui5-blueprint-audit-report",
     init: values.init ?? false,
     force: values.force ?? false,
+    table: values.table ?? false,
     help: values.help ?? false,
   };
 }
@@ -79,7 +82,7 @@ export function writeDefaultConfig(dir: string, force = false): string {
 
 /** Prints the `--help` usage text to stdout. Exported for testing. */
 export function printHelp(): void {
-  console.log(`ui5-blueprint-audit [Ordner] [--type fs|fe|lib] [--lang de,en,pt-BR] [--out <Verzeichnis>]
+  console.log(`ui5-blueprint-audit [Ordner] [--type fs|fe|lib] [--lang de,en,pt-BR] [--out <Verzeichnis>] [--table]
 ui5-blueprint-audit --init [--force]
 
 Ohne Ordner wird das aktuelle Verzeichnis als ein Projekt geprüft.
@@ -92,6 +95,8 @@ Optionen:
   --lang de,en,pt-BR   Ausgabesprachen, überschreibt "languages" in ui5-blueprint-audit.yaml.
                         Default: de,en. report.xml bleibt davon unabhängig immer Englisch.
   --out <dir>          Zielordner für die Reports (Default: ui5-blueprint-audit-report).
+  --table              Schreibt zusätzlich eine kompakte Tabelle pro Sprache (table_<locale>.md):
+                        Regel, Status und bei Findings die Meldung.
   --init               Legt die Standard-Konfiguration ui5-blueprint-audit.yaml im aktuellen
                         Verzeichnis an (z. B. per "npx @abap/ui5-blueprint-audit --init")
                         und beendet sich, ohne zu prüfen.
@@ -170,6 +175,14 @@ export async function main(): Promise<void> {
   for (const locale of activeLocales) {
     const projects: ProjectResult[] = resultsByProject.map((r) => r[locale]).filter(isDefined);
     writeFileSync(resolve(outDir, `report_${locale}.md`), renderMarkdownReport(projects, translators[locale]!), "utf8");
+  }
+
+  if (args.table) {
+    const generatedAt = new Date();
+    for (const locale of activeLocales) {
+      const projects: ProjectResult[] = resultsByProject.map((r) => r[locale]).filter(isDefined);
+      writeFileSync(resolve(outDir, `table_${locale}.md`), renderMarkdownTable(projects, translators[locale]!, generatedAt), "utf8");
+    }
   }
 
   const englishProjects: ProjectResult[] = resultsByProject.map((r) => r.en).filter(isDefined);

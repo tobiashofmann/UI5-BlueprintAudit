@@ -38,7 +38,7 @@ describe("renderTextSummary", () => {
     const text = renderTextSummary(projects);
 
     expect(text).toContain("✗ broken-project (fs): 1 error(s), 0 warning(s)");
-    expect(text).toContain("  error  tsconfig.json: fehlt");
+    expect(text).toContain("  error  typescript  tsconfig.json: fehlt");
   });
 
   it("markiert ein Projekt ohne Errors, aber mit Warnings, mit !", () => {
@@ -61,7 +61,7 @@ describe("renderTextSummary", () => {
     const text = renderTextSummary(projects);
 
     expect(text).toContain("! warn-project (fs): 0 error(s), 1 warning(s)");
-    expect(text).toContain("  warn   veraltet");
+    expect(text).toContain("  warn   app-version  veraltet");
   });
 
   it("zeigt Findings ohne Datei ohne Datei-Präfix an", () => {
@@ -83,7 +83,7 @@ describe("renderTextSummary", () => {
 
     const text = renderTextSummary(projects);
 
-    expect(text).toContain("  error  zu alt");
+    expect(text).toContain("  error  ui5-version  zu alt");
     expect(text).not.toContain("undefined");
   });
 

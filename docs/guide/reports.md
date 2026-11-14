@@ -5,6 +5,7 @@ Every run writes these files to `ui5-blueprint-audit-report/` (change the folder
 | File | Content |
 |---|---|
 | `report_<locale>.md` | One Markdown report per active language, for example `report_en.md` and `report_de.md`. |
+| `table_<locale>.md` | Only with `--table`. Compact table per project: rule, status icon, and the message for failed rules. Includes project name and scan date. |
 | `report.html` | One self-contained file with all active languages and a language switcher. |
 | `report.xml` | JUnit XML. One test case per rule, one test suite per project. Always English, so CI dashboards stay stable. |
 

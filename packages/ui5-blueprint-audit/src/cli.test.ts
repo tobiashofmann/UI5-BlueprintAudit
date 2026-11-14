@@ -19,6 +19,7 @@ describe("parseCliArgs", () => {
       outDir: "ui5-blueprint-audit-report",
       init: false,
       force: false,
+      table: false,
       help: false,
     });
   });
@@ -41,6 +42,11 @@ describe("parseCliArgs", () => {
 
   it("zerlegt --lang in eine getrimmte, nicht-leere Liste", () => {
     expect(parseCliArgs(["--lang", "de, en , ,pt-BR"]).cliLanguages).toEqual(["de", "en", "pt-BR"]);
+  });
+
+  it("übernimmt --table", () => {
+    expect(parseCliArgs(["--table"]).table).toBe(true);
+    expect(parseCliArgs([]).table).toBe(false);
   });
 
   it("übernimmt --out", () => {
@@ -98,6 +104,25 @@ describe("main", () => {
     expect(existsSync(join(outDir, "report.xml"))).toBe(true);
     expect(existsSync(join(outDir, "report.html"))).toBe(true);
     expect(process.exitCode).toBe(1);
+  });
+
+  it("writes table_<locale>.md only with --table, and prints rule IDs in the console summary", async () => {
+    const projectDir = resolve(sampleProjectsDir, "prj-js");
+    const log = vi.mocked(console.log);
+
+    process.argv = ["node", "cli.js", projectDir, "--type", "fs", "--lang", "en", "--out", outDir];
+    await main();
+    expect(existsSync(join(outDir, "table_en.md"))).toBe(false);
+
+    log.mockClear();
+    process.argv = ["node", "cli.js", projectDir, "--type", "fs", "--lang", "en", "--table", "--out", outDir];
+    await main();
+
+    const table = readFileSync(join(outDir, "table_en.md"), "utf8");
+    expect(table).toContain("| Rule | Status | Findings |");
+    expect(table).toMatch(/\| `[a-z0-9-]+` \| ❌ Error \| .+ \|/);
+    expect(table).toMatch(/Generated: \d{4}-\d{2}-\d{2}/);
+    expect(log.mock.calls.flat().join("\n")).toMatch(/^ {2}(error|warn) {1,2}[a-z0-9-]+ {2}/m);
   });
 
   it("gibt --help-Text aus und schreibt keine Reports", async () => {

@@ -2,7 +2,8 @@ import { countFindings, type ProjectResult } from "../engine/types.js";
 
 /**
  * Renders the plain-text console summary printed after every run: one line per project
- * (✓/!/✗ for no findings / warnings only / at least one error) followed by its findings,
+ * (✓/!/✗ for no findings / warnings only / at least one error) followed by its findings
+ * (severity, rule ID, file, message),
  * or the load error if the project's config/context couldn't be loaded. This is the only
  * report format not written to a file — it's printed directly to stdout.
  *
@@ -19,8 +20,9 @@ export function renderTextSummary(projects: ProjectResult[]): string {
     }
 
     const findings = project.results.flatMap((result) =>
-      result.findings.map((f) => ({ ...f, severity: result.severity })),
+      result.findings.map((f) => ({ ...f, severity: result.severity, ruleId: result.ruleId })),
     );
+    const ruleWidth = Math.max(0, ...findings.map((f) => f.ruleId.length));
     const { errors: errorCount, warnings: warnCount } = countFindings(project);
 
     const icon = errorCount > 0 ? "✗" : warnCount > 0 ? "!" : "✓";
@@ -29,7 +31,7 @@ export function renderTextSummary(projects: ProjectResult[]): string {
     for (const finding of findings) {
       const prefix = finding.severity === "error" ? "  error" : "  warn ";
       const location = finding.file ? `${finding.file}: ` : "";
-      lines.push(`${prefix}  ${location}${finding.message}`);
+      lines.push(`${prefix}  ${finding.ruleId.padEnd(ruleWidth)}  ${location}${finding.message}`);
     }
   }
 
