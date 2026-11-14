@@ -44,6 +44,7 @@ More options:
 
 - `--lang de,en,pt-BR` – output languages, overrides `languages` in `ui5-blueprint-audit.yaml`. Default `de,en`.
 - `--out <dir>` – target folder for the reports (default `ui5-blueprint-audit-report/`).
+- `--table` – also writes a compact `table_<locale>.md` (rule, status, what is wrong).
 - `--init` – writes the default `ui5-blueprint-audit.yaml` into the current directory
   (e.g. `npx @abap/ui5-blueprint-audit --init`) and exits without auditing. Aborts if the file
   already exists; add `--force` to overwrite it.
