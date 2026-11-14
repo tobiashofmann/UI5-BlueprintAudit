@@ -14,11 +14,11 @@
   "devDependencies": {
     "@openui5/types": "^1.154.0",
     "@sapui5/types": "1.154.0",
-    "@ui5/cli": "^4.0.72",
+    "@ui5/cli": "^4.0.73",
     "rimraf": "^6.1.4",
     "typescript": "^6.0.3",
     "ui5-middleware-livereload": "^3.3.1",
-    "ui5-tooling-transpile": "^3.14.0"
+    "ui5-tooling-transpile": "^3.14.1"
   },
   "overrides": {
     "pacote": "^21.5.1",

@@ -10,10 +10,10 @@
   "main": "webapp/index.html",
   "dependencies": {},
   "devDependencies": {
-    "@ui5/cli": "^4.0.72",
+    "@ui5/cli": "^4.0.73",
     "@sap/ux-ui5-tooling": "1",
     "@sapui5/types": "~1.154.0",
-    "ui5-tooling-transpile": "^3.14.0",
+    "ui5-tooling-transpile": "^3.14.1",
     "typescript": "^5.9.3",
     "rimraf": "^6.1.4"
   },
