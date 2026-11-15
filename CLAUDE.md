@@ -16,6 +16,8 @@ The rule catalog lives in `docs/ui5-blueprint-audit-rules.md`. It contains all r
 
 ## Architecture decisions
 
+Each decision below is recorded with context and consequences in `docs/adr/` (index: `docs/adr/index.md`). Add a new numbered ADR there for any new architecture decision, and supersede rather than rewrite an old one.
+
 - **Standalone npm project**, not an ESLint plugin and not a plugin for `@ui5/linter`. Reason: the rules mostly check project structure, manifest, and config files, not individual source files. No plugin API for custom rules is known for `@ui5/linter`.
 - **Language:** TypeScript on Node.js, ESM.
 - **Monorepo** (npm workspaces):
