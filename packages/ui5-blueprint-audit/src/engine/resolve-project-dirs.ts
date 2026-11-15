@@ -15,7 +15,7 @@ function looksLikeProject(dir: string): boolean {
       // malformed ui5.yaml -> fall through to the webapp/manifest.json check below
     }
   }
-  // Fallback für Projekte ohne (lesbare) ui5.yaml, aber mit klassischem FS/FE-Layout.
+  // Fallback for projects without a (readable) ui5.yaml but with the classic FS/FE layout.
   return existsSync(resolve(dir, "webapp", "manifest.json"));
 }
 

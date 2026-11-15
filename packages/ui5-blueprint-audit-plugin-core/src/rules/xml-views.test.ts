@@ -3,7 +3,7 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { xmlViewsRule } from "./xml-views.js";
 
 describe("xml-views", () => {
-  it("ist erfüllt bei reinen XML Views", () => {
+  it("passes with XML views only", () => {
     const ctx = createTestContext({
       files: { "webapp/view/App.view.xml": "<mvc:View/>" },
     });
@@ -11,7 +11,7 @@ describe("xml-views", () => {
     expect(runRule(xmlViewsRule, ctx)).toEqual([]);
   });
 
-  it("meldet .view.js-Dateien und jsview-Nutzung", () => {
+  it("reports .view.js files and jsview usage", () => {
     const ctx = createTestContext({
       files: {
         "webapp/view/Legacy.view.js": "",
@@ -23,7 +23,7 @@ describe("xml-views", () => {
     expect(findings).toHaveLength(2);
   });
 
-  it("überspringt Libraries ohne eigene Controls", () => {
+  it("skips libraries without their own controls", () => {
     const ctx = createTestContext({
       projectType: "lib",
       files: { "webapp/view/Legacy.view.js": "" },
@@ -32,7 +32,7 @@ describe("xml-views", () => {
     expect(runRule(xmlViewsRule, ctx)).toEqual([]);
   });
 
-  it("prüft Libraries mit eigenen Controls (Quelle liegt unter src/, nicht webapp/)", () => {
+  it("checks libraries with their own controls (source is under src/, not webapp/)", () => {
     const ctx = createTestContext({
       projectType: "lib",
       files: {

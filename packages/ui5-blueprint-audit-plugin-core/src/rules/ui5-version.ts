@@ -22,8 +22,8 @@ export const ui5VersionRule: Rule<Options> = {
     const min = ctx.options?.min ?? "1.152";
     const max = ctx.options?.max;
     const isLib = ctx.projectContext.projectType === "lib";
-    // Libraries haben kein manifest.json/minUI5Version — ui5.yaml#framework.version ist
-    // dort die einzige Quelle, ein Konsistenz-Abgleich entfällt mangels zweiter Quelle.
+    // Libraries have no manifest.json/minUI5Version — ui5.yaml#framework.version is the only
+    // source there, so there is no second source to check consistency against.
     const manifestVersion = isLib
       ? undefined
       : get(ctx.projectContext.manifest, "sap.ui5", "dependencies", "minUI5Version");

@@ -1,7 +1,7 @@
 {
   "name": "@abap/ui5-blueprint-audit",
   "version": "0.8.5",
-  "description": "CLI zur Prüfung von UI5-Projekten gegen Unternehmensvorgaben",
+  "description": "CLI that checks UI5 projects against company guidelines",
   "type": "module",
   "author": {
     "name": "Tobias Hofmann",

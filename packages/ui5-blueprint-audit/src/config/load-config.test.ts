@@ -24,7 +24,7 @@ function configErrorKey(yaml: string): string | undefined {
 }
 
 describe("loadConfig", () => {
-  it("liest projectType, plugins und rules aus einer gültigen Config", () => {
+  it("reads projectType, plugins and rules from a valid config", () => {
     const config = loadConfig(join(fixturesDir, "valid-fs"));
 
     expect(config.projectType).toBe("fs");
@@ -33,19 +33,19 @@ describe("loadConfig", () => {
     expect(config.rules.namespace).toEqual(["error", { value: "com.firma" }]);
   });
 
-  it("CLI --type hat Vorrang vor projectType in der Config-Datei", () => {
+  it("CLI --type takes precedence over projectType in the config file", () => {
     const config = loadConfig(join(fixturesDir, "type-override"), { cliProjectType: "fs" });
 
     expect(config.projectType).toBe("fs");
   });
 
-  it("verwendet projectType aus der Config, wenn kein --type gesetzt ist", () => {
+  it("uses projectType from the config if no --type is set", () => {
     const config = loadConfig(join(fixturesDir, "type-override"));
 
     expect(config.projectType).toBe("fe");
   });
 
-  it("bricht ohne Projekttyp (weder CLI noch Config) mit klarer Fehlermeldung ab", () => {
+  it("aborts with a clear error message without a project type (neither CLI nor config)", () => {
     expect(() => loadConfig(join(fixturesDir, "missing-type"))).toThrow(ConfigError);
     try {
       loadConfig(join(fixturesDir, "missing-type"));
@@ -56,7 +56,7 @@ describe("loadConfig", () => {
     }
   });
 
-  it("bricht bei einem ungültigen Projekttyp ab", () => {
+  it("aborts on an invalid project type", () => {
     try {
       loadConfig(join(fixturesDir, "invalid-type"));
       expect.unreachable();
@@ -66,7 +66,7 @@ describe("loadConfig", () => {
     }
   });
 
-  it("löst languages mit CLI-Vorrang und Default [de, en] auf", () => {
+  it("resolves languages with CLI precedence and the default [de, en]", () => {
     const withDefault = loadConfig(join(fixturesDir, "valid-fs"));
     expect(withDefault.languages).toEqual(["de", "en"]);
 
@@ -74,7 +74,7 @@ describe("loadConfig", () => {
     expect(withCli.languages).toEqual(["pt-BR"]);
   });
 
-  it("funktioniert ohne Config-Datei, wenn --type gesetzt ist", () => {
+  it("works without a config file if --type is set", () => {
     const emptyProject = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-"));
 
     const config = loadConfig(emptyProject, { cliProjectType: "lib" });

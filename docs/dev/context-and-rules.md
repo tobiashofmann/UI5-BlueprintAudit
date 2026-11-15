@@ -4,7 +4,7 @@ Rules never read the file system. They read a **project context** that is built 
 
 ## The project context
 
-[`loadProjectContext`](https://github.com/tobiashofmann/UI5-BlueprintAudit/blob/main/packages/ui5-blueprint-audit/src/context/load-project-context.ts) walks the project folder (skipping `node_modules`, `dist`, and `.git`) and parses the files that rules need:
+[`loadProjectContext`](https://github.com/tobiashofmann/UI5-BlueprintAudit/blob/main/packages/ui5-blueprint-audit/src/context/load-project-context.ts) walks the project folder (skipping hidden directories, `node_modules`, `dist`, `coverage`, and `ui5-blueprint-audit-report`) and parses the files that rules need:
 
 | Field | Source |
 |---|---|

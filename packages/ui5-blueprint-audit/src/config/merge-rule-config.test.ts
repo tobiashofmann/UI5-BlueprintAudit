@@ -8,19 +8,19 @@ const defaults: Record<string, RuleDefault> = {
 };
 
 describe("mergeRuleConfig", () => {
-  it("behält den Default, wenn die Config die Regel nicht erwähnt", () => {
+  it("keeps the default if the config does not mention the rule", () => {
     const merged = mergeRuleConfig(defaults, {});
 
     expect(merged["flex-enabled"]).toEqual({ severity: "warn" });
   });
 
-  it("überschreibt die Severity, wenn die Config nur eine Severity angibt", () => {
+  it("overrides the severity if the config gives only a severity", () => {
     const merged = mergeRuleConfig(defaults, { "odata-mockdata": "warn" });
 
     expect(merged["odata-mockdata"]).toEqual({ severity: "warn" });
   });
 
-  it("übernimmt Severity und Optionen, wenn die Config ein Array angibt", () => {
+  it("takes severity and options if the config gives an array", () => {
     const merged = mergeRuleConfig(defaults, {
       "no-custom-controls": ["error", { allow: ["MyCustomControl"] }],
     });
@@ -31,7 +31,7 @@ describe("mergeRuleConfig", () => {
     });
   });
 
-  it("nimmt auch Regeln auf, die in den Defaults nicht vorkommen (z. B. aus Plugins)", () => {
+  it("also includes rules that are not in the defaults (e.g. from plugins)", () => {
     const merged = mergeRuleConfig(defaults, { "my-plugin/custom-rule": "error" });
 
     expect(merged["my-plugin/custom-rule"]).toEqual({ severity: "error" });

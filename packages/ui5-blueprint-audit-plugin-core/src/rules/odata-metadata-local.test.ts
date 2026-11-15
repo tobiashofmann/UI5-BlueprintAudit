@@ -3,7 +3,7 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { odataMetadataLocalRule } from "./odata-metadata-local.js";
 
 describe("odata-metadata-local", () => {
-  it("ist erfüllt, wenn die lokale Metadaten-Datei existiert", () => {
+  it("passes if the local metadata file exists", () => {
     const ctx = createTestContext({
       manifest: {
         "sap.app": {
@@ -16,7 +16,7 @@ describe("odata-metadata-local", () => {
     expect(runRule(odataMetadataLocalRule, ctx)).toEqual([]);
   });
 
-  it("meldet fehlendes localUri", () => {
+  it("reports a missing localUri", () => {
     const ctx = createTestContext({
       manifest: { "sap.app": { dataSources: { northwind: { type: "OData" } } } },
     });
@@ -24,7 +24,7 @@ describe("odata-metadata-local", () => {
     expect(runRule(odataMetadataLocalRule, ctx)).toHaveLength(1);
   });
 
-  it("meldet eine fehlende Metadaten-Datei", () => {
+  it("reports a missing metadata file", () => {
     const ctx = createTestContext({
       manifest: {
         "sap.app": {
@@ -37,7 +37,7 @@ describe("odata-metadata-local", () => {
     expect(runRule(odataMetadataLocalRule, ctx)).toHaveLength(1);
   });
 
-  it("überspringt sich für FLP-Plugins (sap.app/type: component), auch bei fehlendem localUri", () => {
+  it("skips itself for FLP plugins (sap.app/type: component), even with a missing localUri", () => {
     const ctx = createTestContext({
       manifest: { "sap.app": { type: "component", dataSources: { northwind: { type: "OData" } } } },
     });

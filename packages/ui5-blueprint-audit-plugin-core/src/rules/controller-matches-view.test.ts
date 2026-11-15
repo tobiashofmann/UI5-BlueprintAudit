@@ -3,7 +3,7 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { controllerMatchesViewRule } from "./controller-matches-view.js";
 
 describe("controller-matches-view", () => {
-  it("ist erfüllt, wenn der Controller existiert", () => {
+  it("passes if the controller exists", () => {
     const ctx = createTestContext({
       files: {
         "webapp/view/View1.view.xml": '<mvc:View controllerName="ns.controller.View1"></mvc:View>',
@@ -14,7 +14,7 @@ describe("controller-matches-view", () => {
     expect(runRule(controllerMatchesViewRule, ctx)).toEqual([]);
   });
 
-  it("meldet eine View, deren Controller-Datei fehlt", () => {
+  it("reports a view whose controller file is missing", () => {
     const ctx = createTestContext({
       files: {
         "webapp/view/Detail.view.xml": '<mvc:View controllerName="ns.controller.Detail"></mvc:View>',
@@ -24,7 +24,7 @@ describe("controller-matches-view", () => {
     expect(runRule(controllerMatchesViewRule, ctx)).toHaveLength(1);
   });
 
-  it("meldet eine View, die auf einen existierenden, aber falsch benannten Controller verweist", () => {
+  it("reports a view that points to an existing but wrongly named controller", () => {
     const ctx = createTestContext({
       files: {
         "webapp/view/App.view.xml": '<mvc:View controllerName="ns.controller.Home"></mvc:View>',
@@ -37,7 +37,7 @@ describe("controller-matches-view", () => {
     expect(findings[0]?.message).toContain("App");
   });
 
-  it("ignoriert Views ohne controllerName", () => {
+  it("ignores views without controllerName", () => {
     const ctx = createTestContext({
       files: { "webapp/view/Static.view.xml": "<mvc:View></mvc:View>" },
     });
@@ -45,7 +45,7 @@ describe("controller-matches-view", () => {
     expect(runRule(controllerMatchesViewRule, ctx)).toEqual([]);
   });
 
-  it("zählt einen gleichnamigen Test-Controller unter webapp/test nicht als Treffer", () => {
+  it("does not count a test controller of the same name under webapp/test as a match", () => {
     const ctx = createTestContext({
       files: {
         "webapp/view/View1.view.xml": '<mvc:View controllerName="ns.controller.View1"></mvc:View>',

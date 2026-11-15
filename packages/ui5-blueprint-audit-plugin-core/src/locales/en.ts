@@ -51,6 +51,8 @@ const en = {
   "theme.conflict": 'Theme in index.html ("{htmlTheme}") and ui5.yaml ("{yamlTheme}") contradict each other.',
   "theme.notDetected": "Could not determine a theme (neither index.html nor ui5.yaml).",
   "theme.notAllowed": 'Theme "{theme}" is not allowed (allowed: {allowed}).',
+  "theme.missingThemeLib":
+    'Theme library "themelib_{theme}" is not listed in ui5.yaml (framework.libraries). It may only be omitted if UI5 is loaded from a CDN or an SAP server.',
 
   "cache-buster.description": "The app uses the cache buster.",
   "cache-buster.missing":

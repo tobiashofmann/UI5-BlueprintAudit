@@ -3,7 +3,7 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { flpConfigRule } from "./flp-config.js";
 
 describe("flp-config", () => {
-  it("ist erfüllt bei einem gültigen Inbound", () => {
+  it("passes with a valid inbound", () => {
     const ctx = createTestContext({
       manifest: {
         "sap.app": {
@@ -15,7 +15,7 @@ describe("flp-config", () => {
     expect(runRule(flpConfigRule, ctx)).toEqual([]);
   });
 
-  it("meldet ein fehlendes crossNavigation", () => {
+  it("reports a missing crossNavigation", () => {
     const ctx = createTestContext({ manifest: { "sap.app": {} } });
 
     expect(runRule(flpConfigRule, ctx)).toHaveLength(1);

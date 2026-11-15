@@ -14,8 +14,8 @@ export const appIconsRule: Rule<Options> = {
   meta: {
     descriptionKey: "app-icons.description",
     defaultSeverity: "warn",
-    // Nicht für LIB: sap.ui/icons ist ein App-/Launchpad-Kachel-Konzept (manifest.json),
-    // das es für Libraries nicht gibt.
+    // Not for LIB: sap.ui/icons is an app/Launchpad tile concept (manifest.json) that
+    // does not exist for libraries.
     projectTypes: ["fs", "fe"],
   },
   check(ctx) {

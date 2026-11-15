@@ -29,11 +29,11 @@ function translateError(
 }
 
 /**
- * Baut einen Fehler-Eintrag für jede ursprünglich angeforderte Sprache (plus immer "en").
- * Eine Sprache ohne eigenes Bundle (z. B. ein Tippfehler in --lang) bekommt trotzdem einen
- * Eintrag unter ihrem eigenen Locale-Key, gerendert in "en" als bestmöglicher Fallback —
- * sonst verschwindet der Fehler für genau die Sprache, die der Nutzer angefordert hat
- * (leeres report_<locale>.md statt der Fehlermeldung).
+ * Builds an error entry for every originally requested language (plus always "en").
+ * A language without its own bundle (e.g. a typo in --lang) still gets an entry under its
+ * own locale key, rendered in "en" as the best available fallback — otherwise the error
+ * would vanish for exactly the language the user asked for (an empty report_<locale>.md
+ * instead of the error message).
  */
 function errorResultForAllLocales(
   requestedLocales: LocaleCode[],
@@ -169,8 +169,8 @@ export async function runProject(projectDir: string, options: RunProjectOptions 
     };
   }
 
-  // "en" läuft immer mit, auch wenn der Nutzer es nicht konfiguriert hat — report.xml ist
-  // immer Englisch und braucht dafür eine ProjectResult-Quelle (siehe CLAUDE.md, Lokalisierung).
+  // "en" always runs as well, even if the user didn't configure it — report.xml is always
+  // English and needs a ProjectResult source for that (see CLAUDE.md, "Localization").
   const localesToRun = config.languages.includes("en") ? config.languages : [...config.languages, "en"];
 
   const resultsByLocale: ProjectResultsByLocale = {};

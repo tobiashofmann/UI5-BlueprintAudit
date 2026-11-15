@@ -11,7 +11,7 @@ function writePluginFile(dir: string, fileName: string, content: string): string
 }
 
 describe("loadPlugins", () => {
-  it("lädt immer das Kern-Plugin, auch ohne zusätzliche Plugins", async () => {
+  it("always loads the core plugin, even without additional plugins", async () => {
     const dir = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-plugins-"));
     const configPath = join(dir, "ui5-blueprint-audit.yaml");
 
@@ -21,7 +21,7 @@ describe("loadPlugins", () => {
     expect(plugins[0]?.name).toBe("core");
   });
 
-  it("lädt ein lokales Plugin relativ zur Config-Datei", async () => {
+  it("loads a local plugin relative to the config file", async () => {
     const dir = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-plugins-"));
     const configPath = join(dir, "ui5-blueprint-audit.yaml");
     writePluginFile(
@@ -39,7 +39,7 @@ describe("loadPlugins", () => {
     expect(plugins.map((p) => p.name)).toEqual(["core", "local"]);
   });
 
-  it("wirft einen klaren Fehler bei falscher apiVersion", async () => {
+  it("throws a clear error on a wrong apiVersion", async () => {
     const dir = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-plugins-"));
     const configPath = join(dir, "ui5-blueprint-audit.yaml");
     writePluginFile(
@@ -51,7 +51,7 @@ describe("loadPlugins", () => {
     await expect(loadPlugins(configPath, ["./bad-version.mjs"])).rejects.toThrow(PluginLoadError);
   });
 
-  it("wirft einen klaren Fehler bei ungültigem Default-Export", async () => {
+  it("throws a clear error on an invalid default export", async () => {
     const dir = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-plugins-"));
     const configPath = join(dir, "ui5-blueprint-audit.yaml");
     writePluginFile(dir, "invalid.mjs", `export default { oops: true };`);
@@ -76,7 +76,7 @@ describe("loadPlugins", () => {
 });
 
 describe("buildRuleMap", () => {
-  it("lässt Kern-Regeln ohne Präfix und präfixt alle weiteren Plugins", () => {
+  it("leaves core rules without a prefix and prefixes all other plugins", () => {
     const map = buildRuleMap([
       { name: "core", apiVersion: "1", rules: { "core-rule": { meta: {} as never, check() {} } } },
       { name: "extra", apiVersion: "1", rules: { "extra-rule": { meta: {} as never, check() {} } } },

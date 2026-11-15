@@ -3,7 +3,7 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { consistentNamespaceRule } from "./consistent-namespace.js";
 
 describe("consistent-namespace", () => {
-  it("ist erfüllt, wenn alle Artefakte denselben Namensraum verwenden", () => {
+  it("passes if all artifacts use the same namespace", () => {
     const ctx = createTestContext({
       manifest: { "sap.app": { id: "ns.app" }, "sap.ui5": { rootView: { viewName: "ns.app.view.App" } } },
       files: { "webapp/view/View1.view.xml": '<mvc:View controllerName="ns.app.controller.View1"></mvc:View>' },
@@ -12,7 +12,7 @@ describe("consistent-namespace", () => {
     expect(runRule(consistentNamespaceRule, ctx)).toEqual([]);
   });
 
-  it("meldet eine View mit abweichendem Namensraum", () => {
+  it("reports a view with a deviating namespace", () => {
     const ctx = createTestContext({
       manifest: { "sap.app": { id: "ns.app" }, "sap.ui5": { rootView: { viewName: "ns.app.view.App" } } },
       files: { "webapp/view/View1.view.xml": '<mvc:View controllerName="ns.other.controller.View1"></mvc:View>' },
@@ -21,7 +21,7 @@ describe("consistent-namespace", () => {
     expect(runRule(consistentNamespaceRule, ctx)).toHaveLength(1);
   });
 
-  it("meldet einen abweichenden rootView-Namensraum", () => {
+  it("reports a deviating rootView namespace", () => {
     const ctx = createTestContext({
       manifest: { "sap.app": { id: "ns.app" }, "sap.ui5": { rootView: { viewName: "ns.other.view.App" } } },
     });
@@ -29,7 +29,7 @@ describe("consistent-namespace", () => {
     expect(runRule(consistentNamespaceRule, ctx)).toHaveLength(1);
   });
 
-  it("nutzt bei Libraries ui5.yaml#metadata.name als Basis-Namensraum", () => {
+  it("uses ui5.yaml#metadata.name as the base namespace for libraries", () => {
     const ctx = createTestContext({
       projectType: "lib",
       ui5Yaml: { metadata: { name: "ns.lib" } },

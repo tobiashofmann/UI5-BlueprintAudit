@@ -1,18 +1,27 @@
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
 import type { FileTreeEntry, ManifestJson, ProjectContext, ProjectType } from "@abap/ui5-blueprint-audit-types";
 
-const IGNORED_DIRS = new Set(["node_modules", "dist", ".git"]);
+/**
+ * Directories the file tree never descends into: dependencies, build and tool output.
+ * None of them holds project sources, and they can be far larger than the project itself.
+ * Hidden directories (`.git`, `.stryker-tmp`, …) are skipped as well, see {@link walk}.
+ */
+const IGNORED_DIRS = new Set(["node_modules", "dist", "coverage", "ui5-blueprint-audit-report"]);
 
-function walk(root: string, dir: string, out: FileTreeEntry[]): void {
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    if (IGNORED_DIRS.has(entry.name)) continue;
-    const absolute = join(dir, entry.name);
-    const relPath = relative(root, absolute).split("\\").join("/");
+/**
+ * Collects the file tree below `absoluteDir`. `relativeDir` is the same directory relative
+ * to the project root, in forward-slash notation (empty for the root itself); passing it
+ * down avoids recomputing a relative path for every entry.
+ */
+function walk(absoluteDir: string, relativeDir: string, out: FileTreeEntry[]): void {
+  for (const entry of readdirSync(absoluteDir, { withFileTypes: true })) {
+    const relPath = relativeDir ? `${relativeDir}/${entry.name}` : entry.name;
     if (entry.isDirectory()) {
+      if (IGNORED_DIRS.has(entry.name) || entry.name.startsWith(".")) continue;
       out.push({ path: relPath, isDirectory: true });
-      walk(root, absolute, out);
+      walk(join(absoluteDir, entry.name), relPath, out);
     } else if (entry.isFile()) {
       out.push({ path: relPath, isDirectory: false });
     }
@@ -20,9 +29,25 @@ function walk(root: string, dir: string, out: FileTreeEntry[]): void {
 }
 
 function readProjectFile(root: string, relPath: string): string | undefined {
-  const absolute = join(root, relPath);
-  if (!existsSync(absolute) || !statSync(absolute).isFile()) return undefined;
-  return readFileSync(absolute, "utf8");
+  try {
+    return readFileSync(join(root, relPath), "utf8");
+  } catch {
+    // Missing, a directory, or unreadable: all "no such file" from a rule's point of view.
+    return undefined;
+  }
+}
+
+/**
+ * A `readFile` that hits the disk once per path. Rules run once per output language and
+ * several rules read the same views and sources, so without this every file would be read
+ * again for each rule and language.
+ */
+function createCachedReader(root: string): (relPath: string) => string | undefined {
+  const cache = new Map<string, string | undefined>();
+  return (relPath) => {
+    if (!cache.has(relPath)) cache.set(relPath, readProjectFile(root, relPath));
+    return cache.get(relPath);
+  };
 }
 
 /**
@@ -58,17 +83,20 @@ function parseProjectFile<T>(relPath: string, content: string | undefined, parse
   }
 }
 
-function parseJsonFile(root: string, relPath: string): ManifestJson | undefined {
-  return parseProjectFile(relPath, readProjectFile(root, relPath), (text) => JSON.parse(text) as ManifestJson);
+type ReadFile = (relPath: string) => string | undefined;
+
+function parseJsonFile(readFile: ReadFile, relPath: string): ManifestJson | undefined {
+  return parseProjectFile(relPath, readFile(relPath), (text) => JSON.parse(text) as ManifestJson);
 }
 
-function parseYamlFile(root: string, relPath: string): unknown {
-  return parseProjectFile(relPath, readProjectFile(root, relPath), (text) => parseYaml(text) as unknown);
+function parseYamlFile(readFile: ReadFile, relPath: string): unknown {
+  return parseProjectFile(relPath, readFile(relPath), (text) => parseYaml(text) as unknown);
 }
 
 /**
  * Reads manifest.json, ui5.yaml, further ui5-*.yaml files, package.json, index.html, and
- * the file tree of a project once. Rules only access this via the resulting ProjectContext,
+ * the file tree of a project once. The file tree leaves out hidden directories, `node_modules`,
+ * `dist`, `coverage`, and the tool's own default report folder. `readFile` caches per path. Rules only access this via the resulting ProjectContext,
  * never the file system directly (see CLAUDE.md, "Project Context").
  *
  * @param projectRoot - Absolute path to the project directory to read.
@@ -78,18 +106,19 @@ function parseYamlFile(root: string, relPath: string): unknown {
  */
 export function loadProjectContext(projectRoot: string, projectType: ProjectType): ProjectContext {
   const fileTree: FileTreeEntry[] = [];
-  walk(projectRoot, projectRoot, fileTree);
+  walk(projectRoot, "", fileTree);
+  const readFile = createCachedReader(projectRoot);
 
-  const manifest = parseJsonFile(projectRoot, "webapp/manifest.json");
-  const ui5Yaml = parseYamlFile(projectRoot, "ui5.yaml");
-  const packageJson = parseJsonFile(projectRoot, "package.json");
-  const indexHtml = readProjectFile(projectRoot, "webapp/index.html");
+  const manifest = parseJsonFile(readFile, "webapp/manifest.json");
+  const ui5Yaml = parseYamlFile(readFile, "ui5.yaml");
+  const packageJson = parseJsonFile(readFile, "package.json");
+  const indexHtml = readFile("webapp/index.html");
 
   const ui5YamlExtensions: Record<string, unknown> = {};
   for (const entry of fileTree) {
     if (entry.isDirectory) continue;
     if (!entry.path.includes("/") && /^ui5-.*\.yaml$/.test(entry.path) && entry.path !== "ui5.yaml") {
-      const parsed = parseYamlFile(projectRoot, entry.path);
+      const parsed = parseYamlFile(readFile, entry.path);
       if (parsed !== undefined) ui5YamlExtensions[entry.path] = parsed;
     }
   }
@@ -103,6 +132,6 @@ export function loadProjectContext(projectRoot: string, projectType: ProjectType
     packageJson,
     indexHtml,
     fileTree,
-    readFile: (relPath: string) => readProjectFile(projectRoot, relPath),
+    readFile,
   };
 }

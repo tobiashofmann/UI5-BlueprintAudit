@@ -19,8 +19,8 @@ export const odataMetadataLocalRule: Rule<Options> = {
     projectTypes: ["fs", "fe"],
   },
   check(ctx) {
-    // FLP-Plugins (sap.app/type: "component") haben konstruktionsbedingt keinen eigenen
-    // Backend-Service, siehe odata-service.
+    // FLP plugins (sap.app/type: "component") have no backend service of their own by
+    // design, see odata-service.
     if (isComponentApp(ctx.projectContext)) return;
 
     const basePath = ctx.options?.basePath ?? "webapp/localService";

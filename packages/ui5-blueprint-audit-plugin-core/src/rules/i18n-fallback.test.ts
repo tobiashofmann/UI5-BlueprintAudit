@@ -5,7 +5,7 @@ import { i18nFallbackRule } from "./i18n-fallback.js";
 const VALID_I18N = { fallbackLocale: "en", supportedLocales: ["de", "en"] };
 
 describe("i18n-fallback", () => {
-  it("ist erfüllt, wenn fallbackLocale in sap.app/i18n und sap.ui5/models/i18n gesetzt ist und in supportedLocales steht", () => {
+  it("passes if fallbackLocale is set in sap.app/i18n and sap.ui5/models/i18n and is listed in supportedLocales", () => {
     const ctx = createTestContext({
       manifest: {
         "sap.app": { i18n: VALID_I18N },
@@ -16,7 +16,7 @@ describe("i18n-fallback", () => {
     expect(runRule(i18nFallbackRule, ctx)).toEqual([]);
   });
 
-  it("meldet eine fehlende fallbackLocale im sap.ui5-Model", () => {
+  it("reports a missing fallbackLocale in the sap.ui5 model", () => {
     const ctx = createTestContext({
       manifest: { "sap.app": { i18n: VALID_I18N }, "sap.ui5": { models: { i18n: { settings: {} } } } },
     });
@@ -26,7 +26,7 @@ describe("i18n-fallback", () => {
     expect(findings[0]?.message).toContain("sap.ui5/models/i18n");
   });
 
-  it("meldet eine fehlende fallbackLocale in sap.app/i18n, auch wenn das sap.ui5-Model korrekt ist", () => {
+  it("reports a missing fallbackLocale in sap.app/i18n, even if the sap.ui5 model is correct", () => {
     const ctx = createTestContext({
       manifest: { "sap.app": { i18n: {} }, "sap.ui5": { models: { i18n: { settings: VALID_I18N } } } },
     });
@@ -36,7 +36,7 @@ describe("i18n-fallback", () => {
     expect(findings[0]?.message).toContain("sap.app/i18n");
   });
 
-  it("behandelt sap.app/i18n als String (alte Kurzform ohne fallbackLocale) wie fehlende Angabe", () => {
+  it("treats sap.app/i18n as a string (old short form without fallbackLocale) like a missing setting", () => {
     const ctx = createTestContext({
       manifest: { "sap.app": { i18n: "i18n/i18n.properties" }, "sap.ui5": { models: { i18n: { settings: VALID_I18N } } } },
     });
@@ -46,7 +46,7 @@ describe("i18n-fallback", () => {
     expect(findings[0]?.message).toContain("sap.app/i18n");
   });
 
-  it("meldet beide Stellen, wenn beide falsch konfiguriert sind", () => {
+  it("reports both places if both are misconfigured", () => {
     const ctx = createTestContext({
       manifest: { "sap.app": { i18n: {} }, "sap.ui5": { models: { i18n: { settings: {} } } } },
     });

@@ -3,13 +3,13 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { flexEnabledRule } from "./flex-enabled.js";
 
 describe("flex-enabled", () => {
-  it("ist erfüllt bei flexEnabled: true", () => {
+  it("passes with flexEnabled: true", () => {
     const ctx = createTestContext({ manifest: { "sap.ui5": { flexEnabled: true } } });
 
     expect(runRule(flexEnabledRule, ctx)).toEqual([]);
   });
 
-  it("meldet flexEnabled: false", () => {
+  it("reports flexEnabled: false", () => {
     const ctx = createTestContext({ manifest: { "sap.ui5": { flexEnabled: false } } });
 
     expect(runRule(flexEnabledRule, ctx)).toHaveLength(1);

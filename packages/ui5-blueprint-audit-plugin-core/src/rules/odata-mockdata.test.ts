@@ -18,7 +18,7 @@ function manifestWithOData() {
 }
 
 describe("odata-mockdata", () => {
-  it("mode=any: ist erfüllt, wenn mindestens eine JSON-Datei existiert", () => {
+  it("mode=any: passes if at least one JSON file exists", () => {
     const ctx = createTestContext({
       files: { "webapp/localService/data/Products.json": "[]" },
     });
@@ -26,13 +26,13 @@ describe("odata-mockdata", () => {
     expect(runRule(odataMockdataRule, ctx, { mode: "any" })).toEqual([]);
   });
 
-  it("mode=any: meldet, wenn keine Mockdaten existieren", () => {
+  it("mode=any: reports if no mock data exists", () => {
     const ctx = createTestContext({ files: {} });
 
     expect(runRule(odataMockdataRule, ctx, { mode: "any" })).toHaveLength(1);
   });
 
-  it("mode=all-entities: meldet fehlende EntitySets", () => {
+  it("mode=all-entities: reports missing EntitySets", () => {
     const ctx = createTestContext({
       manifest: manifestWithOData(),
       files: {
@@ -46,7 +46,7 @@ describe("odata-mockdata", () => {
     expect(findings[0]?.message).toContain("Categories");
   });
 
-  it("mode=all-entities: ist erfüllt, wenn alle EntitySets Mockdaten haben", () => {
+  it("mode=all-entities: passes if all EntitySets have mock data", () => {
     const ctx = createTestContext({
       manifest: manifestWithOData(),
       files: {
@@ -59,9 +59,41 @@ describe("odata-mockdata", () => {
     expect(runRule(odataMockdataRule, ctx, { mode: "all-entities" })).toEqual([]);
   });
 
-  it("überspringt sich für FLP-Plugins (sap.app/type: component), auch ohne Mockdaten", () => {
+  it("skips itself for FLP plugins (sap.app/type: component), even without mock data", () => {
     const ctx = createTestContext({ manifest: { "sap.app": { type: "component" } }, files: {} });
 
     expect(runRule(odataMockdataRule, ctx, { mode: "any" })).toEqual([]);
+  });
+  it("mode=one-entity: is satisfied if one EntitySet has a matching <EntitySet>.json", () => {
+    const ctx = createTestContext({
+      manifest: manifestWithOData(),
+      files: {
+        "webapp/localService/metadata.xml": metadataXml,
+        "webapp/localService/data/Categories.json": "[]",
+      },
+    });
+
+    expect(runRule(odataMockdataRule, ctx, { mode: "one-entity" })).toEqual([]);
+  });
+
+  it("mode=one-entity: reports JSON files that match no EntitySet", () => {
+    const ctx = createTestContext({
+      manifest: manifestWithOData(),
+      files: {
+        "webapp/localService/metadata.xml": metadataXml,
+        "webapp/localService/data/Unrelated.json": "[]",
+      },
+    });
+
+    expect(runRule(odataMockdataRule, ctx, { mode: "one-entity" })).toHaveLength(1);
+  });
+
+  it("mode=one-entity: reports a data folder without any JSON file", () => {
+    const ctx = createTestContext({
+      manifest: manifestWithOData(),
+      files: { "webapp/localService/metadata.xml": metadataXml },
+    });
+
+    expect(runRule(odataMockdataRule, ctx, { mode: "one-entity" })).toHaveLength(1);
   });
 });

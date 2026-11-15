@@ -3,7 +3,7 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { deviceTypesRule } from "./device-types.js";
 
 describe("device-types", () => {
-  it("ist erfüllt bei allen Device Types true (Default)", () => {
+  it("passes with all device types true (default)", () => {
     const ctx = createTestContext({
       manifest: { "sap.ui": { deviceTypes: { desktop: true, tablet: true, phone: true } } },
     });
@@ -11,7 +11,7 @@ describe("device-types", () => {
     expect(runRule(deviceTypesRule, ctx)).toEqual([]);
   });
 
-  it("meldet abweichende Device Types", () => {
+  it("reports deviating device types", () => {
     const ctx = createTestContext({
       manifest: { "sap.ui": { deviceTypes: { desktop: false, tablet: true, phone: false } } },
     });
@@ -19,7 +19,7 @@ describe("device-types", () => {
     expect(runRule(deviceTypesRule, ctx)).toHaveLength(2);
   });
 
-  it("respektiert konfigurierte Erwartungen", () => {
+  it("respects configured expectations", () => {
     const ctx = createTestContext({
       manifest: { "sap.ui": { deviceTypes: { desktop: false, tablet: true, phone: false } } },
     });

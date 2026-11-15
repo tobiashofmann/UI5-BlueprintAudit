@@ -145,7 +145,7 @@ rules:
       strict: false
       basePath: webapp/i18n # bei LIB automatisch der Namensraum-Ordner unter src/
 
-  i18n-fallback: # FS, FE (nicht LIB, siehe Katalog "Besonderheiten bei Libraries")
+  i18n-fallback: # FS, FE (nicht LIB, siehe Katalog "Special cases for libraries")
     - warn
     - value: en
 

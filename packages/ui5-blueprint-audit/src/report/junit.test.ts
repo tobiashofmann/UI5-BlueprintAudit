@@ -27,7 +27,7 @@ const projects: ProjectResult[] = [
 ];
 
 describe("renderJUnitReport", () => {
-  it("erzeugt pro Projekt eine testsuite und pro Regel einen testcase", () => {
+  it("produces one testsuite per project and one testcase per rule", () => {
     const xml = renderJUnitReport(projects);
 
     expect(xml).toContain('<testsuite name="project-a" tests="3" failures="1" errors="0">');
@@ -35,14 +35,14 @@ describe("renderJUnitReport", () => {
     expect(xml).toContain('<failure message="kaputt">kaputt</failure>');
   });
 
-  it("meldet warn-Findings als system-out, nicht als failure", () => {
+  it("reports warn findings as system-out, not as failure", () => {
     const xml = renderJUnitReport(projects);
 
     expect(xml).toContain("<system-out>achtung</system-out>");
     expect(xml).not.toContain('<failure message="achtung"');
   });
 
-  it("bildet einen Config-Fehler als eigene fehlgeschlagene testsuite ab", () => {
+  it("maps a config error to its own failed testsuite", () => {
     const xml = renderJUnitReport(projects);
 
     expect(xml).toContain('<testsuite name="project-b" tests="1" failures="1" errors="0">');

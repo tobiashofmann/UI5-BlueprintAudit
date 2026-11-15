@@ -18,19 +18,19 @@ function manifestWithOData() {
 }
 
 describe("odata-service", () => {
-  it("ist erfüllt, wenn mindestens ein verknüpfter OData-Service existiert", () => {
+  it("passes if at least one linked OData service exists", () => {
     const ctx = createTestContext({ manifest: manifestWithOData() });
 
     expect(runRule(odataServiceRule, ctx)).toEqual([]);
   });
 
-  it("meldet, wenn kein OData-Service konfiguriert ist", () => {
+  it("reports if no OData service is configured", () => {
     const ctx = createTestContext({ manifest: { "sap.app": {}, "sap.ui5": {} } });
 
     expect(runRule(odataServiceRule, ctx)).toHaveLength(1);
   });
 
-  it("ignoriert dataSources, die keinem Model zugeordnet sind", () => {
+  it("ignores dataSources that are not assigned to a model", () => {
     const ctx = createTestContext({
       manifest: {
         "sap.app": { dataSources: { northwind: { type: "OData" } } },
@@ -41,7 +41,7 @@ describe("odata-service", () => {
     expect(runRule(odataServiceRule, ctx)).toHaveLength(1);
   });
 
-  it("meldet, wenn max überschritten wird", () => {
+  it("reports if max is exceeded", () => {
     const ctx = createTestContext({
       manifest: {
         "sap.app": {
@@ -57,7 +57,7 @@ describe("odata-service", () => {
     expect(runRule(odataServiceRule, ctx, { min: 1, max: 1 })).toHaveLength(1);
   });
 
-  it("überspringt sich für FLP-Plugins (sap.app/type: component), auch ohne OData-Service", () => {
+  it("skips itself for FLP plugins (sap.app/type: component), even without an OData service", () => {
     const ctx = createTestContext({ manifest: { "sap.app": { type: "component" }, "sap.ui5": {} } });
 
     expect(runRule(odataServiceRule, ctx)).toEqual([]);

@@ -3,7 +3,7 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { typescriptRule } from "./typescript.js";
 
 describe("typescript", () => {
-  it("ist erfüllt bei tsconfig.json und nur .ts-Dateien", () => {
+  it("passes with tsconfig.json and only .ts files", () => {
     const ctx = createTestContext({
       files: {
         "tsconfig.json": "{}",
@@ -14,7 +14,7 @@ describe("typescript", () => {
     expect(runRule(typescriptRule, ctx)).toEqual([]);
   });
 
-  it("meldet fehlende tsconfig.json und .js-Dateien unter webapp", () => {
+  it("reports a missing tsconfig.json and .js files under webapp", () => {
     const ctx = createTestContext({
       files: {
         "webapp/controller/App.controller.js": "",
@@ -27,7 +27,7 @@ describe("typescript", () => {
     expect(findings.some((f) => f.file === "webapp/controller/App.controller.js")).toBe(true);
   });
 
-  it("ignoriert .js-Dateien, die über allowJs erlaubt sind", () => {
+  it("ignores .js files that are allowed via allowJs", () => {
     const ctx = createTestContext({
       files: {
         "tsconfig.json": "{}",
@@ -38,7 +38,7 @@ describe("typescript", () => {
     expect(runRule(typescriptRule, ctx, { allowJs: ["webapp/polyfills/**"] })).toEqual([]);
   });
 
-  it("prüft bei Libraries src/ statt webapp/", () => {
+  it("checks src/ instead of webapp/ for libraries", () => {
     const ctx = createTestContext({
       projectType: "lib",
       files: { "tsconfig.json": "{}", "src/ns/lib/Example.js": "" },
@@ -49,7 +49,7 @@ describe("typescript", () => {
     expect(findings[0]?.file).toBe("src/ns/lib/Example.js");
   });
 
-  it("betrifft bei Libraries nicht den test/-Ordner (liegt außerhalb von src/)", () => {
+  it("does not cover the test/ folder for libraries (it lies outside src/)", () => {
     const ctx = createTestContext({
       projectType: "lib",
       files: { "tsconfig.json": "{}", "test/ns/lib/Example.js": "" },

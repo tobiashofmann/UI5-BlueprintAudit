@@ -49,8 +49,8 @@ export const odataMockdataRule: Rule<Options> = {
   },
   check(ctx) {
     const projectContext = ctx.projectContext;
-    // FLP-Plugins (sap.app/type: "component") haben konstruktionsbedingt keinen eigenen
-    // Backend-Service, siehe odata-service.
+    // FLP plugins (sap.app/type: "component") have no backend service of their own by
+    // design, see odata-service.
     if (isComponentApp(projectContext)) return;
 
     const mode = ctx.options?.mode ?? "any";
@@ -85,7 +85,10 @@ export const odataMockdataRule: Rule<Options> = {
     if (mode === "all-entities" && missing.length > 0) {
       ctx.report({ message: ctx.t("odata-mockdata.missingAllEntities", { entities: missing.join(", ") }), file: dataPath });
     }
-    if (mode === "one-entity" && mockedEntitySets.size === 0 && entitySets.size > 0) {
+    // A JSON file only counts if it is named after an EntitySet from metadata.xml; any
+    // other file in dataPath (e.g. a leftover or a differently named one) is not mock data
+    // for this service.
+    if (mode === "one-entity" && entitySets.size > 0 && missing.length === entitySets.size) {
       ctx.report({ message: ctx.t("odata-mockdata.noneOneEntity", { dataPath }), file: dataPath });
     }
   },

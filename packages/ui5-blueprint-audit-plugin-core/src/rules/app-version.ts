@@ -21,9 +21,9 @@ export const appVersionRule: Rule<Options> = {
     const projectContext = ctx.projectContext;
     const isLib = projectContext.projectType === "lib";
 
-    // Libraries haben kein manifest.json/applicationVersion — die gepflegte Version
-    // ist package.json#version. UI5-Library-Generatoren starten dort typischerweise bei
-    // "1.0.0" statt dem Fiori-App-Default "0.0.1".
+    // Libraries have no manifest.json/applicationVersion — the maintained version is
+    // package.json#version. UI5 library generators typically start there at "1.0.0"
+    // instead of the Fiori app default "0.0.1".
     const defaultValue = ctx.options?.defaultValue ?? (isLib ? "1.0.0" : "0.0.1");
     const version = isLib
       ? get(projectContext.packageJson, "version")

@@ -50,6 +50,8 @@ const de: Record<keyof typeof en, string> = {
   "theme.conflict": 'Theme in index.html ("{htmlTheme}") und ui5.yaml ("{yamlTheme}") widersprechen sich.',
   "theme.notDetected": "Es konnte kein Theme ermittelt werden (weder index.html noch ui5.yaml).",
   "theme.notAllowed": 'Theme "{theme}" ist nicht erlaubt (erlaubt: {allowed}).',
+  "theme.missingThemeLib":
+    'Die Theme-Library "themelib_{theme}" ist in ui5.yaml (framework.libraries) nicht eingetragen. Sie darf nur fehlen, wenn UI5 von einem CDN oder SAP-Server geladen wird.',
 
   "cache-buster.description": "Die App verwendet den Cache Buster.",
   "cache-buster.missing":

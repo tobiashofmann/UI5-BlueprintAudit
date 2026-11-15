@@ -3,7 +3,7 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { cacheBusterRule } from "./cache-buster.js";
 
 describe("cache-buster", () => {
-  it("ist erfüllt, wenn ein Cachebuster-Task in ui5.yaml konfiguriert ist", () => {
+  it("passes if a cache-buster task is configured in ui5.yaml", () => {
     const ctx = createTestContext({
       ui5Yaml: { builder: { customTasks: [{ name: "generateCachebusterInfo" }] } },
     });
@@ -11,7 +11,7 @@ describe("cache-buster", () => {
     expect(runRule(cacheBusterRule, ctx)).toEqual([]);
   });
 
-  it("meldet, wenn kein Cachebuster-Mechanismus konfiguriert ist", () => {
+  it("reports if no cache-buster mechanism is configured", () => {
     const ctx = createTestContext({
       ui5Yaml: { type: "application" },
       indexHtml: '<script id="sap-ui-bootstrap" src="resources/sap-ui-core.js"></script>',
@@ -20,7 +20,7 @@ describe("cache-buster", () => {
     expect(runRule(cacheBusterRule, ctx)).toHaveLength(1);
   });
 
-  it("ist erfüllt bei versionierter Cachebuster-URL in index.html", () => {
+  it("passes with a versioned cache-buster URL in index.html", () => {
     const ctx = createTestContext({
       indexHtml: '<script id="sap-ui-bootstrap" src="resources/sap-ui-core.js?sap-ui-cachebuster=abc"></script>',
     });
@@ -28,7 +28,7 @@ describe("cache-buster", () => {
     expect(runRule(cacheBusterRule, ctx)).toEqual([]);
   });
 
-  it("ist erfüllt bei versionierter Cachebuster-URL, src vor id", () => {
+  it("passes with a versioned cache-buster URL, src before id", () => {
     const ctx = createTestContext({
       indexHtml: '<script src="resources/sap-ui-core.js?sap-ui-cachebuster=abc" id="sap-ui-bootstrap"></script>',
     });
@@ -36,7 +36,7 @@ describe("cache-buster", () => {
     expect(runRule(cacheBusterRule, ctx)).toEqual([]);
   });
 
-  it("bleibt bei vielen <script>-Wiederholungen ohne Treffer performant", () => {
+  it("stays fast with many <script> repetitions and no match", () => {
     const indexHtml = "<script ".repeat(20000) + '<script id="sap-ui-bootstrap" src="resources/sap-ui-core.js"></script>';
     const ctx = createTestContext({ indexHtml });
 
