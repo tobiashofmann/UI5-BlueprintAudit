@@ -30,7 +30,7 @@ describe("loadPlugins", () => {
       `export default {
         name: "local",
         apiVersion: "1",
-        rules: { "my-rule": { meta: { description: "x", defaultSeverity: "warn", projectTypes: ["fs"] }, check() {} } },
+        rules: { "my-rule": { meta: { descriptionKey: "x", defaultSeverity: "warn", projectTypes: ["fs"] }, check() {} } },
       };`,
     );
 
@@ -57,6 +57,21 @@ describe("loadPlugins", () => {
     writePluginFile(dir, "invalid.mjs", `export default { oops: true };`);
 
     await expect(loadPlugins(configPath, ["./invalid.mjs"])).rejects.toThrow(PluginLoadError);
+  });
+  it("rejects a plugin rule without valid meta or check function", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-plugins-"));
+    const configPath = join(dir, "ui5-blueprint-audit.yaml");
+    writePluginFile(
+      dir,
+      "broken-rule.mjs",
+      `export default { name: "broken", apiVersion: "1", rules: { "no-meta": { check() {} } } };`,
+    );
+
+    await expect(loadPlugins(configPath, ["./broken-rule.mjs"])).rejects.toMatchObject({
+      key: "plugin.invalidRule",
+      params: { name: "broken", ruleId: "no-meta" },
+    });
+    await expect(loadPlugins(configPath, ["./broken-rule.mjs"])).rejects.toBeInstanceOf(PluginLoadError);
   });
 });
 

@@ -1,6 +1,6 @@
 import type { Rule } from "@abap/ui5-blueprint-audit-types";
 import { listFiles } from "../util/files.js";
-import { getRootElementName } from "../util/xml.js";
+import { getFragmentRootElementName } from "../util/xml.js";
 
 interface Options {
   basePath?: string;
@@ -8,7 +8,7 @@ interface Options {
 }
 
 /**
- * Checks that fragments whose root element is a dialog (see `dialogRoots`) live under `basePath` (default `webapp/view/dialogs`), separate from regular fragments.
+ * Checks that fragments whose root element is a dialog (see `dialogRoots`; a `FragmentDefinition` wrapping exactly one control counts as that control) live under `basePath` (default `webapp/view/dialogs`), separate from regular fragments.
  *
  * Default severity: `error`. Project types: FS.
  */
@@ -26,7 +26,7 @@ export const dialogsFolderRule: Rule<Options> = {
     for (const file of listFiles(projectContext, (path) => path.endsWith(".fragment.xml"))) {
       const content = projectContext.readFile(file);
       if (!content) continue;
-      const rootElement = getRootElementName(content);
+      const rootElement = getFragmentRootElementName(content);
       if (!rootElement || !dialogRoots.has(rootElement)) continue;
 
       if (!file.startsWith(`${basePath}/`)) {

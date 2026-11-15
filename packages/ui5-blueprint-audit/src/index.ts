@@ -2,7 +2,7 @@ export type { Plugin, ProjectContext, ProjectType, Rule, Severity } from "@abap/
 
 export { loadConfig, ConfigError } from "./config/load-config.js";
 export { mergeRuleConfig } from "./config/merge-rule-config.js";
-export { loadProjectContext } from "./context/load-project-context.js";
+export { loadProjectContext, ProjectContextError } from "./context/load-project-context.js";
 export { loadPlugins, buildRuleMap, PluginLoadError } from "./plugins/load-plugins.js";
 export { runProject } from "./engine/run-project.js";
 export { resolveProjectDirs } from "./engine/resolve-project-dirs.js";

@@ -63,6 +63,10 @@ rules:
 | `warn` | Findings appear in the reports. They do not change the exit code. |
 | `error` | Findings appear in the reports, and the exit code is `1`. |
 
+::: warning Typos are errors
+A severity other than `off`, `warn`, or `error`, a rule ID that no loaded plugin provides, or a `languages`, `plugins`, or `rules` entry of the wrong shape fails the project with exit code `1`. A misspelled setting is never ignored silently.
+:::
+
 Parameters for each rule are in the [rules table](/rules/) and the [full catalog](/rules/catalog).
 
 ::: tip Versions are strings

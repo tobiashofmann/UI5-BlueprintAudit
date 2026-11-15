@@ -56,7 +56,7 @@ const de: Record<keyof typeof en, string> = {
     "Kein Cachebuster-Task/-Middleware in ui5.yaml konfiguriert und index.html bindet UI5 nicht über eine versionierte Cachebuster-URL ein.",
 
   "namespace.description": "Die App verwendet den vorgegebenen Namensraum.",
-  "namespace.wrongPrefix": '{label} ("{id}") beginnt nicht mit "{expected}".',
+  "namespace.wrongPrefix": '{label} ("{id}") liegt nicht im Namensraum "{expected}".',
 
   "consistent-namespace.description": "Alle Artefakte der App verwenden denselben Namensraum.",
   "consistent-namespace.rootView":

@@ -18,8 +18,36 @@ function getRootKeyAndNode(content: string): [string, Record<string, unknown>] |
 export function getRootElementName(content: string): string | undefined {
   const entry = getRootKeyAndNode(content);
   if (!entry) return undefined;
-  const parts = entry[0].split(":");
-  return parts[parts.length - 1];
+  return localName(entry[0]);
+}
+
+function localName(qualifiedName: string): string {
+  const parts = qualifiedName.split(":");
+  return parts[parts.length - 1] ?? qualifiedName;
+}
+
+/**
+ * The element that decides what kind of fragment this is: normally the root element, but
+ * for the common `<core:FragmentDefinition>` wrapper around exactly one control, that
+ * control (e.g. `"Dialog"`). A `FragmentDefinition` with several children, or none, stays
+ * `"FragmentDefinition"`.
+ *
+ * @returns The local element name, without namespace prefix.
+ */
+export function getFragmentRootElementName(content: string): string | undefined {
+  const entry = getRootKeyAndNode(content);
+  if (!entry) return undefined;
+  const rootName = localName(entry[0]);
+  if (rootName !== "FragmentDefinition") return rootName;
+
+  const node: unknown = entry[1];
+  if (typeof node !== "object" || node === null) return rootName;
+  const children = Object.entries(node).filter(([key]) => !key.startsWith("@_") && !key.startsWith("#"));
+  if (children.length !== 1) return rootName;
+  const [childName, childNode] = children[0]!;
+  // fast-xml-parser groups repeated sibling elements into an array under one key.
+  if (Array.isArray(childNode) && childNode.length !== 1) return rootName;
+  return localName(childName);
 }
 
 /**

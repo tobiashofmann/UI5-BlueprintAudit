@@ -1,7 +1,7 @@
 import type { LocaleCode, ProjectType, Severity } from "@abap/ui5-blueprint-audit-types";
 
 /** A rule's config value: either just a severity, or `[severity, options]`. */
-export type RuleConfigValue = Severity | [Severity, Record<string, unknown>];
+export type RuleConfigValue = Severity | [Severity] | [Severity, Record<string, unknown>];
 
 /** The shape of `ui5-blueprint-audit.yaml` as parsed, before CLI options are applied. */
 export interface RawConfig {

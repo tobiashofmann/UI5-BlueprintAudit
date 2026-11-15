@@ -25,13 +25,25 @@ const ptBR: Record<keyof typeof en, string> = {
     'Nenhum tipo de projeto especificado. Defina --type fs|fe|lib na linha de comando ou "projectType" em {configPath}.',
   "config.invalidProjectType": 'Tipo de projeto inválido "{projectType}". Permitidos: {types}.',
   "config.unknownLanguage": "Idioma(s) desconhecido(s): {requested}. Disponíveis: {available}.",
+  "config.notAMapping": "{configPath} deve conter um mapeamento YAML.",
+  "config.invalidLanguages": '"languages" em {configPath} deve ser uma lista de códigos de idioma, p. ex. [de, en].',
+  "config.invalidPlugins": '"plugins" em {configPath} deve ser uma lista de caminhos de plugins ou nomes de pacotes.',
+  "config.invalidRules": '"rules" em {configPath} deve ser um mapeamento de ID de regra para severidade.',
+  "config.invalidRuleConfig":
+    'Configuração inválida para a regra "{ruleId}". Esperado: {severities} ou uma lista [severidade, opções].',
+  "config.unknownRule": "Regra(s) desconhecida(s) na configuração: {rules}.",
+
+  "context.unparseableFile": "Não foi possível interpretar {file}: {error}",
 
   "plugin.invalidDefaultExport": 'O plugin "{spec}" não tem um export default válido ({{ name, apiVersion, rules }}).',
   "plugin.unsupportedApiVersion":
     'O plugin "{name}" declara apiVersion "{apiVersion}", suportado é apiVersion "{supported}".',
   "plugin.npmResolveFailed": 'O plugin "{spec}" não pôde ser resolvido a partir do diretório do projeto.',
+  "plugin.invalidRule":
+    'Plugin "{name}": a regra "{ruleId}" precisa de meta ({{ descriptionKey, defaultSeverity, projectTypes }}) e de uma função check.',
 
   "engine.unexpectedError": "Erro inesperado: {error}",
+  "engine.ruleCrashed": "A regra falhou e não pôde ser avaliada: {error}",
 };
 
 export default ptBR;

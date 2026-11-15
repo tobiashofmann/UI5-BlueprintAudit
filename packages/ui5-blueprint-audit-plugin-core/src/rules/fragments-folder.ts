@@ -1,6 +1,6 @@
 import type { Rule } from "@abap/ui5-blueprint-audit-types";
 import { listFiles } from "../util/files.js";
-import { getRootElementName } from "../util/xml.js";
+import { getFragmentRootElementName } from "../util/xml.js";
 
 interface Options {
   basePath?: string;
@@ -26,7 +26,7 @@ export const fragmentsFolderRule: Rule<Options> = {
     for (const file of listFiles(projectContext, (path) => path.endsWith(".fragment.xml"))) {
       const content = projectContext.readFile(file);
       if (!content) continue;
-      const rootElement = getRootElementName(content);
+      const rootElement = getFragmentRootElementName(content);
       if (rootElement && dialogRoots.has(rootElement)) continue;
 
       if (!file.startsWith(`${basePath}/`)) {

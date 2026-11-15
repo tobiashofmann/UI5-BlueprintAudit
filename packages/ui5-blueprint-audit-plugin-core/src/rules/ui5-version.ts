@@ -1,6 +1,6 @@
 import type { Rule } from "@abap/ui5-blueprint-audit-types";
 import { get } from "../util/get.js";
-import { gte, sameMajorMinor } from "../util/version.js";
+import { compareVersions, gte, sameMajorMinor } from "../util/version.js";
 
 interface Options {
   min?: string;
@@ -44,7 +44,7 @@ export const ui5VersionRule: Rule<Options> = {
       if (!gte(version, min)) {
         ctx.report({ message: ctx.t("ui5-version.belowMin", { label, version, min }), file });
       }
-      if (max !== undefined && gte(version, max) && version !== max) {
+      if (max !== undefined && compareVersions(version, max) > 0) {
         ctx.report({ message: ctx.t("ui5-version.aboveMax", { label, version, max }), file });
       }
     }

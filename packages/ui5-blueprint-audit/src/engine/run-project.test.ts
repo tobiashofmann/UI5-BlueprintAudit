@@ -38,7 +38,7 @@ describe("runProject", () => {
     // "en" läuft immer intern mit, auch ohne explizite Konfiguration (für report.xml).
     expect(byLocale.en).toBeDefined();
     const namespaceResultEn = byLocale.en?.results.find((r) => r.ruleId === "namespace");
-    expect(namespaceResultEn?.findings[0]?.message).toContain('does not start with "de.itsfullofstars"');
+    expect(namespaceResultEn?.findings[0]?.message).toContain('is not in the namespace "de.itsfullofstars"');
   });
 
   it("überspringt Regeln, die per Config auf off gesetzt sind", async () => {
@@ -110,5 +110,62 @@ describe("runProject", () => {
     const { languages } = await runProject(root);
 
     expect(languages).toEqual(["de", "en"]);
+  });
+  it("turns an unknown rule ID in the config into a project error", async () => {
+    const root = createProject({ "sap.app": { id: "ns.app" } });
+    writeFileSync(join(root, "ui5-blueprint-audit.yaml"), "projectType: fs\nrules:\n  no-such-rule: error\n", "utf8");
+
+    const { byLocale } = await runProject(root);
+
+    expect(byLocale.en?.error).toContain("Unknown rule(s) in the configuration: no-such-rule");
+    expect(byLocale.de?.error).toContain("no-such-rule");
+  });
+
+  it("turns a misspelled severity into a project error", async () => {
+    const root = createProject({ "sap.app": { id: "ns.app" } });
+    writeFileSync(join(root, "ui5-blueprint-audit.yaml"), "projectType: fs\nrules:\n  namespace: eror\n", "utf8");
+
+    const { byLocale } = await runProject(root);
+
+    expect(byLocale.en?.error).toContain('Invalid configuration for rule "namespace"');
+  });
+
+  it("reports an unparseable manifest.json as a project error, not as a missing manifest", async () => {
+    const root = createProject({});
+    writeFileSync(join(root, "webapp", "manifest.json"), '{ "sap.app": { ', "utf8");
+
+    const { byLocale } = await runProject(root, { cliProjectType: "fs" });
+
+    expect(byLocale.en?.error).toContain("webapp/manifest.json could not be parsed");
+    expect(byLocale.en?.results).toEqual([]);
+  });
+
+  it("reports a crashing rule as an error finding and still runs the other rules", async () => {
+    // A null inbound makes flp-config throw; a throwing plugin rule covers third-party code.
+    const root = createProject({ "sap.app": { id: "ns.app", crossNavigation: { inbounds: { a: null } } } });
+    writeFileSync(
+      join(root, "crashing.mjs"),
+      `export default {
+        name: "crashing",
+        apiVersion: "1",
+        rules: {
+          boom: {
+            meta: { descriptionKey: "boom.description", defaultSeverity: "warn", projectTypes: ["fs"] },
+            check() { throw new Error("kaputt"); },
+          },
+        },
+      };`,
+      "utf8",
+    );
+    writeFileSync(join(root, "ui5-blueprint-audit.yaml"), "projectType: fs\nplugins:\n  - ./crashing.mjs\n", "utf8");
+
+    const { byLocale } = await runProject(root);
+
+    expect(byLocale.en?.error).toBeUndefined();
+    const boom = byLocale.en?.results.find((r) => r.ruleId === "crashing/boom");
+    expect(boom?.severity).toBe("error");
+    expect(boom?.findings).toHaveLength(1);
+    expect(boom?.findings[0]?.message).toContain("kaputt");
+    expect(byLocale.en?.results.find((r) => r.ruleId === "namespace")?.findings).toHaveLength(1);
   });
 });

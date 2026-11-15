@@ -5,6 +5,7 @@ import type { Plugin, Rule } from "@abap/ui5-blueprint-audit-types";
 import corePlugin from "@abap/ui5-blueprint-audit-plugin-core";
 
 const SUPPORTED_API_VERSION = "1";
+const VALID_SEVERITIES = new Set<string>(["off", "warn", "error"]);
 
 /** Like ConfigError: key/params for localized display, message as the English fallback. */
 export class PluginLoadError extends Error {
@@ -19,6 +20,20 @@ export class PluginLoadError extends Error {
 
 function isLocalSpecifier(spec: string): boolean {
   return spec.startsWith("./") || spec.startsWith("../") || isAbsolute(spec);
+}
+
+function isValidRule(candidate: unknown): boolean {
+  const rule = candidate as Partial<Rule> | null | undefined;
+  const meta = rule?.meta as Partial<Rule["meta"]> | null | undefined;
+  return (
+    typeof rule?.check === "function" &&
+    typeof meta === "object" &&
+    meta !== null &&
+    typeof meta.descriptionKey === "string" &&
+    typeof meta.defaultSeverity === "string" &&
+    VALID_SEVERITIES.has(meta.defaultSeverity) &&
+    Array.isArray(meta.projectTypes)
+  );
 }
 
 function validatePlugin(spec: string, candidate: unknown): Plugin {
@@ -42,6 +57,15 @@ function validatePlugin(spec: string, candidate: unknown): Plugin {
       { name: plugin.name, apiVersion: plugin.apiVersion, supported: SUPPORTED_API_VERSION },
       `Plugin "${plugin.name}" declares apiVersion "${plugin.apiVersion}", supported is apiVersion "${SUPPORTED_API_VERSION}".`,
     );
+  }
+  for (const [ruleId, rule] of Object.entries(plugin.rules)) {
+    if (!isValidRule(rule)) {
+      throw new PluginLoadError(
+        "plugin.invalidRule",
+        { name: plugin.name, ruleId },
+        `Plugin "${plugin.name}": rule "${ruleId}" needs meta ({ descriptionKey, defaultSeverity, projectTypes }) and a check function.`,
+      );
+    }
   }
   return plugin as Plugin;
 }

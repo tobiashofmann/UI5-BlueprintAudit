@@ -37,4 +37,15 @@ describe("consistent-namespace", () => {
 
     expect(runRule(consistentNamespaceRule, ctx)).toEqual([]);
   });
+  it("flags a controllerName that only shares a string prefix with the namespace", () => {
+    const ctx = createTestContext({
+      manifest: { "sap.app": { id: "com.firma" } },
+      files: {
+        "webapp/view/App.view.xml":
+          '<mvc:View xmlns:mvc="sap.ui.core.mvc" controllerName="com.firmaX.controller.App"></mvc:View>',
+      },
+    });
+
+    expect(runRule(consistentNamespaceRule, ctx)).toHaveLength(1);
+  });
 });

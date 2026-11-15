@@ -56,4 +56,21 @@ describe("ui5-version", () => {
 
     expect(runRule(ui5VersionRule, ctx)).toHaveLength(1);
   });
+  it("accepts a version that equals max semantically, even if written differently", () => {
+    const ctx = createTestContext({
+      manifest: { "sap.ui5": { dependencies: { minUI5Version: "1.152.0" } } },
+      ui5Yaml: { framework: { version: "1.152.0" } },
+    });
+
+    expect(runRule(ui5VersionRule, ctx, { max: "1.152" })).toEqual([]);
+  });
+
+  it("reports a version above max", () => {
+    const ctx = createTestContext({
+      manifest: { "sap.ui5": { dependencies: { minUI5Version: "1.153.0" } } },
+      ui5Yaml: { framework: { version: "1.153.0" } },
+    });
+
+    expect(runRule(ui5VersionRule, ctx, { max: "1.152" })).toHaveLength(2);
+  });
 });

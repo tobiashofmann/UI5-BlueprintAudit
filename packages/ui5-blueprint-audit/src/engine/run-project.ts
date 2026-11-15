@@ -3,7 +3,7 @@ import type { LocaleCode, ProjectType } from "@abap/ui5-blueprint-audit-types";
 import { availableLocales, buildLocaleRegistry, createTranslator } from "@abap/ui5-blueprint-audit-types";
 import { ConfigError, loadConfig } from "../config/load-config.js";
 import { mergeRuleConfig, type RuleDefault } from "../config/merge-rule-config.js";
-import { loadProjectContext } from "../context/load-project-context.js";
+import { loadProjectContext, ProjectContextError } from "../context/load-project-context.js";
 import { buildRuleMap, loadPlugins, PluginLoadError } from "../plugins/load-plugins.js";
 import { cliLocalesPlugin } from "../locales/index.js";
 import type { ProjectResultsByLocale, RunProjectResult, RuleResult } from "./types.js";
@@ -22,7 +22,7 @@ function translateError(
   cliRegistry: ReturnType<typeof buildLocaleRegistry>,
 ): string {
   const t = createTranslator(cliRegistry, locale);
-  if (error instanceof ConfigError || error instanceof PluginLoadError) {
+  if (error instanceof ConfigError || error instanceof PluginLoadError || error instanceof ProjectContextError) {
     return t(error.key, error.params);
   }
   return t("engine.unexpectedError", { error: String(error) });
@@ -65,6 +65,9 @@ function errorResultForAllLocales(
  * output language (plus "en", always, since report.xml is always English). A config or
  * plugin-loading failure doesn't throw — it's turned into an error `ProjectResult` for
  * every requested locale instead, so one broken project doesn't abort a multi-project run.
+ * The same goes for an unparseable project file (e.g. a broken `manifest.json`) and for
+ * unknown rule IDs in the config. A rule that throws is reported as an error finding of
+ * that rule; the remaining rules still run.
  *
  * @param projectDir - Absolute path to the project to check.
  * @returns The results per output locale, plus the merged locale registry used to render them.
@@ -138,9 +141,33 @@ export async function runProject(projectDir: string, options: RunProjectOptions 
   for (const [ruleId, rule] of Object.entries(ruleMap)) {
     ruleDefaults[ruleId] = { severity: rule.meta.defaultSeverity };
   }
+  // A rule ID in the config that no loaded plugin provides is almost always a typo. Failing
+  // here keeps it from being ignored silently (the rule the user meant would keep its default).
+  const unknownRuleIds = Object.keys(config.rules).filter((ruleId) => !(ruleId in ruleMap));
+  if (unknownRuleIds.length > 0) {
+    const error = new ConfigError(
+      "config.unknownRule",
+      { rules: unknownRuleIds.join(", ") },
+      `Unknown rule(s) in the configuration: ${unknownRuleIds.join(", ")}.`,
+    );
+    return {
+      byLocale: errorResultForAllLocales(config.languages, available, projectDir, projectName, error, config.projectType),
+      languages: config.languages,
+      registry,
+    };
+  }
   const resolvedRules = mergeRuleConfig(ruleDefaults, config.rules);
 
-  const projectContext = loadProjectContext(projectDir, config.projectType);
+  let projectContext;
+  try {
+    projectContext = loadProjectContext(projectDir, config.projectType);
+  } catch (error) {
+    return {
+      byLocale: errorResultForAllLocales(config.languages, available, projectDir, projectName, error, config.projectType),
+      languages: config.languages,
+      registry,
+    };
+  }
 
   // "en" läuft immer mit, auch wenn der Nutzer es nicht konfiguriert hat — report.xml ist
   // immer Englisch und braucht dafür eine ProjectResult-Quelle (siehe CLAUDE.md, Lokalisierung).
@@ -156,14 +183,26 @@ export async function runProject(projectDir: string, options: RunProjectOptions 
       if (!entry || entry.severity === "off") continue;
 
       const findings: RuleResult["findings"] = [];
-      await rule.check({
-        projectContext,
-        options: entry.options ?? {},
-        t,
-        report: (finding) => findings.push({ ...finding, ruleId, severity: entry.severity }),
-      });
+      let severity = entry.severity;
+      try {
+        await rule.check({
+          projectContext,
+          options: entry.options ?? {},
+          t,
+          report: (finding) => findings.push({ ...finding, ruleId, severity: entry.severity }),
+        });
+      } catch (error) {
+        // A crashing rule (e.g. a plugin bug, or project data in a shape the rule didn't
+        // expect) must not abort the run for every other rule and project. It's reported
+        // as an error-severity finding of that rule instead, whatever severity was
+        // configured — the rule didn't actually check anything, so it can't pass.
+        severity = "error";
+        findings.length = 0;
+        const reason = error instanceof Error ? error.message : String(error);
+        findings.push({ ruleId, severity, message: t("engine.ruleCrashed", { error: reason }) });
+      }
 
-      results.push({ ruleId, description: t(rule.meta.descriptionKey), severity: entry.severity, findings });
+      results.push({ ruleId, description: t(rule.meta.descriptionKey), severity, findings });
     }
     resultsByLocale[locale] = { projectDir, projectName, projectType: config.projectType, results };
   }

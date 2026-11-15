@@ -57,7 +57,7 @@ const en = {
     "No cache buster task/middleware configured in ui5.yaml, and index.html does not load UI5 via a versioned cache buster URL.",
 
   "namespace.description": "The app uses the prescribed namespace.",
-  "namespace.wrongPrefix": '{label} ("{id}") does not start with "{expected}".',
+  "namespace.wrongPrefix": '{label} ("{id}") is not in the namespace "{expected}".',
 
   "consistent-namespace.description": "All artifacts of the app use the same namespace.",
   "consistent-namespace.rootView":
