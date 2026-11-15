@@ -77,7 +77,7 @@ Always write version numbers as strings: `"1.152"`. They are compared as version
 
 - A path that starts with `./`, `../`, or `/` is a local file, resolved relative to the config file.
 - Anything else is an npm package, resolved from the **project** folder, not from the folder of the audit tool.
-- Local plugins must be `.mjs` or `.js` files.
+- Local plugins must be `.mjs`, `.js`, or `.cjs` files.
 
 ## Rule IDs from plugins
 

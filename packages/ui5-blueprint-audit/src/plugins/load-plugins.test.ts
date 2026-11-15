@@ -165,6 +165,19 @@ describe("buildRuleMap", () => {
       expect(plugins.map((p) => p.name)).toEqual(["core", "dual-esm"]);
     });
 
+    it("still loads a package that only declares a require condition", async () => {
+      const configPath = projectWithPackages({
+        "p-req": {
+          packageJson: { exports: { ".": { require: "./index.cjs" } } },
+          files: { "index.cjs": 'module.exports = { name: "req", apiVersion: "1", rules: {} };' },
+        },
+      });
+
+      const plugins = await loadPlugins(configPath, ["p-req"]);
+
+      expect(plugins.map((p) => p.name)).toEqual(["core", "req"]);
+    });
+
     it("reports a package that is not installed", async () => {
       const configPath = projectWithPackages({});
 

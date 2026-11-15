@@ -130,7 +130,7 @@ The package is resolved like an ES module `import`. Any of these shapes works:
 - `"exports"` with a `"default"` or `"import"` condition, for example `"exports": { ".": { "import": "./index.js" } }`.
 - A subpath that `exports` lists, referenced as `"@my-company/pkg/plugin"`.
 
-A CommonJS build works too, including TypeScript output with `exports.default = plugin`. If a package has both an `import` and a `require` build, the `import` build is used. If the package is installed but `exports` does not export the name you listed, the error says so, instead of "could not be resolved".
+A CommonJS build works too, including TypeScript output with `exports.default = plugin`. A package that only declares a `require` condition is loaded as CommonJS. If a package has both an `import` and a `require` build, the `import` build is used. If the package is installed but `exports` does not export the name you listed, the error says so, instead of "could not be resolved".
 
 ## Add a language
 

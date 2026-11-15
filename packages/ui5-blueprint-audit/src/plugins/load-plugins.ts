@@ -1,3 +1,4 @@
+import { createRequire } from "node:module";
 import { dirname, isAbsolute, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { resolve as resolveEsm } from "import-meta-resolve";
@@ -74,7 +75,8 @@ function validatePlugin(spec: string, candidate: unknown): Plugin {
  * Resolves an npm package name to a file URL, as `import` would from a module in the
  * project: ESM conditions (`import`, `default`), so packages that only declare an `import`
  * condition in `exports` work, and a dual package resolves to its ESM build. `require.resolve`
- * can't be used for this (CommonJS conditions), and `import.meta.resolve(spec, parent)` needs
+ * can't be the primary resolver (CommonJS conditions), though it serves as a fallback for
+ * packages that only export a `require` condition. And `import.meta.resolve(spec, parent)` needs
  * an experimental flag on current Node versions, hence the `import-meta-resolve` ponyfill.
  *
  * @throws {PluginLoadError} With a distinct key for "not installed", "installed but not
@@ -93,6 +95,10 @@ function resolveNpmPlugin(spec: string, configPath: string): string {
       );
     }
     if (code === "ERR_PACKAGE_PATH_NOT_EXPORTED") {
+      // A package that only declares a `require` condition is not importable as ESM, but
+      // it is loadable as CommonJS (and worked before the switch to ESM conditions).
+      const commonJsUrl = tryResolveCommonJs(spec, configPath);
+      if (commonJsUrl) return commonJsUrl;
       throw new PluginLoadError(
         "plugin.npmNotExported",
         { spec },
@@ -105,6 +111,14 @@ function resolveNpmPlugin(spec: string, configPath: string): string {
       { spec, error: reason },
       `Plugin "${spec}" could not be resolved: ${reason}`,
     );
+  }
+}
+
+function tryResolveCommonJs(spec: string, configPath: string): string | undefined {
+  try {
+    return pathToFileURL(createRequire(configPath).resolve(spec)).href;
+  } catch {
+    return undefined;
   }
 }
 

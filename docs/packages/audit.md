@@ -40,4 +40,4 @@ Exports: `loadConfig`, `ConfigError`, `mergeRuleConfig`, `loadProjectContext`, `
 
 ## Dependencies
 
-`@abap/ui5-blueprint-audit-plugin-core`, `@abap/ui5-blueprint-audit-types`, and `yaml`.
+`@abap/ui5-blueprint-audit-plugin-core`, `@abap/ui5-blueprint-audit-types`, `import-meta-resolve`, and `yaml`.
