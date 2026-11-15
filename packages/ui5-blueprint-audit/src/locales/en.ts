@@ -40,6 +40,9 @@ const en = {
   "plugin.unsupportedApiVersion":
     'Plugin "{name}" declares apiVersion "{apiVersion}", supported is apiVersion "{supported}".',
   "plugin.npmResolveFailed": 'Plugin "{spec}" could not be resolved from the project directory.',
+  "plugin.npmNotExported":
+    'Plugin "{spec}" is installed, but its package.json "exports" does not export it for ESM "import".',
+  "plugin.npmResolveError": 'Plugin "{spec}" could not be resolved: {error}',
   "plugin.invalidRule":
     'Plugin "{name}": rule "{ruleId}" needs meta ({{ descriptionKey, defaultSeverity, projectTypes }}) and a check function.',
 

@@ -39,6 +39,9 @@ const ptBR: Record<keyof typeof en, string> = {
   "plugin.unsupportedApiVersion":
     'O plugin "{name}" declara apiVersion "{apiVersion}", suportado é apiVersion "{supported}".',
   "plugin.npmResolveFailed": 'O plugin "{spec}" não pôde ser resolvido a partir do diretório do projeto.',
+  "plugin.npmNotExported":
+    'O plugin "{spec}" está instalado, mas "exports" no package.json dele não o exporta para "import" ESM.',
+  "plugin.npmResolveError": 'O plugin "{spec}" não pôde ser resolvido: {error}',
   "plugin.invalidRule":
     'Plugin "{name}": a regra "{ruleId}" precisa de meta ({{ descriptionKey, defaultSeverity, projectTypes }}) e de uma função check.',
 
