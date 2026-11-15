@@ -14,8 +14,8 @@
     "start:dist-cdn": "npm run start-cdn -- --config ui5-dist.yaml"
   },
   "devDependencies": {
-    "@ui5/cli": "^4.0.6",
-    "rimraf": "^6.0.1",
+    "@ui5/cli": "^4.0.73",
+    "rimraf": "^6.1.4",
     "ui5-middleware-livereload": "^3.0.3"
   },
   "overrides": {
