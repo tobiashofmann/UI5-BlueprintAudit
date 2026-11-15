@@ -65,8 +65,8 @@ rules:
 ## Plugins
 
 - Plugins are loaded via the config: local file (path starts with `./`, `../`, or `/`, relative to the config file) or npm package.
-- npm packages are resolved from the **project directory** (`createRequire(configPath).resolve(...)` or `import.meta.resolve`), not from the linter's directory. Loaded via dynamic `import()`.
-- Local plugins are `.mjs` or `.js`. Local `.ts` plugins only if a loader (e.g. `jiti`) is built in.
+- npm packages are resolved from the **project directory** (`import-meta-resolve` with the config file as parent, i.e. ESM conditions — not `createRequire().resolve`, which applies CommonJS conditions and rejects packages that only export `import`; and not the built-in `import.meta.resolve(spec, parent)`, which needs an experimental flag), not from the linter's directory. Loaded via dynamic `import()`.
+- Local plugins are `.mjs`, `.js`, or `.cjs`. Local `.ts` plugins only if a loader (e.g. `jiti`) is built in.
 - **Plugin contract:** A plugin exports `{ name, apiVersion, rules, configs?, locales? }`. Every rule has `meta` (among others `defaultSeverity`, `descriptionKey`, project types) and a `check(ctx)` function that reports findings via `ctx.report(...)` and resolves localized texts via `ctx.t(key, params?)`.
 - **Namespacing:** Rule IDs from plugins have the prefix `<plugin>/<rule>`. Core plugin rules have no prefix.
 - `apiVersion` declares the plugin API version. If it doesn't match, the linter reports this cleanly.

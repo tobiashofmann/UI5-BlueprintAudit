@@ -8,8 +8,8 @@
 flowchart TD
     spec["plugins entry from config"] --> local{"starts with ./ or ../<br/>or is an absolute path?"}
     local -->|yes| file["resolve relative to the<br/>config file"]
-    local -->|no| npm["createRequire(configPath).resolve(spec)<br/>resolved from the project"]
-    npm -->|fails| e1["PluginLoadError<br/>plugin.npmResolveFailed"]
+    local -->|no| npm["import-meta-resolve(spec, configPath)<br/>ESM conditions, resolved from the project"]
+    npm -->|fails| e1["PluginLoadError<br/>plugin.npmResolveFailed<br/>plugin.npmNotExported<br/>plugin.npmResolveError"]
     file --> imp["dynamic import()"]
     npm --> imp
     imp --> valid{"default export has<br/>name, apiVersion, rules?"}
@@ -22,26 +22,17 @@ flowchart TD
 The two branches are the key part of `loadOnePlugin`:
 
 ```ts
-if (isLocalSpecifier(spec)) {
-  moduleUrl = pathToFileURL(resolve(dirname(configPath), spec)).href;
-} else {
-  const require = createRequire(configPath);
-  let resolved: string;
-  try {
-    resolved = require.resolve(spec);
-  } catch {
-    throw new PluginLoadError(
-      "plugin.npmResolveFailed",
-      { spec },
-      `Plugin "${spec}" could not be resolved from the project directory.`,
-    );
-  }
-  moduleUrl = pathToFileURL(resolved).href;
-}
+const moduleUrl = isLocalSpecifier(spec)
+  ? pathToFileURL(resolve(dirname(configPath), spec)).href
+  : resolveNpmPlugin(spec, configPath);
 
 const imported = (await import(moduleUrl)) as { default?: unknown };
-return validatePlugin(spec, imported.default);
+return validatePlugin(spec, unwrapDefaultExport(imported.default));
 ```
+
+`resolveNpmPlugin` resolves the package the way `import` would from the project: with the ESM conditions (`import`, `default`). A package that only has an `import` condition in `exports` works, and a dual package resolves to its ESM build. `require.resolve` is not used, because it applies the CommonJS conditions. `import.meta.resolve(spec, parent)` is not used either, because it needs an experimental Node flag; the `import-meta-resolve` package provides the same resolution without it. If that fails because `exports` has no `import` or `default` condition, it falls back to `createRequire(configPath).resolve(spec)`, so a package that only declares `require` still loads as CommonJS. It reports three distinct errors: the package is not installed (`plugin.npmResolveFailed`), it is installed but its `exports` does not export that name (`plugin.npmNotExported`), or any other reason (`plugin.npmResolveError`, with Node's message).
+
+`unwrapDefaultExport` handles plugins compiled to CommonJS. `import()` of such a module puts `module.exports` into `default`, so `exports.default = plugin` arrives as `{ default: plugin }`.
 
 Local paths resolve relative to the config file. npm packages resolve from the project, not from the folder of the audit tool. The supported plugin API version is `"1"`.
 

@@ -1,4 +1,4 @@
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -9,6 +9,20 @@ function writePluginFile(dir: string, fileName: string, content: string): string
   writeFileSync(path, content, "utf8");
   return path;
 }
+
+/** Creates a project folder with a config path and installs fake npm packages into its node_modules. */
+function projectWithPackages(packages: Record<string, { packageJson: object; files: Record<string, string> }>): string {
+  const dir = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-npm-"));
+  for (const [name, { packageJson, files }] of Object.entries(packages)) {
+    const packageDir = join(dir, "node_modules", name);
+    mkdirSync(packageDir, { recursive: true });
+    writeFileSync(join(packageDir, "package.json"), JSON.stringify({ name, ...packageJson }), "utf8");
+    for (const [fileName, content] of Object.entries(files)) writeFileSync(join(packageDir, fileName), content, "utf8");
+  }
+  return join(dir, "ui5-blueprint-audit.yaml");
+}
+
+const esmPlugin = (name: string) => `export default { name: "${name}", apiVersion: "1", rules: {} };`;
 
 describe("loadPlugins", () => {
   it("always loads the core plugin, even without additional plugins", async () => {
@@ -83,5 +97,158 @@ describe("buildRuleMap", () => {
     ]);
 
     expect(Object.keys(map)).toEqual(["core-rule", "extra/extra-rule"]);
+  });
+
+  describe("npm packages", () => {
+    it("resolves a package that only has a main field", async () => {
+      const configPath = projectWithPackages({
+        "p-main": { packageJson: { type: "module", main: "./index.js" }, files: { "index.js": esmPlugin("p-main") } },
+      });
+
+      const plugins = await loadPlugins(configPath, ["p-main"]);
+
+      expect(plugins.map((p) => p.name)).toEqual(["core", "p-main"]);
+    });
+
+    it("resolves a package whose exports only declare the import condition", async () => {
+      const configPath = projectWithPackages({
+        "p-import": {
+          packageJson: { type: "module", exports: { ".": { types: "./index.d.ts", import: "./index.js" } } },
+          files: { "index.js": esmPlugin("p-import") },
+        },
+      });
+
+      const plugins = await loadPlugins(configPath, ["p-import"]);
+
+      expect(plugins.map((p) => p.name)).toEqual(["core", "p-import"]);
+    });
+
+    it("resolves a scoped package", async () => {
+      const configPath = projectWithPackages({
+        "@scope/p-scoped": {
+          packageJson: { type: "module", exports: { ".": { import: "./index.js" } } },
+          files: { "index.js": esmPlugin("scoped") },
+        },
+      });
+
+      const plugins = await loadPlugins(configPath, ["@scope/p-scoped"]);
+
+      expect(plugins.map((p) => p.name)).toEqual(["core", "scoped"]);
+    });
+
+    it("resolves an exported subpath", async () => {
+      const configPath = projectWithPackages({
+        "p-sub": {
+          packageJson: { type: "module", exports: { "./plugin": { import: "./index.js" } } },
+          files: { "index.js": esmPlugin("p-sub") },
+        },
+      });
+
+      const plugins = await loadPlugins(configPath, ["p-sub/plugin"]);
+
+      expect(plugins.map((p) => p.name)).toEqual(["core", "p-sub"]);
+    });
+
+    it("prefers the ESM build of a dual package", async () => {
+      const configPath = projectWithPackages({
+        "p-dual": {
+          packageJson: { exports: { ".": { import: "./index.mjs", require: "./index.cjs" } } },
+          files: {
+            "index.mjs": esmPlugin("dual-esm"),
+            "index.cjs": 'exports.default = { name: "dual-cjs", apiVersion: "1", rules: {} };',
+          },
+        },
+      });
+
+      const plugins = await loadPlugins(configPath, ["p-dual"]);
+
+      expect(plugins.map((p) => p.name)).toEqual(["core", "dual-esm"]);
+    });
+
+    it("still loads a package that only declares a require condition", async () => {
+      const configPath = projectWithPackages({
+        "p-req": {
+          packageJson: { exports: { ".": { require: "./index.cjs" } } },
+          files: { "index.cjs": 'module.exports = { name: "req", apiVersion: "1", rules: {} };' },
+        },
+      });
+
+      const plugins = await loadPlugins(configPath, ["p-req"]);
+
+      expect(plugins.map((p) => p.name)).toEqual(["core", "req"]);
+    });
+
+    it("reports a package that is not installed", async () => {
+      const configPath = projectWithPackages({});
+
+      await expect(loadPlugins(configPath, ["p-missing"])).rejects.toMatchObject({
+        key: "plugin.npmResolveFailed",
+        params: { spec: "p-missing" },
+      });
+    });
+
+    it("reports an installed package that does not export the requested name, distinct from a missing one", async () => {
+      const configPath = projectWithPackages({
+        "p-sub": {
+          packageJson: { type: "module", exports: { "./plugin": { import: "./index.js" } } },
+          files: { "index.js": esmPlugin("p-sub") },
+        },
+      });
+
+      await expect(loadPlugins(configPath, ["p-sub"])).rejects.toMatchObject({
+        key: "plugin.npmNotExported",
+        params: { spec: "p-sub" },
+      });
+    });
+
+    it("resolves from the project folder, not from the folder of the tool", async () => {
+      // vitest itself is installed next to the tool but not in this project's node_modules.
+      const configPath = projectWithPackages({});
+
+      await expect(loadPlugins(configPath, ["vitest"])).rejects.toMatchObject({ key: "plugin.npmResolveFailed" });
+    });
+  });
+
+  describe("CommonJS plugins", () => {
+    it("loads a plugin compiled with exports.default and __esModule", async () => {
+      const dir = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-plugins-"));
+      writePluginFile(
+        dir,
+        "compiled.cjs",
+        `"use strict"; Object.defineProperty(exports, "__esModule", { value: true });
+         exports.default = { name: "compiled", apiVersion: "1", rules: {} };`,
+      );
+
+      const plugins = await loadPlugins(join(dir, "ui5-blueprint-audit.yaml"), ["./compiled.cjs"]);
+
+      expect(plugins.map((p) => p.name)).toEqual(["core", "compiled"]);
+    });
+
+    it("loads a plugin written with a plain exports.default", async () => {
+      const dir = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-plugins-"));
+      writePluginFile(dir, "plain.cjs", `exports.default = { name: "plain", apiVersion: "1", rules: {} };`);
+
+      const plugins = await loadPlugins(join(dir, "ui5-blueprint-audit.yaml"), ["./plain.cjs"]);
+
+      expect(plugins.map((p) => p.name)).toEqual(["core", "plain"]);
+    });
+
+    it("loads a plugin written with module.exports = plugin", async () => {
+      const dir = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-plugins-"));
+      writePluginFile(dir, "direct.cjs", `module.exports = { name: "direct", apiVersion: "1", rules: {} };`);
+
+      const plugins = await loadPlugins(join(dir, "ui5-blueprint-audit.yaml"), ["./direct.cjs"]);
+
+      expect(plugins.map((p) => p.name)).toEqual(["core", "direct"]);
+    });
+
+    it("still rejects a CommonJS plugin without a valid default export", async () => {
+      const dir = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-plugins-"));
+      writePluginFile(dir, "empty.cjs", `exports.default = { oops: true };`);
+
+      await expect(loadPlugins(join(dir, "ui5-blueprint-audit.yaml"), ["./empty.cjs"])).rejects.toMatchObject({
+        key: "plugin.invalidDefaultExport",
+      });
+    });
   });
 });

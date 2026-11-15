@@ -39,6 +39,9 @@ const de: Record<keyof typeof en, string> = {
   "plugin.unsupportedApiVersion":
     'Plugin "{name}" deklariert apiVersion "{apiVersion}", unterstützt wird apiVersion "{supported}".',
   "plugin.npmResolveFailed": 'Plugin "{spec}" konnte nicht aus dem Projektverzeichnis aufgelöst werden.',
+  "plugin.npmNotExported":
+    'Plugin "{spec}" ist installiert, aber "exports" in dessen package.json exportiert es nicht für ESM-"import".',
+  "plugin.npmResolveError": 'Plugin "{spec}" konnte nicht aufgelöst werden: {error}',
   "plugin.invalidRule":
     'Plugin "{name}": Regel "{ruleId}" braucht meta ({{ descriptionKey, defaultSeverity, projectTypes }}) und eine check-Funktion.',
 

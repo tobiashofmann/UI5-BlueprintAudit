@@ -1,6 +1,7 @@
 import { createRequire } from "node:module";
 import { dirname, isAbsolute, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { resolve as resolveEsm } from "import-meta-resolve";
 import type { Plugin, Rule } from "@abap/ui5-blueprint-audit-types";
 import corePlugin from "@abap/ui5-blueprint-audit-plugin-core";
 
@@ -71,32 +72,84 @@ function validatePlugin(spec: string, candidate: unknown): Plugin {
 }
 
 /**
- * Loads a single plugin via dynamic import(). Local paths (./, ../, absolute) are resolved
- * relative to the config file, npm packages from the project directory (see CLAUDE.md,
- * "Plugins" section) — not from this tool's directory.
+ * Resolves an npm package name to a file URL, as `import` would from a module in the
+ * project: ESM conditions (`import`, `default`), so packages that only declare an `import`
+ * condition in `exports` work, and a dual package resolves to its ESM build. `require.resolve`
+ * can't be the primary resolver (CommonJS conditions), though it serves as a fallback for
+ * packages that only export a `require` condition. And `import.meta.resolve(spec, parent)` needs
+ * an experimental flag on current Node versions, hence the `import-meta-resolve` ponyfill.
+ *
+ * @throws {PluginLoadError} With a distinct key for "not installed", "installed but not
+ *   exported under that name", and any other resolution failure (with Node's reason).
  */
-async function loadOnePlugin(spec: string, configPath: string): Promise<Plugin> {
-  let moduleUrl: string;
-
-  if (isLocalSpecifier(spec)) {
-    moduleUrl = pathToFileURL(resolve(dirname(configPath), spec)).href;
-  } else {
-    const require = createRequire(configPath);
-    let resolved: string;
-    try {
-      resolved = require.resolve(spec);
-    } catch {
+function resolveNpmPlugin(spec: string, configPath: string): string {
+  try {
+    return resolveEsm(spec, pathToFileURL(configPath).href);
+  } catch (error) {
+    const code = (error as { code?: unknown } | null)?.code;
+    if (code === "ERR_MODULE_NOT_FOUND") {
       throw new PluginLoadError(
         "plugin.npmResolveFailed",
         { spec },
         `Plugin "${spec}" could not be resolved from the project directory.`,
       );
     }
-    moduleUrl = pathToFileURL(resolved).href;
+    if (code === "ERR_PACKAGE_PATH_NOT_EXPORTED") {
+      // A package that only declares a `require` condition is not importable as ESM, but
+      // it is loadable as CommonJS (and worked before the switch to ESM conditions).
+      const commonJsUrl = tryResolveCommonJs(spec, configPath);
+      if (commonJsUrl) return commonJsUrl;
+      throw new PluginLoadError(
+        "plugin.npmNotExported",
+        { spec },
+        `Plugin "${spec}" is installed, but its package.json "exports" does not export it for ESM "import".`,
+      );
+    }
+    const reason = error instanceof Error ? error.message : String(error);
+    throw new PluginLoadError(
+      "plugin.npmResolveError",
+      { spec, error: reason },
+      `Plugin "${spec}" could not be resolved: ${reason}`,
+    );
   }
+}
+
+function tryResolveCommonJs(spec: string, configPath: string): string | undefined {
+  try {
+    return pathToFileURL(createRequire(configPath).resolve(spec)).href;
+  } catch {
+    return undefined;
+  }
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+/**
+ * `import()` of a CommonJS module puts `module.exports` into `default`. A plugin compiled
+ * to CommonJS with `exports.default = plugin` (TypeScript's default output) therefore
+ * arrives as `{ default: plugin }`. Unwrap that, but leave a real plugin object alone.
+ */
+function unwrapDefaultExport(candidate: unknown): unknown {
+  if (isObject(candidate) && !("rules" in candidate) && isObject(candidate.default)) {
+    return candidate.default;
+  }
+  return candidate;
+}
+
+/**
+ * Loads a single plugin via dynamic import(). Local paths (./, ../, absolute) are resolved
+ * relative to the config file, npm packages from the project directory (see CLAUDE.md,
+ * "Plugins" section) — not from this tool's directory. Both ESM and CommonJS plugins work.
+ */
+async function loadOnePlugin(spec: string, configPath: string): Promise<Plugin> {
+  const moduleUrl = isLocalSpecifier(spec)
+    ? pathToFileURL(resolve(dirname(configPath), spec)).href
+    : resolveNpmPlugin(spec, configPath);
 
   const imported = (await import(moduleUrl)) as { default?: unknown };
-  return validatePlugin(spec, imported.default);
+  return validatePlugin(spec, unwrapDefaultExport(imported.default));
 }
 
 /**
