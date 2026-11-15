@@ -50,6 +50,8 @@ const ptBR: Record<keyof typeof en, string> = {
   "theme.conflict": 'O tema em index.html ("{htmlTheme}") e em ui5.yaml ("{yamlTheme}") são contraditórios.',
   "theme.notDetected": "Não foi possível determinar um tema (nem index.html nem ui5.yaml).",
   "theme.notAllowed": 'O tema "{theme}" não é permitido (permitidos: {allowed}).',
+  "theme.missingThemeLib":
+    'A biblioteca de tema "themelib_{theme}" não está listada em ui5.yaml (framework.libraries). Ela só pode ser omitida se o UI5 for carregado de um CDN ou de um servidor SAP.',
 
   "cache-buster.description": "O app utiliza o cache buster.",
   "cache-buster.missing":

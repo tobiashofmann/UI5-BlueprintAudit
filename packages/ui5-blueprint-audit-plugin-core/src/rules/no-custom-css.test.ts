@@ -3,13 +3,13 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { noCustomCssRule } from "./no-custom-css.js";
 
 describe("no-custom-css", () => {
-  it("ist erfüllt ohne .css-Dateien und ohne resources.css", () => {
+  it("passes without .css files and without resources.css", () => {
     const ctx = createTestContext({ manifest: {}, files: {} });
 
     expect(runRule(noCustomCssRule, ctx)).toEqual([]);
   });
 
-  it("meldet vorhandene .css-Dateien und gefüllte resources.css", () => {
+  it("reports existing .css files and a non-empty resources.css", () => {
     const ctx = createTestContext({
       manifest: { "sap.ui5": { resources: { css: [{ uri: "css/style.css" }] } } },
       files: { "webapp/css/style.css": "" },
@@ -18,7 +18,7 @@ describe("no-custom-css", () => {
     expect(runRule(noCustomCssRule, ctx)).toHaveLength(2);
   });
 
-  it("ignoriert erlaubte CSS-Dateien", () => {
+  it("ignores allowed CSS files", () => {
     const ctx = createTestContext({
       manifest: {},
       files: { "webapp/css/allowed.css": "" },

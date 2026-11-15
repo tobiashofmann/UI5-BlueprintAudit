@@ -145,7 +145,7 @@ rules:
       strict: false
       basePath: webapp/i18n # for LIB automatically the namespace folder under src/
 
-  i18n-fallback: # FS, FE (not LIB, see catalog "Besonderheiten bei Libraries")
+  i18n-fallback: # FS, FE (not LIB, see catalog "Special cases for libraries")
     - warn
     - value: en
 

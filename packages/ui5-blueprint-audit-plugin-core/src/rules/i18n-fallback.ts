@@ -14,20 +14,20 @@ export const i18nFallbackRule: Rule<Options> = {
   meta: {
     descriptionKey: "i18n-fallback.description",
     defaultSeverity: "warn",
-    // Nicht für LIB: Libraries haben kein manifest.json und damit kein konfigurierbares
-    // fallbackLocale — die Basisdatei (messagebundle.properties) ist dort per UI5-Konvention
-    // immer der Fallback, es gibt nichts, das falsch konfiguriert werden könnte.
+    // Not for LIB: libraries have no manifest.json and therefore no configurable
+    // fallbackLocale — by UI5 convention the base file (messagebundle.properties) is always
+    // the fallback there, so there is nothing that could be misconfigured.
     projectTypes: ["fs", "fe"],
   },
   check(ctx) {
     const expected = ctx.options?.value ?? "en";
 
-    // sap.app/i18n (Descriptor-Ebene, u. a. für die Auflösung von sap.app/title und
-    // sap.app/description durch Tools ohne laufende UI5-Runtime) und
-    // sap.ui5/models/i18n (das Runtime-ResourceModel für {i18n>...}-Bindings in Views/
-    // Controllern) sind getrennte Manifest-Knoten, die UI5 nicht automatisch synchronisiert.
-    // Beide müssen fallbackLocale explizit setzen, sonst verhält sich der eine Kanal für
-    // nicht unterstützte Sprachen anders als der andere.
+    // sap.app/i18n (descriptor level, used among other things to resolve sap.app/title and
+    // sap.app/description by tools without a running UI5 runtime) and sap.ui5/models/i18n
+    // (the runtime ResourceModel for {i18n>...} bindings in views/controllers) are separate
+    // manifest nodes that UI5 does not keep in sync automatically. Both have to set
+    // fallbackLocale explicitly; otherwise one channel behaves differently from the other
+    // for unsupported languages.
     const sources: Array<{ label: string; path: string[] }> = [
       { label: "sap.app/i18n", path: ["sap.app", "i18n"] },
       { label: "sap.ui5/models/i18n", path: ["sap.ui5", "models", "i18n", "settings"] },

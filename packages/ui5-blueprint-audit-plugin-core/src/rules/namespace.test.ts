@@ -3,19 +3,19 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { namespaceRule } from "./namespace.js";
 
 describe("namespace", () => {
-  it("ist erfüllt, wenn sap.app/id mit dem vorgegebenen Namensraum beginnt", () => {
+  it("passes if sap.app/id starts with the prescribed namespace", () => {
     const ctx = createTestContext({ manifest: { "sap.app": { id: "com.firma.myapp" } } });
 
     expect(runRule(namespaceRule, ctx, { value: "com.firma" })).toEqual([]);
   });
 
-  it("meldet einen abweichenden Namensraum", () => {
+  it("reports a deviating namespace", () => {
     const ctx = createTestContext({ manifest: { "sap.app": { id: "com.other.myapp" } } });
 
     expect(runRule(namespaceRule, ctx, { value: "com.firma" })).toHaveLength(1);
   });
 
-  it("nutzt bei Libraries ui5.yaml#metadata.name statt sap.app/id (kein manifest.json)", () => {
+  it("uses ui5.yaml#metadata.name instead of sap.app/id for libraries (no manifest.json)", () => {
     const ctx = createTestContext({
       projectType: "lib",
       ui5Yaml: { metadata: { name: "com.firma.mylib" } },
@@ -24,7 +24,7 @@ describe("namespace", () => {
     expect(runRule(namespaceRule, ctx, { value: "com.firma" })).toEqual([]);
   });
 
-  it("meldet einen abweichenden Namensraum bei Libraries", () => {
+  it("reports a deviating namespace for libraries", () => {
     const ctx = createTestContext({
       projectType: "lib",
       ui5Yaml: { metadata: { name: "com.other.mylib" } },

@@ -1,4 +1,4 @@
-# Gültige Config für ein Freestyle-Projekt mit Regel-Overrides.
+# Valid config for a Freestyle project with rule overrides.
 projectType: fs
 plugins:
   - ./guardrails-rules/local.mjs

@@ -2,9 +2,25 @@ import { XMLParser } from "fast-xml-parser";
 
 const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" });
 
-/** Parses an XML document (view, fragment, etc.) into a plain object tree. */
+/**
+ * Parsed documents by content. Rules run once per output language and several rules look
+ * at the same views and fragments, so each document would otherwise be parsed many times.
+ * Bounded so a long-lived process (tests, many projects in one run) can't grow it forever.
+ */
+const parseCache = new Map<string, Record<string, unknown>>();
+const PARSE_CACHE_LIMIT = 2000;
+
+/**
+ * Parses an XML document (view, fragment, etc.) into a plain object tree. The result is
+ * cached and shared between callers: treat it as read-only.
+ */
 export function parseXml(content: string): Record<string, unknown> {
-  return parser.parse(content) as Record<string, unknown>;
+  const cached = parseCache.get(content);
+  if (cached) return cached;
+  const parsed = parser.parse(content) as Record<string, unknown>;
+  if (parseCache.size >= PARSE_CACHE_LIMIT) parseCache.clear();
+  parseCache.set(content, parsed);
+  return parsed;
 }
 
 function getRootKeyAndNode(content: string): [string, Record<string, unknown>] | undefined {

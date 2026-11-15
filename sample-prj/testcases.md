@@ -100,7 +100,7 @@ the rule in its own `ui5-blueprint-audit.yaml` to actually test it once.
 - **`ui5-version`**: `sap.ui5/dependencies/minUI5Version` is set in the manifest (`1.152.x`), but `framework.version` is entirely missing from `ui5.yaml` — consistency check not possible.
 - **`flp-config`**: `prj-js` has no `sap.app/crossNavigation/inbounds`. `prj-ts` has an inbound (`sample-display`) and satisfies the rule.
 - **`deploy-config`**: `prj-js` has no `ui5-deploy.yaml`. `prj-ts` has a `ui5-deploy.yaml` with task `deploy-to-abap` and `configuration.target.url: http://a4h` — satisfies the rule.
-- **`theme`**: *not* violated — `index.html` sets `data-sap-ui-theme="sap_horizon"` (allowed), and `ui5.yaml`, lacking a `framework` block, provides no conflicting value. The rule is only violated in `prj-violations-1` (see below), where both sources explicitly use `sap_bluecrystal`.
+- **`theme`**: *not* violated — `index.html` sets `data-sap-ui-theme="sap_horizon"` (allowed), and `ui5.yaml` has no `framework` block, so it lists no theme library. That is allowed here because UI5 is loaded from a server: the `fiori-tools-proxy` middleware has a `configuration.ui5` entry (`https://ui5.sap.com`). The rule is only violated in `prj-violations-1` (see below), where both sources explicitly use `sap_bluecrystal`.
 - **`wdi5-tests`** / **`playwright-tests`**: no `wdio.conf.*`/`playwright.config.*` and no matching dependency in `package.json`.
 - **`app-icons`**: `sap.ui/icons/icon` and `/favIcon` are empty strings (generator placeholders).
 - **`app-version`**: `sap.app/applicationVersion/version` is still `0.0.1`.

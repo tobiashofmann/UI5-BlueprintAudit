@@ -20,12 +20,12 @@ export const i18nUsedRule: Rule<Options> = {
   check(ctx) {
     const projectContext = ctx.projectContext;
     const basePath = ctx.options?.basePath ?? getDefaultI18nBasePath(projectContext);
-    if (!basePath) return; // Library ohne auflösbaren Namensraum (ui5.yaml#metadata.name) — nichts zu prüfen.
+    if (!basePath) return; // Library without a resolvable namespace (ui5.yaml#metadata.name) — nothing to check.
 
     const prefix = getI18nPrefix(projectContext);
 
-    // Bei Libraries gibt es kein manifest.json und damit keine explizite i18n-Model-
-    // Deklaration — das messagebundle wird von UI5 per Konvention automatisch geladen.
+    // Libraries have no manifest.json and therefore no explicit i18n model declaration —
+    // UI5 loads the messagebundle automatically by convention.
     if (projectContext.projectType !== "lib") {
       const i18nModel = get(projectContext.manifest, "sap.ui5", "models", "i18n") as
         | Record<string, unknown>

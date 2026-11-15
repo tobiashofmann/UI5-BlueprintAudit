@@ -4,23 +4,23 @@ import { describe, expect, it } from "vitest";
 import { runProject } from "../engine/run-project.js";
 
 /**
- * End-to-End-Check: führt die echte Engine (Config-Loader, Plugin-Loader, Project
- * Context, alle Kern-Regeln) gegen die Referenzprojekte in sample-prj aus. Dient als
- * Regressionstest für das Zusammenspiel aller Teile (siehe sample-prj/testcases.md
- * für die erwartete Zuordnung).
+ * End-to-end check: runs the real engine (config loader, plugin loader, project context,
+ * all core rules) against the reference projects in sample-prj. Serves as a regression
+ * test for the interplay of all parts (see sample-prj/testcases.md for the expected
+ * mapping).
  */
 const sampleProjectsDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "sample-prj");
 
 async function violatedRuleIds(projectDir: string, cliProjectType: "fs" | "fe" | "lib" = "fs"): Promise<string[]> {
   const { byLocale } = await runProject(join(sampleProjectsDir, projectDir), { cliProjectType });
   const result = byLocale.en;
-  if (!result) throw new Error(`Keine "en"-Ergebnisse für ${projectDir}`);
-  if (result.error) throw new Error(`Unerwarteter Config-Fehler für ${projectDir}: ${result.error}`);
+  if (!result) throw new Error(`No "en" results for ${projectDir}`);
+  if (result.error) throw new Error(`Unexpected config error for ${projectDir}: ${result.error}`);
   return result.results.filter((r) => r.findings.length > 0).map((r) => r.ruleId).sort();
 }
 
-describe("sample-prj Referenzprojekte", () => {
-  it("prj-js verletzt genau die dokumentierten Regeln (Generator-Scaffold, JS)", async () => {
+describe("sample-prj reference projects", () => {
+  it("prj-js violates exactly the documented rules (generator scaffold, JS)", async () => {
     expect(await violatedRuleIds("prj-js")).toEqual(
       [
         "typescript",
@@ -42,7 +42,7 @@ describe("sample-prj Referenzprojekte", () => {
     );
   });
 
-  it("prj-ts verletzt genau die dokumentierten Regeln (Generator-Scaffold, TS)", async () => {
+  it("prj-ts violates exactly the documented rules (generator scaffold, TS)", async () => {
     expect(await violatedRuleIds("prj-ts")).toEqual(
       [
         "odata-service",
@@ -61,11 +61,11 @@ describe("sample-prj Referenzprojekte", () => {
     );
   });
 
-  it("prj-ts-lib verletzt genau die dokumentierten Regeln (echte OpenUI5-TS-Library)", async () => {
+  it("prj-ts-lib violates exactly the documented rules (real OpenUI5 TS library)", async () => {
     expect(await violatedRuleIds("prj-ts-lib", "lib")).toEqual(["framework", "ui5-version", "app-version"].sort());
   });
 
-  it("prj-violations-1 verletzt genau die gezielt gebauten 7 Regeln plus die später ergänzten Test-/Metadaten-Regeln", async () => {
+  it("prj-violations-1 violates exactly the 7 purpose-built rules plus the test/metadata rules added later", async () => {
     expect(await violatedRuleIds("prj-violations-1")).toEqual(
       [
         "controller-matches-view",
@@ -84,11 +84,11 @@ describe("sample-prj Referenzprojekte", () => {
     );
   });
 
-  it("prj-valid verletzt keine Regel", async () => {
+  it("prj-valid violates no rule", async () => {
     expect(await violatedRuleIds("prj-valid")).toEqual([]);
   });
 
-  it("prj-violations-2 verletzt genau die 10 Regeln, die sonst kein anderes Fixture verletzt", async () => {
+  it("prj-violations-2 violates exactly the 10 rules that no other fixture violates", async () => {
     expect(await violatedRuleIds("prj-violations-2")).toEqual(
       [
         "app-title-description",
@@ -105,7 +105,7 @@ describe("sample-prj Referenzprojekte", () => {
     );
   });
 
-  it("prj-js-flp-plugin verletzt genau die dokumentierten Regeln (Generator-Scaffold, JS, FLP-Plugin)", async () => {
+  it("prj-js-flp-plugin violates exactly the documented rules (generator scaffold, JS, FLP plugin)", async () => {
     expect(await violatedRuleIds("prj-js-flp-plugin")).toEqual(
       [
         "typescript",
@@ -126,7 +126,7 @@ describe("sample-prj Referenzprojekte", () => {
     );
   });
 
-  it("prj-ts-flp-plugin verletzt genau die dokumentierten Regeln (Generator-Scaffold, TS, FLP-Plugin)", async () => {
+  it("prj-ts-flp-plugin violates exactly the documented rules (generator scaffold, TS, FLP plugin)", async () => {
     expect(await violatedRuleIds("prj-ts-flp-plugin")).toEqual(
       [
         "folder-structure",

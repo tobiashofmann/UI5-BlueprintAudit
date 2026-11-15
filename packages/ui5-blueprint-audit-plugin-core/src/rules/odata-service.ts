@@ -19,8 +19,8 @@ export const odataServiceRule: Rule<Options> = {
     projectTypes: ["fs", "fe"],
   },
   check(ctx) {
-    // FLP-Plugins (sap.app/type: "component") klinken sich nur in die Shell ein und haben
-    // konstruktionsbedingt keinen eigenen Backend-Service.
+    // FLP plugins (sap.app/type: "component") only hook into the shell and have no backend
+    // service of their own by design.
     if (isComponentApp(ctx.projectContext)) return;
 
     const min = ctx.options?.min ?? 1;

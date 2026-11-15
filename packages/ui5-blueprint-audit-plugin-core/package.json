@@ -1,7 +1,7 @@
 {
   "name": "@abap/ui5-blueprint-audit-plugin-core",
   "version": "0.8.5",
-  "description": "Standard-Regeln aus dem UI5 BlueprintAudit Regelkatalog",
+  "description": "Default rules from the UI5 BlueprintAudit rule catalog",
   "type": "module",
   "author": {
     "name": "Tobias Hofmann",

@@ -87,7 +87,12 @@ This catalog describes all rules of the company linter for UI5 projects. Every r
 
 **Description:** The project does not define its own UI5 controls. On by default, can be turned off per project.
 
-**Check:** No class in the project extends `sap/ui/core/Control`, `sap/ui/core/Element`, or another control (`extends Control`, `Control.extend(...)`). Requires AST analysis.
+**Check:** No class in the project is a custom control (`extends …` or `….extend(...)`). Requires AST analysis. A class counts as a custom control if its base class is one of:
+- `sap/ui/core/Control` or `sap/ui/core/Element`.
+- A control or element from a UI5 control library, e.g. `sap/m/Button`, `sap/ui/table/Table`, `sap/f/Card` (resolved via `import`, the `sap.ui.define` dependency list, or global access such as `sap.m.Button.extend`).
+- Another custom control of the project, at any depth (`BaseTile extends GenericTile`, `MyTile extends BaseTile`).
+
+Controllers, components, models, routers, and other non-control classes are not affected.
 
 **Parameters:**
 | Name | Default | Description |
@@ -210,7 +215,7 @@ the "Project type" section in `CLAUDE.md`), this is not a case of auto-detecting
 
 **Check:** Depending on `mode`:
 - `any`: at least one `.json` file exists in `dataPath`.
-- `one-entity`: a `<EntitySet>.json` exists for at least one EntitySet from `metadata.xml`.
+- `one-entity`: a `<EntitySet>.json` exists for at least one EntitySet from `metadata.xml`. Other `.json` files in `dataPath` do not count.
 - `all-entities`: a `<EntitySet>.json` exists for every EntitySet.
 
 **Parameters:**
@@ -248,7 +253,8 @@ the "Project type" section in `CLAUDE.md`), this is not a case of auto-detecting
 
 **Check:**
 - The theme in `index.html` (`data-sap-ui-theme`) is in the `themes` list.
-- The matching theme library (`themelib_<theme>`) is listed in `ui5.yaml`.
+- The matching theme library (`themelib_<theme>`) is listed in `ui5.yaml` (`framework.libraries`). If `ui5.yaml` lists several theme libraries, the theme from `index.html` must be one of them.
+- The theme library may only be missing from `ui5.yaml` if UI5 is loaded from a CDN or an SAP server. That is the case if the bootstrap script in `index.html` has an absolute URL (e.g. `https://ui5.sap.com/...`), or a server middleware in `ui5.yaml` has a `configuration.ui5` entry (e.g. `fiori-tools-proxy`). With a local UI5 (UI5 Tooling framework dependencies, also used by the build), the theme library must be listed.
 - If one of the two files is missing (e.g. for Launchpad apps), it is skipped. If the theme is found in neither, there is an error.
 
 **Parameters:**

@@ -71,9 +71,9 @@ function validatePlugin(spec: string, candidate: unknown): Plugin {
 }
 
 /**
- * Lädt ein einzelnes Plugin per dynamischem import(). Lokale Pfade (./, ../, absolut)
- * werden relativ zur Config-Datei aufgelöst, NPM-Pakete aus dem Projektverzeichnis
- * (siehe CLAUDE.md, Abschnitt "Plugins") — nicht aus dem Verzeichnis dieses Tools.
+ * Loads a single plugin via dynamic import(). Local paths (./, ../, absolute) are resolved
+ * relative to the config file, npm packages from the project directory (see CLAUDE.md,
+ * "Plugins" section) — not from this tool's directory.
  */
 async function loadOnePlugin(spec: string, configPath: string): Promise<Plugin> {
   let moduleUrl: string;

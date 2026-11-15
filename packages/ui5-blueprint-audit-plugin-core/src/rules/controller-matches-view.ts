@@ -38,10 +38,10 @@ export const controllerMatchesViewRule: Rule<Options> = {
       const controllerName = getRootAttribute(content, "controllerName");
       if (!controllerName) continue;
 
-      // Namenskonvention: Die View selbst gibt den erwarteten Namen vor (App.view.xml ->
-      // Controller muss auf ...App enden), nicht umgekehrt. Ein existierender Controller mit
-      // falschem Namen (z. B. Home statt App) würde sonst unbemerkt durchgehen, obwohl die
-      // View auf den falschen Controller zeigt.
+      // Naming convention: the view itself dictates the expected name (App.view.xml ->
+      // the controller has to end in ...App), not the other way round. Otherwise an existing
+      // controller with the wrong name (e.g. Home instead of App) would go unnoticed, even
+      // though the view points to the wrong controller.
       const viewBaseName = basenameWithoutExt(viewFile);
       const controllerBaseName = controllerName.split(".").pop() ?? controllerName;
 

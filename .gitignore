@@ -160,3 +160,6 @@ vite.config.ts.timestamp-*
 # Stryker mutation testing (npm run mutation)
 .stryker-tmp
 /reports/
+
+# macOS Finder metadata
+.DS_Store

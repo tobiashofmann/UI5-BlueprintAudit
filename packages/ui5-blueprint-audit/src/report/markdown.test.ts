@@ -31,7 +31,7 @@ const projects: ProjectResult[] = [
 ];
 
 describe("renderMarkdownReport", () => {
-  it("enthält eine Zusammenfassungstabelle mit Status pro Projekt", () => {
+  it("contains a summary table with the status per project", () => {
     const markdown = renderMarkdownReport(projects, t);
 
     expect(markdown).toContain("| ok-project | fs | 0 | 0 | ✅ |");
@@ -39,20 +39,20 @@ describe("renderMarkdownReport", () => {
     expect(markdown).toContain(t("report.loadError", { error: "No project type specified." }));
   });
 
-  it("listet Findings im Detailabschnitt", () => {
+  it("lists findings in the detail section", () => {
     const markdown = renderMarkdownReport(projects, t);
 
     expect(markdown).toContain("## broken-project");
     expect(markdown).toContain("tsconfig.json: fehlt");
   });
 
-  it("nutzt den Titel aus dem Translator", () => {
+  it("uses the title from the translator", () => {
     const markdown = renderMarkdownReport(projects, t);
 
     expect(markdown).toContain(`# ${t("report.title")}`);
   });
 
-  it("escaped Backslashes vor Pipes, damit die Tabellenstruktur nicht bricht", () => {
+  it("escapes backslashes before pipes so the table structure does not break", () => {
     const withBackslash: ProjectResult[] = [
       {
         projectDir: "/p/win",
@@ -71,8 +71,8 @@ describe("renderMarkdownReport", () => {
 
     const markdown = renderMarkdownReport(withBackslash, t);
 
-    // Ein roher Backslash direkt vor dem escapten Pipe würde dessen Escaping aufheben
-    // ("\\|" statt "\|") und so die Tabellenstruktur brechen.
+    // A raw backslash directly before the escaped pipe would cancel its escaping
+    // ("\\|" instead of "\|") and thus break the table structure.
     expect(markdown).toContain("C:\\\\views\\|evil");
     expect(markdown).not.toContain("C:\\views|evil");
   });

@@ -43,7 +43,7 @@ export function parseCliArgs(argv: string[]) {
   });
 
   if (values.type !== undefined && !VALID_PROJECT_TYPES.has(values.type as ProjectType)) {
-    throw new Error(`Ungültiger --type "${values.type}". Erlaubt: fs, fe, lib.`);
+    throw new Error(`Invalid --type "${values.type}". Allowed: fs, fe, lib.`);
   }
 
   const cliLanguages = values.lang
@@ -82,26 +82,26 @@ export function writeDefaultConfig(dir: string, force = false): string {
 
 /** Prints the `--help` usage text to stdout. Exported for testing. */
 export function printHelp(): void {
-  console.log(`ui5-blueprint-audit [Ordner] [--type fs|fe|lib] [--lang de,en,pt-BR] [--out <Verzeichnis>] [--table]
+  console.log(`ui5-blueprint-audit [folder] [--type fs|fe|lib] [--lang de,en,pt-BR] [--out <directory>] [--table]
 ui5-blueprint-audit --init [--force]
 
-Ohne Ordner wird das aktuelle Verzeichnis als ein Projekt geprüft.
-Zeigt der angegebene Ordner selbst auf ein UI5-Projekt (hat webapp/manifest.json),
-wird nur dieses eine Projekt geprüft. Sonst gilt er als Container (z. B. "projects/")
-und jedes direkte Unterverzeichnis wird als eigenes Projekt geprüft.
+Without a folder, the current directory is checked as one project.
+If the given folder itself is a UI5 project (ui5.yaml with type application or library,
+or webapp/manifest.json), only that one project is checked. Otherwise it counts as a
+container (e.g. "projects/") and every direct subdirectory is checked as its own project.
 
-Optionen:
-  --type fs|fe|lib     Projekttyp, überschreibt "projectType" in ui5-blueprint-audit.yaml.
-  --lang de,en,pt-BR   Ausgabesprachen, überschreibt "languages" in ui5-blueprint-audit.yaml.
-                        Default: de,en. report.xml bleibt davon unabhängig immer Englisch.
-  --out <dir>          Zielordner für die Reports (Default: ui5-blueprint-audit-report).
-  --table              Schreibt zusätzlich eine kompakte Tabelle pro Sprache (table_<locale>.md):
-                        Regel, Status und bei Findings die Meldung.
-  --init               Legt die Standard-Konfiguration ui5-blueprint-audit.yaml im aktuellen
-                        Verzeichnis an (z. B. per "npx @abap/ui5-blueprint-audit --init")
-                        und beendet sich, ohne zu prüfen.
-  --force              Mit --init: eine vorhandene ui5-blueprint-audit.yaml überschreiben.
-  --help               Diese Hilfe anzeigen.`);
+Options:
+  --type fs|fe|lib     Project type, overrides "projectType" in ui5-blueprint-audit.yaml.
+  --lang de,en,pt-BR   Output languages, overrides "languages" in ui5-blueprint-audit.yaml.
+                        Default: de,en. report.xml always stays English regardless.
+  --out <dir>          Target folder for the reports (default: ui5-blueprint-audit-report).
+  --table              Additionally writes a compact table per language (table_<locale>.md):
+                        rule, status and, for findings, the message.
+  --init               Creates the default configuration ui5-blueprint-audit.yaml in the
+                        current directory (e.g. via "npx @abap/ui5-blueprint-audit --init")
+                        and exits without checking.
+  --force              With --init: overwrite an existing ui5-blueprint-audit.yaml.
+  --help               Show this help.`);
 }
 
 function isDefined<T>(value: T | undefined): value is T {
@@ -156,9 +156,9 @@ export async function main(): Promise<void> {
   const activeLocales = args.cliLanguages ?? (configuredLocales.length > 0 ? configuredLocales : DEFAULT_LANGUAGES);
   const resultsByProject = runResults.map((r) => r.byLocale);
 
-  // Vereinigt die Locale-Registries aller Projekte, damit Report-Chrome-Labels
-  // (Titel, Spaltenüberschriften etc.) auch Add-on-Sprachen aus EINEM Projekt nutzen
-  // können, selbst wenn andere Projekte im selben Lauf diese Plugins nicht laden.
+  // Merges the locale registries of all projects, so that report-chrome labels (title,
+  // column headers, etc.) can use add-on languages from ONE project, even if other
+  // projects in the same run don't load those plugins.
   const combinedRegistry = mergeLocaleRegistries(runResults.map((r) => r.registry), "en");
 
   const consoleLocale = activeLocales[0] ?? "en";
@@ -193,13 +193,13 @@ export async function main(): Promise<void> {
   );
   writeFileSync(resolve(outDir, "report.html"), renderHtmlReport(projectsByLocale, translators, activeLocales), "utf8");
 
-  console.log(`\nReports geschrieben nach ${outDir}`);
+  console.log(`\nReports written to ${outDir}`);
 
   process.exitCode = resultsByProject.some((r) => Object.values(r).some(hasErrorFindings)) ? 1 : 0;
 }
 
-// Nur ausführen, wenn direkt als Skript gestartet (z. B. `npx @abap/ui5-blueprint-audit`),
-// nicht beim Import durch Tests.
+// Only run when started directly as a script (e.g. `npx @abap/ui5-blueprint-audit`), not
+// when imported by tests.
 if (isEntryPoint(process.argv[1], import.meta.url)) {
   main().catch((error: unknown) => {
     console.error(error instanceof Error ? error.message : String(error));

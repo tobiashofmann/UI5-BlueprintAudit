@@ -24,7 +24,7 @@ The rule catalog lives in `docs/ui5-blueprint-audit-rules.md`. It contains all r
   - `@abap/ui5-blueprint-audit-types`: types for plugin authors
   - Package scope: `@abap`.
   - `@abap/ui5-blueprint-audit-types` contains, besides the types, also the small, stateless translation logic (`buildLocaleRegistry`, `createTranslator`, `mergeLocaleRegistries`). This is a deliberate exception to "types only": `plugin-core` needs a translator for its own tests and must not get a dependency on the CLI package for that (otherwise circular, since `ui5-blueprint-audit` already depends on `plugin-core`) — `-types` is the only shared base of both packages.
-- **Project Context:** A central layer reads `manifest.json`, `ui5.yaml`, `ui5-*.yaml`, `index.html`, and the file tree under `webapp` once. Rules operate on this context and don't access the file system themselves.
+- **Project Context:** A central layer reads `manifest.json`, `ui5.yaml`, `ui5-*.yaml`, `index.html`, and the file tree under `webapp` once. Rules operate on this context and don't access the file system themselves. The file tree skips hidden directories, `node_modules`, `dist`, `coverage`, and `ui5-blueprint-audit-report`; `readFile` caches per path.
 - **Careful when renaming package names:** `tsconfig.json` `references` paths (`../ui5-blueprint-audit-types` etc.) and `package.json#repository.directory` point to actual folder names under `packages/` — do NOT change them automatically when changing the npm package name (`name` field), only when the folders themselves are also renamed.
 - **LIB projects have no `webapp/`:** source code lives under `src/<namespace-as-path>/`, no `manifest.json`. Project detection runs via `ui5.yaml#type` (`application`/`library`), not via file layout. Details/mapping table: catalog section "Special cases for libraries".
 - **Parser:** `fast-xml-parser` (or similar) for XML views and fragments, `yaml` for YAML, JSON directly. For rules that check code (e.g. `no-custom-controls`), the TypeScript AST is used. That's why `typescript` is a regular `dependency` in `plugin-core`, not a `devDependency` — needed at runtime, not just for building.
@@ -90,15 +90,15 @@ rules:
 
 The catalog is authoritative. These points are especially easy to get wrong:
 
-- `theme`: default `sap_horizon`. Checks `data-sap-ui-theme` in `index.html` and the theme library (`themelib_<theme>`) in `ui5.yaml`. If one of the files is missing (e.g. Launchpad apps without `index.html`), it is skipped.
+- `theme`: default `sap_horizon`. Checks `data-sap-ui-theme` in `index.html` and the theme library (`themelib_<theme>`) in `ui5.yaml`. If one of the files is missing (e.g. Launchpad apps without `index.html`), it is skipped. The theme library may only be missing from `ui5.yaml` if UI5 is loaded from a CDN or an SAP server (absolute bootstrap URL in `index.html`, or a middleware with `configuration.ui5` such as `fiori-tools-proxy`); with a local UI5 it must be listed.
 - `mockserver-config`: file name `ui5-mockserver.yaml` (configurable), default `warn`.
 - `fragments-folder` and `dialogs-folder`: `webapp/view/fragments` and `webapp/view/dialogs`. A fragment counts as a dialog if its root element is in `dialogRoots` (default `Dialog`, `Popover`).
 - `no-custom-css`: inline styles (`style=` in XML) are **not** checked.
 - `i18n-used`: hardcoded texts in views are **not** checked.
 - `i18n-languages`: every configured language must be listed in `supportedLocales` and have an `i18n_<xx>.properties` file. For the fallback language, the base file `i18n.properties` is enough.
-- `odata-mockdata`: default **off**. Modes `any`, `one-entity`, `all-entities`. EntitySets come from `metadata.xml`.
+- `odata-mockdata`: default **off**. Modes `any`, `one-entity`, `all-entities`. EntitySets come from `metadata.xml`. For `one-entity`/`all-entities` only a `<EntitySet>.json` counts, not any `.json` file.
 - **FLP plugins:** if `sap.app/type` in the manifest is `"component"` (instead of `"application"`), `odata-service`, `odata-metadata-local`, `odata-mockdata`, and `non-odata-json` skip themselves automatically — a Launchpad plugin has no backend service of its own by design. See `util/component.ts` in `plugin-core` and catalog section "Data".
-- `no-custom-controls`: default **on**, applies to FS and FE, not to libraries.
+- `no-custom-controls`: default **on**, applies to FS and FE, not to libraries. Also catches classes that extend a UI5 library control (e.g. `sap/m/Button`) or another custom control of the project, not only `Control`/`Element`.
 - `xml-views`: applies to FS, FE, and LIB. For libraries, only if they contain UI5 controls.
 - Default severity `warn`: `i18n-fallback`, `flex-enabled`, `mockserver-config`, `qunit-opa-tests`, `wdi5-tests`, `playwright-tests`, `app-icons`, `app-version`. All other active rules `error`.
 - `namespace`: default `de.itsfullofstars`, configurable.

@@ -3,7 +3,7 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { folderStructureRule } from "./folder-structure.js";
 
 describe("folder-structure", () => {
-  it("ist erfüllt, wenn alle Pflichtordner existieren und Dateien korrekt liegen", () => {
+  it("passes if all required folders exist and files are in the right place", () => {
     const ctx = createTestContext({
       files: {
         "webapp/view/App.view.xml": "",
@@ -15,7 +15,7 @@ describe("folder-structure", () => {
     expect(runRule(folderStructureRule, ctx)).toEqual([]);
   });
 
-  it("meldet fehlenden model-Ordner", () => {
+  it("reports a missing model folder", () => {
     const ctx = createTestContext({
       files: {
         "webapp/view/App.view.xml": "",
@@ -28,7 +28,7 @@ describe("folder-structure", () => {
     expect(findings[0]?.file).toBe("webapp/model");
   });
 
-  it("meldet Views/Controller am falschen Ort", () => {
+  it("reports views/controllers in the wrong place", () => {
     const ctx = createTestContext({
       files: {
         "webapp/App.view.xml": "",

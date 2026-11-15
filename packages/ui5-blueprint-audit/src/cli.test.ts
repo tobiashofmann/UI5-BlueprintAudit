@@ -9,7 +9,7 @@ import { isEntryPoint, main, parseCliArgs, printHelp, writeDefaultConfig } from 
 const sampleProjectsDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "sample-prj");
 
 describe("parseCliArgs", () => {
-  it("liefert Defaults, wenn keine Optionen angegeben sind", () => {
+  it("returns defaults if no options are given", () => {
     const args = parseCliArgs([]);
 
     expect(args).toEqual({
@@ -24,32 +24,32 @@ describe("parseCliArgs", () => {
     });
   });
 
-  it("übernimmt den positionellen Zielordner", () => {
+  it("takes the positional target folder", () => {
     const args = parseCliArgs(["projects/"]);
 
     expect(args.targetDir).toBe("projects/");
   });
 
-  it("akzeptiert einen gültigen --type", () => {
+  it("accepts a valid --type", () => {
     expect(parseCliArgs(["--type", "fs"]).cliProjectType).toBe("fs");
     expect(parseCliArgs(["--type", "fe"]).cliProjectType).toBe("fe");
     expect(parseCliArgs(["--type", "lib"]).cliProjectType).toBe("lib");
   });
 
-  it("wirft bei ungültigem --type", () => {
-    expect(() => parseCliArgs(["--type", "nope"])).toThrow(/Ungültiger --type/);
+  it("throws on an invalid --type", () => {
+    expect(() => parseCliArgs(["--type", "nope"])).toThrow(/Invalid --type/);
   });
 
-  it("zerlegt --lang in eine getrimmte, nicht-leere Liste", () => {
+  it("splits --lang into a trimmed, non-empty list", () => {
     expect(parseCliArgs(["--lang", "de, en , ,pt-BR"]).cliLanguages).toEqual(["de", "en", "pt-BR"]);
   });
 
-  it("übernimmt --table", () => {
+  it("takes over --table", () => {
     expect(parseCliArgs(["--table"]).table).toBe(true);
     expect(parseCliArgs([]).table).toBe(false);
   });
 
-  it("übernimmt --out", () => {
+  it("takes over --out", () => {
     expect(parseCliArgs(["--out", "reports"]).outDir).toBe("reports");
   });
 
@@ -60,13 +60,13 @@ describe("parseCliArgs", () => {
     expect(args.force).toBe(true);
   });
 
-  it("erkennt --help", () => {
+  it("recognizes --help", () => {
     expect(parseCliArgs(["--help"]).help).toBe(true);
   });
 });
 
 describe("printHelp", () => {
-  it("gibt eine Usage-Beschreibung aus, ohne zu werfen", () => {
+  it("prints a usage description without throwing", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
     expect(() => printHelp()).not.toThrow();
@@ -93,7 +93,7 @@ describe("main", () => {
     vi.restoreAllMocks();
   });
 
-  it("schreibt alle Reports und setzt exitCode 1, wenn das Projekt Error-Findings hat", async () => {
+  it("writes all reports and sets exitCode 1 if the project has error findings", async () => {
     const projectDir = resolve(sampleProjectsDir, "prj-js");
     process.argv = ["node", "cli.js", projectDir, "--type", "fs", "--out", outDir];
 
@@ -125,7 +125,7 @@ describe("main", () => {
     expect(log.mock.calls.flat().join("\n")).toMatch(/^ {2}(error|warn) {1,2}[a-z0-9-]+ {2}/m);
   });
 
-  it("gibt --help-Text aus und schreibt keine Reports", async () => {
+  it("prints the --help text and writes no reports", async () => {
     process.argv = ["node", "cli.js", "--help"];
 
     await main();
@@ -134,7 +134,7 @@ describe("main", () => {
     expect(existsSync(join(outDir, "report.xml"))).toBe(false);
   });
 
-  it("nutzt --lang, um nur die angeforderten Report-Sprachen zu schreiben", async () => {
+  it("uses --lang to write only the requested report languages", async () => {
     const projectDir = resolve(sampleProjectsDir, "prj-js");
     process.argv = ["node", "cli.js", projectDir, "--type", "fs", "--lang", "pt-BR", "--out", outDir];
 
@@ -142,7 +142,7 @@ describe("main", () => {
 
     expect(existsSync(join(outDir, "report_pt-BR.md"))).toBe(true);
     expect(existsSync(join(outDir, "report_de.md"))).toBe(false);
-    // report.xml bleibt unabhängig von --lang immer Englisch.
+    // report.xml always stays English, regardless of --lang.
     const junit = readFileSync(join(outDir, "report.xml"), "utf8");
     expect(junit).toContain("<testsuites");
   });

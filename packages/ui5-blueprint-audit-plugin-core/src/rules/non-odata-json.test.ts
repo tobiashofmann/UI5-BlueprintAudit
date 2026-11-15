@@ -3,13 +3,13 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { nonOdataJsonRule } from "./non-odata-json.js";
 
 describe("non-odata-json", () => {
-  it("ist erfüllt ohne Nicht-OData-dataSources", () => {
+  it("passes without non-OData dataSources", () => {
     const ctx = createTestContext({ manifest: { "sap.app": {}, "sap.ui5": {} } });
 
     expect(runRule(nonOdataJsonRule, ctx)).toEqual([]);
   });
 
-  it("ist erfüllt, wenn type JSON ist und ein JSONModel zugeordnet ist", () => {
+  it("passes if type is JSON and a JSONModel is assigned", () => {
     const ctx = createTestContext({
       manifest: {
         "sap.app": { dataSources: { config: { type: "JSON" } } },
@@ -20,7 +20,7 @@ describe("non-odata-json", () => {
     expect(runRule(nonOdataJsonRule, ctx)).toEqual([]);
   });
 
-  it("meldet einen falschen dataSource-type", () => {
+  it("reports a wrong dataSource type", () => {
     const ctx = createTestContext({
       manifest: { "sap.app": { dataSources: { config: { type: "ODataAnnotation" } } }, "sap.ui5": {} },
     });
@@ -28,7 +28,7 @@ describe("non-odata-json", () => {
     expect(runRule(nonOdataJsonRule, ctx)).toHaveLength(1);
   });
 
-  it("meldet ein falsches Model für eine JSON-dataSource", () => {
+  it("reports a wrong model for a JSON dataSource", () => {
     const ctx = createTestContext({
       manifest: {
         "sap.app": { dataSources: { config: { type: "JSON" } } },
@@ -39,7 +39,7 @@ describe("non-odata-json", () => {
     expect(runRule(nonOdataJsonRule, ctx)).toHaveLength(1);
   });
 
-  it("überspringt sich für FLP-Plugins (sap.app/type: component), auch bei falschem dataSource-type", () => {
+  it("skips itself for FLP plugins (sap.app/type: component), even with a wrong dataSource type", () => {
     const ctx = createTestContext({
       manifest: { "sap.app": { type: "component", dataSources: { config: { type: "ODataAnnotation" } } } },
     });

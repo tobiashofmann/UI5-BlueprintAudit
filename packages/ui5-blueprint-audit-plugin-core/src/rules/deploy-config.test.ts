@@ -3,7 +3,7 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { deployConfigRule } from "./deploy-config.js";
 
 describe("deploy-config", () => {
-  it("ist erfüllt bei einem Deploy-Task mit target.url", () => {
+  it("passes with a deploy task with target.url", () => {
     const ctx = createTestContext({
       ui5YamlExtensions: {
         "ui5-deploy.yaml": { builder: { customTasks: [{ name: "deploy-to-abap", configuration: { target: { url: "http://a4h" } } }] } },
@@ -13,13 +13,13 @@ describe("deploy-config", () => {
     expect(runRule(deployConfigRule, ctx)).toEqual([]);
   });
 
-  it("meldet eine fehlende ui5-deploy.yaml", () => {
+  it("reports a missing ui5-deploy.yaml", () => {
     const ctx = createTestContext({ ui5YamlExtensions: {} });
 
     expect(runRule(deployConfigRule, ctx)).toHaveLength(1);
   });
 
-  it("meldet einen Deploy-Task ohne Ziel", () => {
+  it("reports a deploy task without a target", () => {
     const ctx = createTestContext({
       ui5YamlExtensions: { "ui5-deploy.yaml": { builder: { customTasks: [{ name: "deploy-to-abap", configuration: {} }] } } },
     });

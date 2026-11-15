@@ -23,15 +23,15 @@ export const i18nLanguagesRule: Rule<Options> = {
     const projectContext = ctx.projectContext;
     const languages = ctx.options?.languages ?? ["de", "en"];
     const basePath = ctx.options?.basePath ?? getDefaultI18nBasePath(projectContext);
-    if (!basePath) return; // Library ohne auflösbaren Namensraum (ui5.yaml#metadata.name) — nichts zu prüfen.
+    if (!basePath) return; // Library without a resolvable namespace (ui5.yaml#metadata.name) — nothing to check.
 
     const prefix = getI18nPrefix(projectContext);
 
     if (projectContext.projectType === "lib") {
-      // Libraries deklarieren supportedLocales/fallbackLocale nirgends (kein manifest.json) —
-      // UI5 lädt automatisch, welche messagebundle_<xx>.properties existieren. Da es keinen
-      // deklarierten Fallback gibt, wird für jede vorgegebene Sprache eine eigene Datei
-      // verlangt; die Basisdatei allein zählt hier bewusst nicht als Abdeckung.
+      // Libraries declare supportedLocales/fallbackLocale nowhere (no manifest.json) — UI5
+      // automatically loads whichever messagebundle_<xx>.properties exist. As there is no
+      // declared fallback, every required language needs its own file; the base file alone
+      // deliberately does not count as coverage here.
       for (const lang of languages) {
         if (projectContext.readFile(`${basePath}/${prefix}_${lang}.properties`) === undefined) {
           ctx.report({
@@ -45,9 +45,9 @@ export const i18nLanguagesRule: Rule<Options> = {
 
     const strict = ctx.options?.strict ?? false;
 
-    // sap.app/i18n (Descriptor-Ebene) und sap.ui5/models/i18n (Runtime-Model) sind getrennte
-    // Manifest-Knoten, die UI5 nicht automatisch synchronisiert (siehe i18n-fallback) —
-    // supportedLocales muss in beiden stehen.
+    // sap.app/i18n (descriptor level) and sap.ui5/models/i18n (runtime model) are separate
+    // manifest nodes that UI5 does not keep in sync automatically (see i18n-fallback) —
+    // supportedLocales has to be listed in both.
     const sources = [
       { label: "sap.app/i18n", path: ["sap.app", "i18n"] },
       { label: "sap.ui5/models/i18n", path: ["sap.ui5", "models", "i18n", "settings"] },
@@ -61,8 +61,8 @@ export const i18nLanguagesRule: Rule<Options> = {
         supportedLocales: Array.isArray(settings.supportedLocales) ? (settings.supportedLocales as string[]) : [],
       };
     });
-    // Die physische Datei wird vom Runtime-Model geladen — dessen supportedLocales/fallbackLocale
-    // bleiben dafür maßgeblich, unabhängig davon, was im Descriptor steht.
+    // The physical file is loaded by the runtime model — its supportedLocales/fallbackLocale
+    // stay authoritative for that, regardless of what the descriptor says.
     const runtimeSettings = (get(projectContext.manifest, "sap.ui5", "models", "i18n", "settings") ?? {}) as Record<
       string,
       unknown

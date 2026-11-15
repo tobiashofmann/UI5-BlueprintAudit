@@ -3,7 +3,7 @@ import type { ProjectResult } from "../engine/types.js";
 import { renderTextSummary } from "./text.js";
 
 describe("renderTextSummary", () => {
-  it("markiert ein fehlerfreies Projekt mit ✓ und zeigt 0 Errors/Warnings", () => {
+  it("marks a clean project with ✓ and shows 0 errors/warnings", () => {
     const projects: ProjectResult[] = [
       {
         projectDir: "/p/ok",
@@ -18,7 +18,7 @@ describe("renderTextSummary", () => {
     expect(text).toBe("✓ ok-project (fs): 0 error(s), 0 warning(s)");
   });
 
-  it("markiert ein Projekt mit Error-Findings mit ✗ und listet die Findings", () => {
+  it("marks a project with error findings with ✗ and lists the findings", () => {
     const projects: ProjectResult[] = [
       {
         projectDir: "/p/broken",
@@ -41,7 +41,7 @@ describe("renderTextSummary", () => {
     expect(text).toContain("  error  typescript  tsconfig.json: fehlt");
   });
 
-  it("markiert ein Projekt ohne Errors, aber mit Warnings, mit !", () => {
+  it("marks a project without errors but with warnings with !", () => {
     const projects: ProjectResult[] = [
       {
         projectDir: "/p/warn",
@@ -64,7 +64,7 @@ describe("renderTextSummary", () => {
     expect(text).toContain("  warn   app-version  veraltet");
   });
 
-  it("zeigt Findings ohne Datei ohne Datei-Präfix an", () => {
+  it("shows findings without a file without a file prefix", () => {
     const projects: ProjectResult[] = [
       {
         projectDir: "/p/nofile",
@@ -87,7 +87,7 @@ describe("renderTextSummary", () => {
     expect(text).not.toContain("undefined");
   });
 
-  it("zeigt den Config-Fehler statt Findings, wenn das Projekt nicht geladen werden konnte", () => {
+  it("shows the config error instead of findings if the project could not be loaded", () => {
     const projects: ProjectResult[] = [
       { projectDir: "/p/err", projectName: "err-project", error: "No project type specified.", results: [] },
     ];
@@ -97,7 +97,7 @@ describe("renderTextSummary", () => {
     expect(text).toBe("✗ err-project: No project type specified.");
   });
 
-  it("verbindet mehrere Projekte mit Zeilenumbrüchen", () => {
+  it("joins several projects with line breaks", () => {
     const projects: ProjectResult[] = [
       {
         projectDir: "/p/ok",

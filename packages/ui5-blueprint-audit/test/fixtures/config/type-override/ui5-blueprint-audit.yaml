@@ -1,4 +1,4 @@
-# projectType hier ist "fe", wird aber im Test durch --type auf der Kommandozeile überschrieben.
+# projectType here is "fe", but the test overrides it with --type on the command line.
 projectType: fe
 rules:
   framework:

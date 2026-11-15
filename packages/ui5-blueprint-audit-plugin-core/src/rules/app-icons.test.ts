@@ -3,7 +3,7 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { appIconsRule } from "./app-icons.js";
 
 describe("app-icons", () => {
-  it("ist erfüllt, wenn icon und favIcon gesetzt sind", () => {
+  it("passes if icon and favIcon are set", () => {
     const ctx = createTestContext({
       manifest: { "sap.ui": { icons: { icon: "sap-icon://home", favIcon: "favicon.ico" } } },
     });
@@ -11,7 +11,7 @@ describe("app-icons", () => {
     expect(runRule(appIconsRule, ctx)).toEqual([]);
   });
 
-  it("meldet leere Icon-Platzhalter", () => {
+  it("reports empty icon placeholders", () => {
     const ctx = createTestContext({
       manifest: { "sap.ui": { icons: { icon: "", favIcon: "" } } },
     });

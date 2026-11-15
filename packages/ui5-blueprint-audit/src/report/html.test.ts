@@ -24,7 +24,7 @@ const projects: ProjectResult[] = [
 ];
 
 describe("renderHtmlReport", () => {
-  it("erzeugt ein vollständiges HTML-Dokument mit einem Sprach-Panel", () => {
+  it("produces a complete HTML document with one language panel", () => {
     const t = createTranslator(registry, "en");
     const html = renderHtmlReport({ en: projects }, { en: t }, ["en"]);
 
@@ -33,7 +33,7 @@ describe("renderHtmlReport", () => {
     expect((html.match(/<details class="project">/g) ?? []).length).toBe(2);
   });
 
-  it("escaped Nutzdaten und zeigt Findings sowie Config-Fehler lokalisiert an", () => {
+  it("escapes user data and shows findings and config errors localized", () => {
     const t = createTranslator(registry, "en");
     const html = renderHtmlReport({ en: projects }, { en: t }, ["en"]);
 
@@ -42,7 +42,7 @@ describe("renderHtmlReport", () => {
     expect(html).toContain(t("report.loadError", { error: "No project type specified." }));
   });
 
-  it("bettet ein Panel pro aktiver Sprache ein, mit Umschalt-Buttons", () => {
+  it("embeds one panel per active language, with switch buttons", () => {
     const tEn = createTranslator(registry, "en");
     const tDe = createTranslator(registry, "de");
     const html = renderHtmlReport({ en: projects, de: projects }, { en: tEn, de: tDe }, ["en", "de"]);

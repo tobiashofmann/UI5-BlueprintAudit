@@ -3,7 +3,7 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { dialogsFolderRule } from "./dialogs-folder.js";
 
 describe("dialogs-folder", () => {
-  it("ist erfüllt, wenn Dialog-Fragmente unter dialogs/ liegen", () => {
+  it("passes if dialog fragments are located under dialogs/", () => {
     const ctx = createTestContext({
       files: { "webapp/view/dialogs/Confirm.fragment.xml": '<Dialog xmlns="sap.m"></Dialog>' },
     });
@@ -11,7 +11,7 @@ describe("dialogs-folder", () => {
     expect(runRule(dialogsFolderRule, ctx)).toEqual([]);
   });
 
-  it("meldet ein Dialog-Fragment außerhalb von dialogs/", () => {
+  it("reports a dialog fragment outside dialogs/", () => {
     const ctx = createTestContext({
       files: { "webapp/view/Confirm.fragment.xml": '<Dialog xmlns="sap.m"></Dialog>' },
     });
@@ -19,7 +19,7 @@ describe("dialogs-folder", () => {
     expect(runRule(dialogsFolderRule, ctx)).toHaveLength(1);
   });
 
-  it("ignoriert Nicht-Dialog-Fragmente", () => {
+  it("ignores non-dialog fragments", () => {
     const ctx = createTestContext({
       files: { "webapp/view/Info.fragment.xml": '<VBox xmlns="sap.m"></VBox>' },
     });

@@ -3,13 +3,13 @@ import { createTestContext, runRule } from "../test-utils.js";
 import { qunitOpaTestsRule } from "./qunit-opa-tests.js";
 
 describe("qunit-opa-tests", () => {
-  it("ist erfüllt bei einer QUnit-Testsuite", () => {
+  it("passes with a QUnit test suite", () => {
     const ctx = createTestContext({ files: { "webapp/test/unit/unitTests.qunit.ts": "" } });
 
     expect(runRule(qunitOpaTestsRule, ctx)).toEqual([]);
   });
 
-  it("ist erfüllt bei einem OPA5-Journey", () => {
+  it("passes with an OPA5 journey", () => {
     const ctx = createTestContext({
       files: { "webapp/test/integration/NavigationJourney.js": 'import Opa5 from "sap/ui/test/Opa5";' },
     });
@@ -17,13 +17,13 @@ describe("qunit-opa-tests", () => {
     expect(runRule(qunitOpaTestsRule, ctx)).toEqual([]);
   });
 
-  it("meldet, wenn keine Tests existieren", () => {
+  it("reports if no tests exist", () => {
     const ctx = createTestContext({ files: {} });
 
     expect(runRule(qunitOpaTestsRule, ctx)).toHaveLength(1);
   });
 
-  it("prüft bei Libraries test/ statt webapp/test/", () => {
+  it("checks test/ instead of webapp/test/ for libraries", () => {
     const ctx = createTestContext({
       projectType: "lib",
       files: { "test/ns/lib/qunit/Example.qunit.ts": "" },

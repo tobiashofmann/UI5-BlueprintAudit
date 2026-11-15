@@ -12,7 +12,7 @@ function createProject(manifest: Record<string, unknown>): string {
 }
 
 describe("runProject", () => {
-  it("liefert einen lokalisierten Fehler-Eintrag ohne Projekttyp, für de und en", async () => {
+  it("returns a localized error entry without a project type, for de and en", async () => {
     const root = createProject({ "sap.app": { id: "ns.app" } });
 
     const { byLocale } = await runProject(root);
@@ -22,7 +22,7 @@ describe("runProject", () => {
     expect(byLocale.de?.results).toEqual([]);
   });
 
-  it("führt Regeln aus und sammelt Findings pro Regel, pro aktiver Sprache", async () => {
+  it("runs rules and collects findings per rule, per active language", async () => {
     const root = createProject({ "sap.app": { id: "ns.app" } });
 
     const { byLocale } = await runProject(root, { cliProjectType: "fs" });
@@ -35,13 +35,13 @@ describe("runProject", () => {
     const flexEnabledResult = byLocale.de?.results.find((r) => r.ruleId === "flex-enabled");
     expect(flexEnabledResult?.severity).toBe("warn");
 
-    // "en" läuft immer intern mit, auch ohne explizite Konfiguration (für report.xml).
+    // "en" always runs internally as well, even without explicit configuration (for report.xml).
     expect(byLocale.en).toBeDefined();
     const namespaceResultEn = byLocale.en?.results.find((r) => r.ruleId === "namespace");
     expect(namespaceResultEn?.findings[0]?.message).toContain('is not in the namespace "de.itsfullofstars"');
   });
 
-  it("überspringt Regeln, die per Config auf off gesetzt sind", async () => {
+  it("skips rules that are set to off via the config", async () => {
     const root = createProject({ "sap.app": { id: "ns.app" } });
     writeFileSync(join(root, "ui5-blueprint-audit.yaml"), "projectType: fs\nrules:\n  namespace: off\n", "utf8");
 
@@ -50,7 +50,7 @@ describe("runProject", () => {
     expect(byLocale.de?.results.find((r) => r.ruleId === "namespace")).toBeUndefined();
   });
 
-  it("wendet Regel-Optionen aus der Config an", async () => {
+  it("applies rule options from the config", async () => {
     const root = createProject({ "sap.app": { id: "com.firma.app" } });
     writeFileSync(
       root + "/ui5-blueprint-audit.yaml",
@@ -64,18 +64,18 @@ describe("runProject", () => {
     expect(namespaceResult?.findings).toEqual([]);
   });
 
-  it("bricht bei einer unbekannten Sprache klar ab, auch unter dem angeforderten Locale-Key", async () => {
+  it("aborts clearly on an unknown language, also under the requested locale key", async () => {
     const root = createProject({ "sap.app": { id: "ns.app" } });
 
     const { byLocale } = await runProject(root, { cliProjectType: "fs", cliLanguages: ["xx-XX"] });
 
     expect(byLocale.en?.error).toContain("Unknown language(s): xx-XX");
-    // Die angeforderte (ungültige) Sprache bekommt trotzdem einen Eintrag (Fallback-Rendering auf Englisch),
-    // damit report_xx-XX.md nicht leer aussieht, sondern den Fehler zeigt.
+    // The requested (invalid) language still gets an entry (fallback rendering in English),
+    // so report_xx-XX.md doesn't look empty but shows the error.
     expect(byLocale["xx-XX"]?.error).toContain("Unknown language(s): xx-XX");
   });
 
-  it("merged Locale-Add-ons aus geladenen Plugins in die zurückgegebene Registry", async () => {
+  it("merges locale add-ons from loaded plugins into the returned registry", async () => {
     const root = createProject({ "sap.app": { id: "ns.app" } });
     const pluginPath = join(root, "fr-addon.mjs");
     writeFileSync(

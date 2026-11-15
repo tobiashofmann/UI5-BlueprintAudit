@@ -1,2 +1,2 @@
-# projectType "desktop" ist kein gültiger Wert (nur fs, fe, lib) -> Fehlerfall.
+# projectType "desktop" is not a valid value (only fs, fe, lib) -> error case.
 projectType: desktop

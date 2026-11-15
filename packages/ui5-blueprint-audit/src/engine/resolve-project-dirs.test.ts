@@ -5,11 +5,11 @@ import { describe, expect, it } from "vitest";
 import { resolveProjectDirs } from "./resolve-project-dirs.js";
 
 describe("resolveProjectDirs", () => {
-  it("liefert nur das cwd, wenn kein Ordner angegeben ist", () => {
+  it("returns only the cwd if no folder is given", () => {
     expect(resolveProjectDirs("/some/cwd")).toEqual(["/some/cwd"]);
   });
 
-  it("liefert die direkten Unterordner eines angegebenen Ordners", () => {
+  it("returns the direct subfolders of a given folder", () => {
     const root = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-dirs-"));
     mkdirSync(join(root, "projects", "a"), { recursive: true });
     mkdirSync(join(root, "projects", "b"), { recursive: true });
@@ -21,14 +21,14 @@ describe("resolveProjectDirs", () => {
     expect(dirs).toEqual([join(root, "projects", "a"), join(root, "projects", "b")]);
   });
 
-  it("löst den Ordner relativ zum cwd auf", () => {
+  it("resolves the folder relative to the cwd", () => {
     const root = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-dirs-"));
     mkdirSync(join(root, "sub", "x"), { recursive: true });
 
     expect(resolveProjectDirs(root, "sub")).toEqual([join(root, "sub", "x")]);
   });
 
-  it("behandelt den angegebenen Ordner selbst als Projekt, wenn er webapp/manifest.json hat", () => {
+  it("treats the given folder itself as a project if it has webapp/manifest.json", () => {
     const root = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-dirs-"));
     mkdirSync(join(root, "my-app", "webapp"), { recursive: true });
     writeFileSync(join(root, "my-app", "webapp", "manifest.json"), "{}", "utf8");
@@ -36,7 +36,7 @@ describe("resolveProjectDirs", () => {
     expect(resolveProjectDirs(root, "my-app")).toEqual([join(root, "my-app")]);
   });
 
-  it("erkennt eine Library (ui5.yaml: type: library, kein webapp/) als ein Projekt, nicht als Container", () => {
+  it("detects a library (ui5.yaml: type: library, no webapp/) as one project, not as a container", () => {
     const root = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-dirs-"));
     mkdirSync(join(root, "my-lib", "src", "my", "ns"), { recursive: true });
     mkdirSync(join(root, "my-lib", "test"), { recursive: true });
@@ -45,7 +45,7 @@ describe("resolveProjectDirs", () => {
     expect(resolveProjectDirs(root, "my-lib")).toEqual([join(root, "my-lib")]);
   });
 
-  it("erkennt eine App auch über ui5.yaml: type: application, ohne webapp/manifest.json", () => {
+  it("also detects an app via ui5.yaml: type: application, without webapp/manifest.json", () => {
     const root = mkdtempSync(join(tmpdir(), "ui5-blueprint-audit-dirs-"));
     mkdirSync(join(root, "my-app"), { recursive: true });
     writeFileSync(join(root, "my-app", "ui5.yaml"), 'specVersion: "4.0"\ntype: application\n', "utf8");

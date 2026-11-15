@@ -156,7 +156,7 @@ export function assertLocalesAvailable(registry: LocaleRegistry, requested: Loca
   const unknown = requested.filter((locale) => !available.has(locale));
   if (unknown.length > 0) {
     throw new Error(
-      `Unbekannte Sprache(n): ${unknown.join(", ")}. Verfügbar: ${[...available].join(", ")}.`,
+      `Unknown language(s): ${unknown.join(", ")}. Available: ${[...available].join(", ")}.`,
     );
   }
 }

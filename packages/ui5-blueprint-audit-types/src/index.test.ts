@@ -13,7 +13,7 @@ function pluginWithLocales(locales: Plugin["locales"]): Plugin {
 }
 
 describe("buildLocaleRegistry", () => {
-  it("merged die Bundles mehrerer Plugins pro Locale", () => {
+  it("merges the bundles of several plugins per locale", () => {
     const registry = buildLocaleRegistry([
       pluginWithLocales({ en: { a: "A", b: "B" } }),
       pluginWithLocales({ en: { c: "C" }, de: { a: "A-de" } }),
@@ -24,7 +24,7 @@ describe("buildLocaleRegistry", () => {
     expect(registry.referenceLocale).toBe("en");
   });
 
-  it("lässt ein späteres Plugin einzelne Keys eines früheren überschreiben", () => {
+  it("lets a later plugin override individual keys of an earlier one", () => {
     const registry = buildLocaleRegistry([
       pluginWithLocales({ en: { a: "first" } }),
       pluginWithLocales({ en: { a: "second" } }),
@@ -33,13 +33,13 @@ describe("buildLocaleRegistry", () => {
     expect(registry.bundles.en?.a).toBe("second");
   });
 
-  it("funktioniert ohne Plugins ohne locales-Feld", () => {
+  it("works with plugins that have no locales field", () => {
     const registry = buildLocaleRegistry([{ name: "p", apiVersion: "1", rules: {} }]);
 
     expect(registry.bundles).toEqual({});
   });
 
-  it("nutzt die übergebene referenceLocale statt des Defaults", () => {
+  it("uses the given referenceLocale instead of the default", () => {
     const registry = buildLocaleRegistry([], "de");
 
     expect(registry.referenceLocale).toBe("de");
@@ -47,7 +47,7 @@ describe("buildLocaleRegistry", () => {
 });
 
 describe("mergeLocaleRegistries", () => {
-  it("merged die Bundles mehrerer Registries pro Locale, spätere gewinnen bei Konflikten", () => {
+  it("merges the bundles of several registries per locale, later ones win on conflicts", () => {
     const a = buildLocaleRegistry([pluginWithLocales({ en: { x: "a-x", y: "a-y" } })]);
     const b = buildLocaleRegistry([pluginWithLocales({ en: { x: "b-x" }, de: { y: "b-y-de" } })]);
 
@@ -59,13 +59,13 @@ describe("mergeLocaleRegistries", () => {
 });
 
 describe("availableLocales", () => {
-  it("listet die Keys der bundles-Map", () => {
+  it("lists the keys of the bundles map", () => {
     const registry = buildLocaleRegistry([pluginWithLocales({ en: { a: "A" }, de: { a: "A-de" } })]);
 
     expect(availableLocales(registry)).toEqual(["en", "de"]);
   });
 
-  it("ist leer, wenn keine Bundles geladen wurden", () => {
+  it("is empty if no bundles were loaded", () => {
     expect(availableLocales(buildLocaleRegistry([]))).toEqual([]);
   });
 });
@@ -76,37 +76,37 @@ describe("createTranslator", () => {
     "en",
   );
 
-  it("übersetzt in der angeforderten Locale", () => {
+  it("translates in the requested locale", () => {
     const t = createTranslator(registry, "de");
 
     expect(t("greet", { name: "Welt" })).toBe("Hallo Welt");
   });
 
-  it("fällt auf die referenceLocale zurück, wenn der Key in der Locale fehlt", () => {
+  it("falls back to the referenceLocale if the key is missing in the locale", () => {
     const t = createTranslator(registry, "de");
 
     expect(t("onlyEn")).toBe("only en");
   });
 
-  it("fällt auf den rohen Key zurück, wenn er in keinem Bundle existiert", () => {
+  it("falls back to the raw key if it exists in no bundle", () => {
     const t = createTranslator(registry, "de");
 
     expect(t("unknown.key")).toBe("unknown.key");
   });
 
-  it("lässt einen Platzhalter unverändert, wenn params gar nicht übergeben wird", () => {
+  it("leaves a placeholder unchanged if params is not passed at all", () => {
     const t = createTranslator(registry, "en");
 
     expect(t("greet")).toBe("Hello {name}");
   });
 
-  it("lässt einen Platzhalter unverändert, wenn params ihn nicht enthält", () => {
+  it("leaves a placeholder unchanged if params does not contain it", () => {
     const t = createTranslator(registry, "en");
 
     expect(t("greet", {})).toBe("Hello {name}");
   });
 
-  it("interpoliert ohne params-Argument unverändert", () => {
+  it("interpolates unchanged without a params argument", () => {
     const t = createTranslator(registry, "en");
 
     expect(t("onlyEn")).toBe("only en");
@@ -116,11 +116,11 @@ describe("createTranslator", () => {
 describe("assertLocalesAvailable", () => {
   const registry = buildLocaleRegistry([pluginWithLocales({ en: { a: "A" }, de: { a: "A-de" } })]);
 
-  it("wirft nicht, wenn alle angeforderten Locales verfügbar sind", () => {
+  it("does not throw if all requested locales are available", () => {
     expect(() => assertLocalesAvailable(registry, ["en", "de"])).not.toThrow();
   });
 
-  it("wirft mit den unbekannten und verfügbaren Locales, wenn eine fehlt", () => {
+  it("throws with the unknown and the available locales if one is missing", () => {
     expect(() => assertLocalesAvailable(registry, ["en", "pt-BR"])).toThrow(/pt-BR/);
     expect(() => assertLocalesAvailable(registry, ["en", "pt-BR"])).toThrow(/en, de/);
   });
