@@ -26,13 +26,25 @@ const en = {
     'No project type specified. Set --type fs|fe|lib on the command line or "projectType" in {configPath}.',
   "config.invalidProjectType": 'Invalid project type "{projectType}". Allowed: {types}.',
   "config.unknownLanguage": "Unknown language(s): {requested}. Available: {available}.",
+  "config.notAMapping": "{configPath} must contain a YAML mapping.",
+  "config.invalidLanguages": '"languages" in {configPath} must be a list of language codes, e.g. [de, en].',
+  "config.invalidPlugins": '"plugins" in {configPath} must be a list of plugin paths or package names.',
+  "config.invalidRules": '"rules" in {configPath} must be a mapping of rule ID to severity.',
+  "config.invalidRuleConfig":
+    'Invalid configuration for rule "{ruleId}". Expected one of {severities}, or a list [severity, options].',
+  "config.unknownRule": "Unknown rule(s) in the configuration: {rules}.",
+
+  "context.unparseableFile": "{file} could not be parsed: {error}",
 
   "plugin.invalidDefaultExport": 'Plugin "{spec}" has no valid default export ({{ name, apiVersion, rules }}).',
   "plugin.unsupportedApiVersion":
     'Plugin "{name}" declares apiVersion "{apiVersion}", supported is apiVersion "{supported}".',
   "plugin.npmResolveFailed": 'Plugin "{spec}" could not be resolved from the project directory.',
+  "plugin.invalidRule":
+    'Plugin "{name}": rule "{ruleId}" needs meta ({{ descriptionKey, defaultSeverity, projectTypes }}) and a check function.',
 
   "engine.unexpectedError": "Unexpected error: {error}",
+  "engine.ruleCrashed": "The rule crashed and could not be evaluated: {error}",
 } as const;
 
 export default en;

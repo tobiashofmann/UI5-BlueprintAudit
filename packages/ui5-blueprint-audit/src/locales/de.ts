@@ -25,13 +25,25 @@ const de: Record<keyof typeof en, string> = {
     'Kein Projekttyp angegeben. Setze --type fs|fe|lib auf der Kommandozeile oder "projectType" in {configPath}.',
   "config.invalidProjectType": 'Ungültiger Projekttyp "{projectType}". Erlaubt sind: {types}.',
   "config.unknownLanguage": "Unbekannte Sprache(n): {requested}. Verfügbar: {available}.",
+  "config.notAMapping": "{configPath} muss ein YAML-Mapping enthalten.",
+  "config.invalidLanguages": '"languages" in {configPath} muss eine Liste von Sprachcodes sein, z. B. [de, en].',
+  "config.invalidPlugins": '"plugins" in {configPath} muss eine Liste von Plugin-Pfaden oder Paketnamen sein.',
+  "config.invalidRules": '"rules" in {configPath} muss ein Mapping von Regel-ID auf Severity sein.',
+  "config.invalidRuleConfig":
+    'Ungültige Konfiguration für Regel "{ruleId}". Erwartet wird {severities} oder eine Liste [Severity, Optionen].',
+  "config.unknownRule": "Unbekannte Regel(n) in der Konfiguration: {rules}.",
+
+  "context.unparseableFile": "{file} konnte nicht gelesen werden: {error}",
 
   "plugin.invalidDefaultExport": 'Plugin "{spec}" hat keinen gültigen Default-Export ({{ name, apiVersion, rules }}).',
   "plugin.unsupportedApiVersion":
     'Plugin "{name}" deklariert apiVersion "{apiVersion}", unterstützt wird apiVersion "{supported}".',
   "plugin.npmResolveFailed": 'Plugin "{spec}" konnte nicht aus dem Projektverzeichnis aufgelöst werden.',
+  "plugin.invalidRule":
+    'Plugin "{name}": Regel "{ruleId}" braucht meta ({{ descriptionKey, defaultSeverity, projectTypes }}) und eine check-Funktion.',
 
   "engine.unexpectedError": "Unerwarteter Fehler: {error}",
+  "engine.ruleCrashed": "Die Regel ist abgestürzt und konnte nicht ausgewertet werden: {error}",
 };
 
 export default de;

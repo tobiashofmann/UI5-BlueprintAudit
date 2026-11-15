@@ -18,6 +18,18 @@ export function getProjectNamespace(ctx: ProjectContext): string | undefined {
   return typeof id === "string" ? id : undefined;
 }
 
+/**
+ * Whether `name` lies in `namespace`: equal to it, or below it on a segment boundary.
+ * A plain `startsWith` would accept `com.firmaX.app` for the namespace `com.firma`.
+ */
+export function isInNamespace(name: string, namespace: string): boolean {
+  // Strip trailing dots without a regex: `/\.+$/` backtracks polynomially on long runs of dots.
+  let end = namespace.length;
+  while (end > 0 && namespace[end - 1] === ".") end--;
+  const base = namespace.slice(0, end);
+  return name === base || name.startsWith(`${base}.`);
+}
+
 /** The file to reference in namespace-related findings: `ui5.yaml` for LIB, `webapp/manifest.json` otherwise. */
 export function getNamespaceFileRef(ctx: ProjectContext): string {
   return ctx.projectType === "lib" ? "ui5.yaml" : "webapp/manifest.json";

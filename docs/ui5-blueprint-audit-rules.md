@@ -10,7 +10,10 @@ This catalog describes all rules of the company linter for UI5 projects. Every r
 - **Project types:** `freestyle` (FS), `fiori-elements` (FE), `library` (LIB). A rule is only applied to projects of the listed types.
 - **Project type specification:** The user specifies the type when starting the tool; it is not detected automatically. Example: `ui5-blueprint-audit --type fs`, `--type fe`, or `--type lib`. Alternatively, it can be set as `projectType` in the configuration file. The command-line value takes precedence. If the type is missing, the tool aborts with an error message.
 - **Namespacing:** Rules from the core plugin have no prefix. Rules from plugins have the prefix `<plugin>/<rule>`.
-- **Version values** are always configured as a string (`"1.152"`) and compared semantically.
+- **Version values** are always configured as a string (`"1.152"`) and compared semantically. This also holds for upper bounds: `"1.152.0"` does not exceed a `max` of `"1.152"`.
+- **Invalid configuration:** A severity other than `off`, `warn`, `error`, a rule ID that no loaded plugin provides, or a `languages`/`plugins`/`rules` entry of the wrong shape is a project error (exit code `1`). It is never ignored silently.
+- **Unreadable project files:** If `manifest.json`, `ui5.yaml`, a `ui5-*.yaml`, or `package.json` exists but is not valid JSON/YAML, the project is reported as an error and no rules run for it. A missing file is not an error by itself; the rules decide.
+- **Crashing rules:** If a rule throws, it is reported as an `error` finding of that rule, regardless of its configured severity. The other rules and projects still run.
 - **Sources checked:** `manifest.json`, `ui5.yaml`, `ui5-*.yaml`, `index.html`, the file tree under `webapp`, XML views and fragments.
 
 ## Overview
@@ -146,7 +149,7 @@ the view's file name, and that controller exists as a file.
 
 **Description:** XML fragments that are not dialogs live in a `fragments` folder.
 
-**Check:** Every `*.fragment.xml` whose root element is not a dialog (see `dialogs-folder`) lives under `basePath`.
+**Check:** Every `*.fragment.xml` whose root element is not a dialog (see `dialogs-folder`, including its handling of `FragmentDefinition`) lives under `basePath`.
 
 **Parameters:**
 | Name | Default | Description |
@@ -157,7 +160,7 @@ the view's file name, and that controller exists as a file.
 
 **Description:** Fragments with a dialog as the root element live in a `dialogs` folder, separate from regular fragments.
 
-**Check:** Every `*.fragment.xml` whose root element is listed in `dialogRoots` lives under `basePath`.
+**Check:** Every `*.fragment.xml` whose root element is listed in `dialogRoots` lives under `basePath`. If the root element is a `FragmentDefinition` that wraps exactly one control, that control counts as the root element (`<core:FragmentDefinition><Dialog>…` is a dialog). A `FragmentDefinition` with several controls is not a dialog.
 
 **Parameters:**
 | Name | Default | Description |
@@ -387,7 +390,7 @@ the "Project type" section in `CLAUDE.md`), this is not a case of auto-detecting
 
 **Description:** The app uses the specified namespace.
 
-**Check:** `sap.app/id` in the manifest starts with `value`.
+**Check:** `sap.app/id` in the manifest lies in the namespace `value`: it equals `value` or starts with `value` followed by a dot. A plain string prefix is not enough (`com.firmaX.app` does not match `com.firma`).
 
 **Parameters:**
 | Name | Default | Description |
@@ -398,7 +401,7 @@ the "Project type" section in `CLAUDE.md`), this is not a case of auto-detecting
 
 **Description:** All artifacts of the app use the same namespace.
 
-**Check:** `sap.app/id`, `controllerName`, `fragmentName`, `viewName`, and class IDs in views, fragments, and code all start with the same namespace as `sap.app/id`.
+**Check:** `sap.app/id`, `controllerName`, `fragmentName`, `viewName`, and class IDs in views, fragments, and code all lie in the same namespace as `sap.app/id` (matched on a segment boundary, as in `namespace`).
 
 **Parameters:** none
 

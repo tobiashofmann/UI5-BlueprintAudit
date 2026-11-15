@@ -26,4 +26,22 @@ describe("fragments-folder", () => {
 
     expect(runRule(fragmentsFolderRule, ctx)).toEqual([]);
   });
+  it("does not flag a FragmentDefinition-wrapped dialog that lives in the dialogs folder", () => {
+    const ctx = createTestContext({
+      files: { "webapp/view/dialogs/Confirm.fragment.xml": '<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core"><Dialog title="x"></Dialog></core:FragmentDefinition>' },
+    });
+
+    expect(runRule(fragmentsFolderRule, ctx)).toEqual([]);
+  });
+
+  it("flags a FragmentDefinition-wrapped non-dialog outside the fragments folder", () => {
+    const ctx = createTestContext({
+      files: {
+        "webapp/view/Info.fragment.xml":
+          '<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core"><VBox/></core:FragmentDefinition>',
+      },
+    });
+
+    expect(runRule(fragmentsFolderRule, ctx)).toHaveLength(1);
+  });
 });

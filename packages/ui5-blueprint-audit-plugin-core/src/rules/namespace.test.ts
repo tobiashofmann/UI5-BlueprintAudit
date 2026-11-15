@@ -32,4 +32,17 @@ describe("namespace", () => {
 
     expect(runRule(namespaceRule, ctx, { value: "com.firma" })).toHaveLength(1);
   });
+  it("only matches on a segment boundary, not on a plain string prefix", () => {
+    const ctx = createTestContext({ manifest: { "sap.app": { id: "com.firmaX.myapp" } } });
+
+    expect(runRule(namespaceRule, ctx, { value: "com.firma" })).toHaveLength(1);
+  });
+
+  it("accepts an ID equal to the namespace and a namespace configured with a trailing dot", () => {
+    const exact = createTestContext({ manifest: { "sap.app": { id: "com.firma" } } });
+    const below = createTestContext({ manifest: { "sap.app": { id: "com.firma.myapp" } } });
+
+    expect(runRule(namespaceRule, exact, { value: "com.firma" })).toEqual([]);
+    expect(runRule(namespaceRule, below, { value: "com.firma." })).toEqual([]);
+  });
 });

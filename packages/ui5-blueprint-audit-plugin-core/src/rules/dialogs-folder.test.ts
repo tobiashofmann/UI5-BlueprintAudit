@@ -26,4 +26,22 @@ describe("dialogs-folder", () => {
 
     expect(runRule(dialogsFolderRule, ctx)).toEqual([]);
   });
+  it("treats a FragmentDefinition wrapping a single dialog as a dialog", () => {
+    const wrapped = '<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core"><Dialog title="x"></Dialog></core:FragmentDefinition>';
+
+    expect(
+      runRule(dialogsFolderRule, createTestContext({ files: { "webapp/view/dialogs/Confirm.fragment.xml": wrapped } })),
+    ).toEqual([]);
+    expect(
+      runRule(dialogsFolderRule, createTestContext({ files: { "webapp/view/fragments/Confirm.fragment.xml": wrapped } })),
+    ).toHaveLength(1);
+  });
+
+  it("does not treat a FragmentDefinition with several controls as a dialog", () => {
+    const ctx = createTestContext({
+      files: { "webapp/view/fragments/Mixed.fragment.xml": '<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core"><Dialog/><Button/></core:FragmentDefinition>' },
+    });
+
+    expect(runRule(dialogsFolderRule, ctx)).toEqual([]);
+  });
 });

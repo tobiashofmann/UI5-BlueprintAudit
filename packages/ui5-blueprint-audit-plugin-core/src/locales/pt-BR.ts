@@ -56,7 +56,7 @@ const ptBR: Record<keyof typeof en, string> = {
     "Nenhuma task/middleware de cache buster configurada em ui5.yaml, e o index.html não carrega o UI5 via uma URL de cache buster versionada.",
 
   "namespace.description": "O app usa o namespace definido.",
-  "namespace.wrongPrefix": '{label} ("{id}") não começa com "{expected}".',
+  "namespace.wrongPrefix": '{label} ("{id}") não está no namespace "{expected}".',
 
   "consistent-namespace.description": "Todos os artefatos do app usam o mesmo namespace.",
   "consistent-namespace.rootView":
