@@ -23,7 +23,10 @@ export function getProjectNamespace(ctx: ProjectContext): string | undefined {
  * A plain `startsWith` would accept `com.firmaX.app` for the namespace `com.firma`.
  */
 export function isInNamespace(name: string, namespace: string): boolean {
-  const base = namespace.replace(/\.+$/, "");
+  // Strip trailing dots without a regex: `/\.+$/` backtracks polynomially on long runs of dots.
+  let end = namespace.length;
+  while (end > 0 && namespace[end - 1] === ".") end--;
+  const base = namespace.slice(0, end);
   return name === base || name.startsWith(`${base}.`);
 }
 
