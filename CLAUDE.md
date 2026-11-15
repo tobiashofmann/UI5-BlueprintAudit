@@ -12,30 +12,32 @@ An npm package (CLI) that checks a UI5 project against company guidelines. It co
 
 ## Source of truth
 
-The rule catalog lives in `docs/ui5-blueprint-audit-rules.md`. It contains all rules with ID, check, parameters, default severity, and project types (the overview table in the catalog shows the current count). Rule changes are made there first, then in code. In case of conflicts between code and catalog, the catalog wins, unless the user decides otherwise.
+The rule catalog lives in `docs/ui5-blueprint-audit-rules.md`. It contains all rules with ID, check, parameters, default severity, and project types (the overview table in the catalog shows the current count). Rule changes are made there first, then in code. In case of conflicts between code and catalog, the catalog wins, unless the user decides otherwise. (ADR: [0009](docs/adr/0009-rule-catalog-source-of-truth.md))
 
 ## Architecture decisions
 
-- **Standalone npm project**, not an ESLint plugin and not a plugin for `@ui5/linter`. Reason: the rules mostly check project structure, manifest, and config files, not individual source files. No plugin API for custom rules is known for `@ui5/linter`.
-- **Language:** TypeScript on Node.js, ESM.
-- **Monorepo** (npm workspaces):
+Each decision below is recorded with context and consequences in `docs/adr/` (index: `docs/adr/index.md`). Add a new numbered ADR there for any new architecture decision, and supersede rather than rewrite an old one.
+
+- **Standalone npm project**, not an ESLint plugin and not a plugin for `@ui5/linter`. Reason: the rules mostly check project structure, manifest, and config files, not individual source files. No plugin API for custom rules is known for `@ui5/linter`. (ADR: [0001](docs/adr/0001-standalone-cli.md))
+- **Language:** TypeScript on Node.js, ESM. (ADR: [0002](docs/adr/0002-typescript-esm-node-24.md))
+- **Monorepo** (npm workspaces) (ADR: [0003](docs/adr/0003-monorepo-three-packages.md), [0004](docs/adr/0004-core-rules-as-regular-plugin.md), [0005](docs/adr/0005-translation-logic-in-types-package.md))
   - `@abap/ui5-blueprint-audit`: core with CLI, config loader, plugin loader, formatter
   - `@abap/ui5-blueprint-audit-plugin-core`: the default rules from the catalog, itself built as a regular plugin (no special treatment of built-in rules)
   - `@abap/ui5-blueprint-audit-types`: types for plugin authors
   - Package scope: `@abap`.
   - `@abap/ui5-blueprint-audit-types` contains, besides the types, also the small, stateless translation logic (`buildLocaleRegistry`, `createTranslator`, `mergeLocaleRegistries`). This is a deliberate exception to "types only": `plugin-core` needs a translator for its own tests and must not get a dependency on the CLI package for that (otherwise circular, since `ui5-blueprint-audit` already depends on `plugin-core`) — `-types` is the only shared base of both packages.
-- **Project Context:** A central layer reads `manifest.json`, `ui5.yaml`, `ui5-*.yaml`, `index.html`, and the file tree under `webapp` once. Rules operate on this context and don't access the file system themselves. The file tree skips hidden directories, `node_modules`, `dist`, `coverage`, and `ui5-blueprint-audit-report`; `readFile` caches per path.
-- **Careful when renaming package names:** `tsconfig.json` `references` paths (`../ui5-blueprint-audit-types` etc.) and `package.json#repository.directory` point to actual folder names under `packages/` — do NOT change them automatically when changing the npm package name (`name` field), only when the folders themselves are also renamed.
-- **LIB projects have no `webapp/`:** source code lives under `src/<namespace-as-path>/`, no `manifest.json`. Project detection runs via `ui5.yaml#type` (`application`/`library`), not via file layout. Details/mapping table: catalog section "Special cases for libraries".
-- **Parser:** `fast-xml-parser` (or similar) for XML views and fragments, `yaml` for YAML, JSON directly. For rules that check code (e.g. `no-custom-controls`), the TypeScript AST is used. That's why `typescript` is a regular `dependency` in `plugin-core`, not a `devDependency` — needed at runtime, not just for building.
+- **Project Context:** A central layer reads `manifest.json`, `ui5.yaml`, `ui5-*.yaml`, `index.html`, and the file tree under `webapp` once. Rules operate on this context and don't access the file system themselves. The file tree skips hidden directories, `node_modules`, `dist`, `coverage`, and `ui5-blueprint-audit-report`; `readFile` caches per path. (ADR: [0006](docs/adr/0006-project-context-loaded-once.md))
+- **Careful when renaming package names:** `tsconfig.json` `references` paths (`../ui5-blueprint-audit-types` etc.) and `package.json#repository.directory` point to actual folder names under `packages/` — do NOT change them automatically when changing the npm package name (`name` field), only when the folders themselves are also renamed. (ADR: [0003](docs/adr/0003-monorepo-three-packages.md))
+- **LIB projects have no `webapp/`:** source code lives under `src/<namespace-as-path>/`, no `manifest.json`. Project detection runs via `ui5.yaml#type` (`application`/`library`), not via file layout. Details/mapping table: catalog section "Special cases for libraries". (ADR: [0008](docs/adr/0008-library-projects.md))
+- **Parser:** `fast-xml-parser` (or similar) for XML views and fragments, `yaml` for YAML, JSON directly. For rules that check code (e.g. `no-custom-controls`), the TypeScript AST is used. That's why `typescript` is a regular `dependency` in `plugin-core`, not a `devDependency` — needed at runtime, not just for building. (ADR: [0010](docs/adr/0010-typescript-as-runtime-dependency.md))
 
 ## Configuration
 
-- **Format:** YAML, file `ui5-blueprint-audit.yaml` in the project root. Comments are explicitly intended.
+- **Format:** YAML, file `ui5-blueprint-audit.yaml` in the project root. Comments are explicitly intended. (ADR: [0011](docs/adr/0011-yaml-configuration.md))
 - **JSON Schema** is shipped so editors can autocomplete and validate rule names and parameters (`yaml-language-server`). The same schema validates the config at runtime.
 - Optionally also support `.json` and `.js`/`.mjs`.
 - The config only overrides the rule set's defaults. Every rule can be turned on or off (`off`, `warn`, `error`) and has optional parameters.
-- **Version strings** are always strings (`"1.152"`) and compared semantically, never as string or number.
+- **Version strings** are always strings (`"1.152"`) and compared semantically, never as string or number. (ADR: [0011](docs/adr/0011-yaml-configuration.md))
 
 ```yaml
 # ui5-blueprint-audit.yaml
@@ -57,6 +59,8 @@ rules:
 
 ## Project type
 
+ADR: [0007](docs/adr/0007-explicit-project-type.md).
+
 - The user specifies the type. There is **no automatic detection**.
 - CLI: `ui5-blueprint-audit --type fs|fe|lib`. Alternatively `projectType` in the config. The command line takes precedence.
 - If the type is missing, the tool aborts with a clear error message.
@@ -67,20 +71,22 @@ rules:
 - Plugins are loaded via the config: local file (path starts with `./`, `../`, or `/`, relative to the config file) or npm package.
 - npm packages are resolved from the **project directory** (`import-meta-resolve` with the config file as parent, i.e. ESM conditions — not `createRequire().resolve`, which applies CommonJS conditions and rejects packages that only export `import`; and not the built-in `import.meta.resolve(spec, parent)`, which needs an experimental flag), not from the linter's directory. Loaded via dynamic `import()`.
 - Local plugins are `.mjs`, `.js`, or `.cjs`. Local `.ts` plugins only if a loader (e.g. `jiti`) is built in.
-- **Plugin contract:** A plugin exports `{ name, apiVersion, rules, configs?, locales? }`. Every rule has `meta` (among others `defaultSeverity`, `descriptionKey`, project types) and a `check(ctx)` function that reports findings via `ctx.report(...)` and resolves localized texts via `ctx.t(key, params?)`.
-- **Namespacing:** Rule IDs from plugins have the prefix `<plugin>/<rule>`. Core plugin rules have no prefix.
+- **Plugin contract:** A plugin exports `{ name, apiVersion, rules, configs?, locales? }`. Every rule has `meta` (among others `defaultSeverity`, `descriptionKey`, project types) and a `check(ctx)` function that reports findings via `ctx.report(...)` and resolves localized texts via `ctx.t(key, params?)`. (ADR: [0012](docs/adr/0012-plugin-loading.md))
+- **Namespacing:** Rule IDs from plugins have the prefix `<plugin>/<rule>`. Core plugin rules have no prefix. (ADR: [0013](docs/adr/0013-rule-namespacing.md))
 - `apiVersion` declares the plugin API version. If it doesn't match, the linter reports this cleanly.
 
 ## Localization
 
 - Three languages shipped by default: `de`, `en`, `pt-BR`. `en` is the reference language — if a key is missing in another language (including in an add-on), it falls back to `en`.
 - Controlled via `languages` in `ui5-blueprint-audit.yaml` (default `[de, en]`) or `--lang de,en,pt-BR` on the CLI (CLI takes precedence).
-- **New languages as add-ons:** A plugin can bring its own or additional translations via the optional `locales` field (`{ [locale]: { [key]: template } }`) — including for keys that the tool report itself uses (titles, column headers, etc.), not just for its own rules. Loaded the same way as any other plugin (local file or npm package via `plugins:` in the config) — no dedicated loader needed.
+- **New languages as add-ons:** A plugin can bring its own or additional translations via the optional `locales` field (`{ [locale]: { [key]: template } }`) — including for keys that the tool report itself uses (titles, column headers, etc.), not just for its own rules. Loaded the same way as any other plugin (local file or npm package via `plugins:` in the config) — no dedicated loader needed. (ADR: [0015](docs/adr/0015-localization.md))
 - Rule messages and `descriptionKey`s live as flat `Record<string, string>` bundles in `locales/{de,en,pt-BR}.ts` in `plugin-core` (rule content) and in `ui5-blueprint-audit` (report/CLI labels, error texts of `ConfigError`/`PluginLoadError`). `de`/`pt-BR` are typed as `Record<keyof typeof en, string>` — a missing key is a build error. In addition, one test per package checks key parity between the languages.
 - Interpolation is deliberately simple: only `{paramName}`, no ICU/pluralization.
-- **Output files:** `report_<locale>.md` per active language. `report.xml` (JUnit) always stays English regardless of `languages` (CI stability). `report.html` is a single file with all active languages embedded and a language switcher.
+- **Output files:** `report_<locale>.md` per active language. `report.xml` (JUnit) always stays English regardless of `languages` (CI stability). `report.html` is a single file with all active languages embedded and a language switcher. (ADR: [0016](docs/adr/0016-report-formats-and-exit-codes.md))
 
 ## Output and exit codes
+
+ADR: [0016](docs/adr/0016-report-formats-and-exit-codes.md).
 
 - Formatters: Markdown (per language), JUnit XML (always English), HTML (all languages, with switcher), text (console, first active language).
 - Exit code `1` on at least one `error`. `warn` alone doesn't abort.
@@ -106,7 +112,7 @@ The catalog is authoritative. These points are especially easy to get wrong:
 
 ## Working practices
 
-- **Everything an AI assistant (Claude or any other) writes in this repo must be in English** — no exceptions, regardless of what language the user writes to it in. This covers code, identifiers, rule IDs, commit messages, PR titles/descriptions, code comments, and any Markdown/docs file the assistant creates or edits (e.g. under `docs/`), even one explicitly requested as a new file. If a user instruction and this rule conflict, ask before writing non-English content rather than silently complying.
+- **Everything an AI assistant (Claude or any other) writes in this repo must be in English** — no exceptions, regardless of what language the user writes to it in. This covers code, identifiers, rule IDs, commit messages, PR titles/descriptions, code comments, and any Markdown/docs file the assistant creates or edits (e.g. under `docs/`), even one explicitly requested as a new file. If a user instruction and this rule conflict, ask before writing non-English content rather than silently complying. (ADR: [0022](docs/adr/0022-english-only-written-content.md))
 - This is independent of the tool's own `languages`/`--lang` option (see "Localization") — the CLI must keep offering `de`, `en`, and `pt-BR` as report/output languages regardless of which language this project's docs and chats are written in.
 - Every rule gets tests with small fixture projects (one valid and one invalid each). Fixtures cover the project types `fs`, `fe`, and `lib`, as far as the rule applies to them.
 - `sample-prj/` + `packages/ui5-blueprint-audit/src/integration/sample-projects.test.ts` are the regression source of truth (documented actual state in `sample-prj/testcases.md`) — check here first for engine/rule changes.
