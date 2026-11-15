@@ -8,7 +8,7 @@ Five steps from nothing to a finished report. Each step links to the page with t
 npm install --save-dev @abap/ui5-blueprint-audit
 ```
 
-Node.js 20 or newer is required.
+Node.js 24 or newer is required.
 
 ## 2. Create the config file
 
