@@ -1,11 +1,18 @@
 {
-  "version": 1,
+  "version": 2,
   "skills": {
+    "action-canvas": {
+      "source": "tobiashofmann/action-canvas",
+      "commit": "a26b726cad06b8cf0497aed0490eebeba3905292",
+      "sourceType": "github",
+      "skillPath": "skills/action-canvas/SKILL.md",
+      "computedHash": "fa21dacd0723433ba55dd4d250debe44d746f005478a197a2f0ecc7b2c810160"
+    },
     "caveman": {
       "source": "juliusbrussee/caveman",
       "sourceType": "github",
       "skillPath": "skills/caveman/SKILL.md",
-      "computedHash": "71b600c88c8d1d36f18c4875db23b53c5d6cb9ba3195e19451d6b1bb67db07c4"
+      "computedHash": "b51af74aacdadbc3c2d6bb79f05db58dc521854b87f7ffabd48faf286a81ed31"
     }
   }
 }
