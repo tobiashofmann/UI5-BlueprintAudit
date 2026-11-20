@@ -20,6 +20,11 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+      # vitepress-plugin-mermaid (latest 2.0.17) peers on mermaid "10 || 11", so
+      # mermaid 12 fails `npm ci` with ERESOLVE. Stay on 11.x until the plugin
+      # supports 12, then remove.
+      - dependency-name: "mermaid"
+        update-types: ["version-update:semver-major"]
 
   # Standalone sample projects used as rule-validation fixtures (not npm workspaces)
   - package-ecosystem: npm
